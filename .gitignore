@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+ENV/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environment and secrets
+.env
+.env.*
+*.env
+credentials.json
+cookies.json
+*.pem
+*.key
+secrets/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Claude Code local config
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+NUL
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Specs (local-only project docs)
+specs/
+
+# Logs
+*.log
+logs/

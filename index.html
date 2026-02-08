@@ -1,0 +1,6162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Knowledge Viewer</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230c0f0d' width='100' height='100' rx='12'/><text x='50' y='68' font-family='Georgia,serif' font-size='60' font-weight='400' fill='%23d4a574' text-anchor='middle'>K</text></svg>">
+
+  <link href="https://fonts.cdnfonts.com/css/geist" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
+
+  <!-- Syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    :root {
+      /* Elevation - 4 levels */
+      --bg-base: #0c0f0d;
+      --bg-surface: #1a1d1b;
+      --bg-raised: #252a27;
+      --bg-elevated: #323832;
+
+      /* Border */
+      --border-subtle: #2a2f2c;
+      --border-default: #3a3f3c;
+      --border-emphasis: #4a4f4c;
+
+      /* Text */
+      --text-primary: #fafafa;
+      --text-secondary: #a8a8a8;
+      --text-tertiary: #787878;
+      --text-muted: #585858;
+
+      /* Accent */
+      --accent-camel: #d4a574;
+      --accent-camel-hover: #c9956c;
+      --accent-camel-subtle: #2d251f;
+      --accent-terra: #cd8264;
+      --accent-terra-hover: #b87254;
+      --accent-terra-subtle: #2d211d;
+
+      /* Semantic */
+      --semantic-success: #7ab07a;
+      --semantic-error: #cd6464;
+
+      /* Typography */
+      --font-base: 'Geist', 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-mono: 'SF Mono', Monaco, 'Cascadia Code', Consolas, monospace;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 8px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.25);
+      --shadow-lg: 0 12px 28px rgba(0,0,0,0.45), 0 8px 12px rgba(0,0,0,0.35);
+      --shadow-glow-camel: 0 0 24px rgba(212, 165, 116, 0.2);
+      --shadow-glow-success: 0 0 10px rgba(122, 176, 122, 0.5);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-base);
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text-primary);
+      background-color: var(--bg-base);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ===========================================
+       SIDEBAR
+       =========================================== */
+    .sidebar {
+      width: 240px;
+      height: 100vh;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-subtle);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      left: 0;
+      top: 0;
+      overflow: hidden;
+      bottom: 0;
+    }
+
+    .sidebar-header {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .nav-section {
+      margin-bottom: 24px;
+    }
+
+    .nav-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      padding-left: 12px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-raised);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: var(--accent-camel-subtle);
+      color: var(--accent-camel);
+      border-left: 2px solid var(--accent-camel);
+      margin-left: -2px;
+    }
+
+    .nav-icon {
+      width: 18px;
+      height: 18px;
+      opacity: 0.7;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--bg-raised);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+    }
+
+    .nav-item.active .nav-badge {
+      background: var(--accent-camel);
+      color: var(--bg-base);
+    }
+
+    /* ===========================================
+       MAIN CONTENT
+       =========================================== */
+    .main {
+      flex: 1;
+      margin-left: 240px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-base);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 48px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 14px;
+      width: 300px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .search-box:focus-within {
+      border-color: var(--accent-camel);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 3px var(--accent-camel-subtle);
+    }
+
+    .search-icon {
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: var(--font-base);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .content {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .content.docs-view {
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===========================================
+       DASHBOARD VIEW
+       =========================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .stat-card:hover {
+      background: var(--bg-raised);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card[data-view]:hover .stat-label {
+      color: var(--accent-camel);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .activity-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .section-header {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-camel);
+      margin-bottom: 16px;
+    }
+
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg-base);
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .activity-item.clickable {
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .activity-item.clickable:hover {
+      background: var(--bg-raised);
+      border-color: var(--border-default);
+      transform: translateX(4px);
+    }
+
+    .activity-type {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .activity-type.session { background: #1e3a2f; color: #7ab07a; }
+    .activity-type.error { background: #3a1e1e; color: #cd6464; }
+    .activity-type.decision { background: var(--accent-camel-subtle); color: var(--accent-camel); }
+    .activity-type.learning { background: #1e2a3a; color: #7a9ab0; }
+
+    .activity-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .activity-desc {
+      color: var(--text-primary);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .activity-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ===========================================
+       LIST VIEW
+       =========================================== */
+    .list-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    .list-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .list-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-camel);
+    }
+
+    .list-count {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .list-items {
+      overflow-y: auto;
+    }
+
+    .list-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .list-item:hover {
+      background: var(--bg-raised);
+    }
+
+    .list-item.selected {
+      background: var(--accent-camel-subtle);
+      border-left: 3px solid var(--accent-camel);
+    }
+
+    .list-item-wrapper:last-child .list-item {
+      border-bottom: none;
+    }
+
+    .list-item-wrapper:last-child .inline-detail:empty + .list-item {
+      border-bottom: none;
+    }
+
+    .inline-detail:not(:empty) {
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .detail-panel.inline {
+      margin: 0;
+      border-radius: 0;
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      box-shadow: none;
+      background: var(--bg-raised);
+    }
+
+    .item-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .item-meta {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .item-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .item-preview {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .item-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--accent-camel-subtle);
+      color: var(--accent-camel);
+      font-weight: 500;
+    }
+
+    .examples-list {
+      margin: 8px 0 0 0;
+      padding-left: 20px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .examples-list li {
+      margin-bottom: 4px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-badge.resolved { background: #1e3a2f; color: #7ab07a; }
+    .status-badge.unresolved { background: #3a1e1e; color: #cd6464; }
+    .status-badge.clean { background: #1e3a2f; color: #7ab07a; }
+    .status-badge.abrupt { background: #3a2a1e; color: #d4a574; }
+
+    /* Tag chips */
+    .item-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .item-tags-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      margin-left: auto;
+      padding-left: 12px;
+      flex-shrink: 0;
+    }
+
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      background: var(--accent-terra-subtle);
+      color: var(--accent-terra);
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 10px;
+      letter-spacing: 0.02em;
+    }
+
+    .tag-chip.removable {
+      padding-right: 4px;
+    }
+
+    .tag-chip .remove-tag {
+      margin-left: 4px;
+      cursor: pointer;
+      opacity: 0.7;
+      font-size: 12px;
+    }
+
+    .tag-chip .remove-tag:hover {
+      opacity: 1;
+    }
+
+    /* Tag input in detail view */
+    .tag-input-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      padding: 8px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      min-height: 40px;
+    }
+
+    .tag-input-wrapper input {
+      flex: 1;
+      min-width: 120px;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .tag-input-wrapper input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .tag-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+
+    .tag-suggestions.show {
+      display: block;
+    }
+
+    .tag-suggestion {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .tag-suggestion:hover {
+      background: var(--bg-raised);
+    }
+
+    .tag-suggestion-category {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-left: 8px;
+    }
+
+    /* Tags View */
+    .tags-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 20px 0;
+    }
+
+    .tag-category-card {
+      background: var(--bg-surface);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .tag-category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .tag-category-name {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-camel);
+    }
+
+    .tag-category-count {
+      background: var(--bg-raised);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      color: var(--text-tertiary);
+    }
+
+    .tag-category-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tag-vocab-item {
+      background: var(--bg-raised);
+      padding: 10px 12px;
+      border-radius: 6px;
+    }
+
+    .tag-vocab-name {
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .tag-vocab-desc {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+
+    .tag-vocab-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tag-vocab-source {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .btn-delete-small {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      opacity: 0;
+      transition: opacity 0.15s, color 0.15s;
+    }
+
+    .tag-vocab-item:hover .btn-delete-small {
+      opacity: 1;
+    }
+
+    .btn-delete-small:hover {
+      color: var(--semantic-error);
+      background: rgba(205, 100, 100, 0.1);
+    }
+
+    /* Form fields */
+    .form-field {
+      margin-bottom: 16px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 8px 12px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-camel);
+    }
+
+    /* Review Modal */
+    .review-modal {
+      max-width: 700px;
+    }
+
+    .review-progress {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-camel);
+    }
+
+    .review-content {
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .review-section {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .review-section:last-child {
+      border-bottom: none;
+    }
+
+    .review-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-camel);
+      margin-bottom: 12px;
+    }
+
+    .review-prompt-content {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: var(--bg-base);
+      padding: 12px;
+      border-radius: 6px;
+      max-height: 150px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .review-prompt-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .review-suggestions {
+      background: var(--bg-base);
+      padding: 12px;
+      border-radius: 6px;
+    }
+
+    .review-suggest-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .review-suggest-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .review-suggest-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      min-width: 50px;
+    }
+
+    .review-suggest-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag-chip.suggestion {
+      background: var(--accent-camel-subtle);
+      color: var(--accent-camel);
+      opacity: 0.8;
+    }
+
+    .review-suggest-score {
+      font-weight: 600;
+      color: var(--accent-camel);
+    }
+
+    .review-action-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .review-action-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .review-action-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      min-width: 50px;
+      padding-top: 6px;
+    }
+
+    .review-tags-input {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      position: relative;
+    }
+
+    .review-tag-input {
+      flex: 1;
+      min-width: 100px;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 13px;
+      outline: none;
+      padding: 4px;
+    }
+
+    .review-tag-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .review-tag-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      max-height: 150px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+
+    .review-score-buttons {
+      display: flex;
+      gap: 4px;
+    }
+
+    .score-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-base);
+      color: var(--text-secondary);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+
+    .score-btn:hover {
+      border-color: var(--accent-camel);
+      color: var(--text-primary);
+    }
+
+    .score-btn.active {
+      background: var(--accent-camel);
+      border-color: var(--accent-camel);
+      color: var(--bg-base);
+    }
+
+    .score-btn.low {
+      border-color: rgba(205, 100, 100, 0.3);
+    }
+
+    .score-btn.low.active {
+      background: var(--semantic-error);
+      border-color: var(--semantic-error);
+    }
+
+    .score-btn.high {
+      border-color: rgba(122, 176, 122, 0.3);
+    }
+
+    .score-btn.high.active {
+      background: var(--semantic-success);
+      border-color: var(--semantic-success);
+    }
+
+    .review-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .review-nav-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-apply-all {
+      background: var(--accent-terra);
+      border-color: var(--accent-terra);
+    }
+
+    .btn-apply-all:hover {
+      background: #b8714f;
+      border-color: #b8714f;
+    }
+
+    /* ===========================================
+       DETAIL PANEL
+       =========================================== */
+    .detail-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      margin-top: 24px;
+    }
+
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .detail-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .detail-close {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .detail-close:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .detail-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    .field-value {
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    .field-value.mono {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--bg-base);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .detail-section {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .detail-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-camel);
+      margin-bottom: 12px;
+    }
+
+    .detail-content {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ===========================================
+       PROMPTS SCORING
+       =========================================== */
+    .score-input {
+      width: 60px;
+      padding: 6px 8px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-family: var(--font-base);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .score-input:focus {
+      border-color: var(--accent-camel);
+      outline: none;
+    }
+
+    .btn-primary {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--accent-camel), var(--accent-camel-hover));
+      border: none;
+      border-radius: 8px;
+      color: var(--bg-base);
+      font-family: var(--font-base);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-md), var(--shadow-glow-camel);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg), 0 0 30px rgba(212, 165, 116, 0.3);
+    }
+
+    .btn-secondary {
+      padding: 10px 20px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-family: var(--font-base);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    .btn-danger {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--semantic-error), #a85454);
+      border: none;
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: var(--font-base);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg), 0 0 20px rgba(205, 100, 100, 0.3);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-left: 3px solid var(--semantic-success);
+      color: var(--text-primary);
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===========================================
+       MODAL
+       =========================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 700px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--text-primary);
+    }
+
+    .modal-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+    }
+
+    .modal-desc {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-raised);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .prune-actions-top {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .prune-count {
+      margin-left: auto;
+      color: var(--text-tertiary);
+      font-size: 12px;
+    }
+
+    .prune-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .prune-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+    }
+
+    .prune-checkbox {
+      display: flex;
+      align-items: flex-start;
+      padding-top: 2px;
+      cursor: pointer;
+    }
+
+    .prune-checkbox input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-camel);
+      cursor: pointer;
+    }
+
+    .prune-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .prune-preview {
+      color: var(--text-primary);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .prune-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--text-tertiary);
+    }
+
+    .suggest-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .suggest-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      align-items: center;
+    }
+
+    .suggest-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .suggest-preview {
+      color: var(--text-primary);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .suggest-error {
+      color: var(--semantic-error);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .suggest-score {
+      flex-shrink: 0;
+    }
+
+    .score-input-small {
+      width: 50px;
+      padding: 8px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: var(--font-base);
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .score-input-small:focus {
+      border-color: var(--accent-camel);
+      outline: none;
+      box-shadow: 0 0 0 3px var(--accent-camel-subtle);
+    }
+
+    .actions-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* ===========================================
+       INLINE DELETE
+       =========================================== */
+    .item-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .btn-delete-inline {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      background: var(--bg-base);
+      color: var(--text-muted);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.15s;
+    }
+
+    .list-item:hover .btn-delete-inline {
+      opacity: 1;
+    }
+
+    .btn-delete-inline:hover {
+      background: var(--semantic-error);
+      border-color: var(--semantic-error);
+      color: var(--text-primary);
+    }
+
+    /* ===========================================
+       EMPTY STATE
+       =========================================== */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-tertiary);
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .empty-desc {
+      font-size: 13px;
+    }
+
+    /* ===========================================
+       FILTERS
+       =========================================== */
+    .filters-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-select {
+      padding: 8px 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: var(--font-base);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .filter-select:focus {
+      border-color: var(--accent-camel);
+      outline: none;
+    }
+
+    .filter-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .filter-checkbox:hover {
+      border-color: var(--border-default);
+    }
+
+    .filter-checkbox input[type="checkbox"] {
+      accent-color: var(--accent-camel);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+
+    .filter-multiselect {
+      position: relative;
+      display: inline-block;
+    }
+
+    .filter-multiselect-toggle {
+      padding: 8px 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: var(--font-base);
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 120px;
+    }
+
+    .filter-multiselect-toggle:hover {
+      border-color: var(--border-default);
+    }
+
+    .filter-multiselect-toggle .chevron {
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .filter-multiselect-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      box-shadow: var(--shadow-md);
+      z-index: 100;
+      min-width: 140px;
+      display: none;
+    }
+
+    .filter-multiselect-dropdown.open {
+      display: block;
+    }
+
+    .filter-multiselect-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+
+    .filter-multiselect-option:hover {
+      background: var(--bg-raised);
+    }
+
+    .filter-multiselect-option input[type="checkbox"] {
+      accent-color: var(--accent-camel);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+
+    /* ===========================================
+       SELECTION BAR
+       =========================================== */
+    .selection-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 10px 16px;
+      background: var(--bg-surface);
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .selection-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .selection-presets {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding-left: 12px;
+      border-left: 1px solid var(--border-subtle);
+    }
+
+    .selection-presets-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-preset {
+      padding: 3px 8px;
+      font-size: 11px;
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-preset:hover {
+      border-color: var(--accent-camel);
+      color: var(--accent-camel);
+    }
+
+    .selection-count {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .btn-sm {
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+
+    .selection-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-processing {
+      position: relative;
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .btn-processing::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      width: 12px;
+      height: 12px;
+      margin-top: -6px;
+      border: 2px solid var(--text-muted);
+      border-top-color: var(--accent-camel);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .process-progress {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: 10px;
+      padding: 16px 24px;
+      min-width: 340px;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      font-family: var(--font-base);
+    }
+
+    .process-progress-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .process-progress-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .process-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .process-step.active {
+      color: var(--accent-camel);
+    }
+
+    .process-step.done {
+      color: var(--semantic-success);
+    }
+
+    .process-step.error {
+      color: var(--semantic-error);
+    }
+
+    .process-step-icon {
+      width: 16px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* Custom checkbox styling */
+    .prompt-checkbox {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid var(--border-default);
+      border-radius: 3px;
+      background: var(--bg-base);
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-right: 10px;
+      position: relative;
+      transition: all 0.15s ease;
+    }
+
+    .prompt-checkbox:hover {
+      border-color: var(--accent-camel);
+    }
+
+    .prompt-checkbox:checked {
+      background: var(--accent-camel);
+      border-color: var(--accent-camel);
+    }
+
+    .prompt-checkbox:checked::after {
+      content: '';
+      position: absolute;
+      left: 4.5px;
+      top: 1.5px;
+      width: 4px;
+      height: 8px;
+      border: solid var(--bg-base);
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    /* ===========================================
+       LOADING
+       =========================================== */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      color: var(--text-muted);
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border-subtle);
+      border-top-color: var(--accent-camel);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 12px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===========================================
+       DOCS EXPLORER (sidebar)
+       =========================================== */
+    .docs-explorer {
+      border-top: 1px solid var(--border-subtle);
+      margin-top: 16px;
+      padding-top: 8px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .docs-explorer-header {
+      display: flex;
+      gap: 8px;
+      padding: 0 8px 8px 8px;
+      align-items: center;
+    }
+
+    .docs-explorer-search {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 5px 8px;
+      color: var(--text-primary);
+      font-family: var(--font-base);
+      font-size: 12px;
+    }
+
+    .docs-explorer-search:focus {
+      outline: none;
+      border-color: var(--accent-camel);
+    }
+
+    .docs-explorer-refresh {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 5px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .docs-explorer-refresh:hover {
+      color: var(--accent-camel);
+      background: var(--bg-raised);
+    }
+
+    .docs-explorer-add {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 5px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .docs-explorer-add:hover {
+      color: var(--accent-camel);
+      background: var(--bg-raised);
+    }
+
+    /* Add Document Modal */
+    .add-doc-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .add-doc-modal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      width: 500px;
+      max-width: 90vw;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .add-doc-modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .add-doc-modal-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .add-doc-modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+      padding: 4px;
+    }
+
+    .add-doc-modal-close:hover {
+      color: var(--text-primary);
+    }
+
+    .add-doc-modal-body {
+      padding: 20px;
+    }
+
+    .add-doc-modal-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 8px;
+    }
+
+    .add-doc-modal-input {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+
+    .add-doc-modal-input:focus {
+      outline: none;
+      border-color: var(--accent-camel);
+    }
+
+    .add-doc-modal-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .add-doc-modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .add-doc-modal-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .add-doc-modal-btn-cancel {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    .add-doc-modal-btn-cancel:hover {
+      background: var(--bg-raised);
+      color: var(--text-primary);
+    }
+
+    .add-doc-modal-btn-add {
+      background: var(--accent-camel);
+      border: none;
+      color: var(--bg-base);
+    }
+
+    .add-doc-modal-btn-add:hover {
+      background: var(--accent-camel-hover);
+    }
+
+    .add-doc-modal-btn-add:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Modal Tabs */
+    .add-doc-modal-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0 20px;
+    }
+
+    .add-doc-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 10px 16px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+    }
+
+    .add-doc-tab:hover {
+      color: var(--text-secondary);
+    }
+
+    .add-doc-tab.active {
+      color: var(--accent-camel);
+      border-bottom-color: var(--accent-camel);
+    }
+
+    /* Watched directory groups in sidebar */
+    .explorer-watch-group {
+      /* Collapsible watch folder */
+    }
+
+    .explorer-watch-group.collapsed .explorer-watch-files {
+      display: none;
+    }
+
+    .explorer-watch-group.collapsed .explorer-chevron {
+      transform: rotate(0deg);
+    }
+
+    .explorer-watch-group:not(.collapsed) .explorer-chevron {
+      transform: rotate(90deg);
+    }
+
+    .explorer-watch-group.missing {
+      opacity: 0.4;
+    }
+
+    .explorer-watch-header {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px 4px 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 4px;
+      user-select: none;
+    }
+
+    .explorer-watch-header:hover {
+      background: var(--bg-raised);
+      color: var(--text-primary);
+    }
+
+    .explorer-watch-header .explorer-chevron {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      transition: transform 0.15s;
+    }
+
+    .explorer-watch-folder-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
+    .explorer-watch-label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .explorer-watch-count {
+      font-size: 10px;
+      color: var(--text-muted);
+      background: var(--bg-raised);
+      padding: 1px 5px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    .explorer-watch-remove {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 2px;
+      flex-shrink: 0;
+    }
+
+    .explorer-watch-header:hover .explorer-watch-remove {
+      display: block;
+    }
+
+    .explorer-watch-remove:hover {
+      color: var(--semantic-error);
+    }
+
+    .explorer-watch-files {
+      /* Files nested under a watch group */
+    }
+
+    .explorer-watch-files .explorer-file {
+      padding-left: 40px;
+    }
+
+    .docs-explorer-tree {
+      flex: 1;
+      overflow-y: auto;
+      font-size: 13px;
+    }
+
+    .explorer-category {
+      /* Category container */
+    }
+
+    .explorer-category.collapsed .explorer-category-items {
+      display: none;
+    }
+
+    .explorer-category.collapsed .explorer-chevron {
+      transform: rotate(0deg);
+    }
+
+    .explorer-category-header {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 8px 5px 12px;
+      cursor: pointer;
+      color: var(--accent-camel);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .explorer-category-header:hover {
+      background: var(--bg-raised);
+      color: #e5b685; /* Slightly brighter on hover */
+    }
+
+    .explorer-chevron {
+      width: 12px;
+      height: 12px;
+      transition: transform 0.15s;
+      transform: rotate(90deg);
+      flex-shrink: 0;
+    }
+
+    .explorer-category-name {
+      flex: 1;
+    }
+
+    .explorer-category-count {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .explorer-category-items {
+      /* Items container */
+    }
+
+    .explorer-project {
+      /* Project group */
+    }
+
+    .explorer-project.collapsed .explorer-project-items {
+      display: none;
+    }
+
+    .explorer-project.collapsed .explorer-chevron {
+      transform: rotate(0deg);
+    }
+
+    .explorer-project-header {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px 4px 24px;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      font-size: 12px;
+    }
+
+    .explorer-project-header:hover {
+      background: var(--bg-raised);
+    }
+
+    .explorer-project-name {
+      flex: 1;
+    }
+
+    .explorer-project-items {
+      /* Project items */
+    }
+
+    .explorer-file {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px 4px 32px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 13px;
+      transition: background 0.1s;
+    }
+
+    .explorer-file:hover {
+      background: var(--bg-raised);
+    }
+
+    .explorer-file.active {
+      background: var(--accent-camel-subtle);
+      color: var(--accent-camel);
+    }
+
+    .explorer-file-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
+    .explorer-file-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .explorer-empty {
+      padding: 12px;
+      color: var(--text-muted);
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .explorer-search-result {
+      padding: 8px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .explorer-search-result:hover {
+      background: var(--bg-raised);
+    }
+
+    .explorer-search-title {
+      font-size: 11px;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .explorer-search-snippet {
+      font-size: 10px;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .explorer-search-snippet mark {
+      background: var(--accent-camel-subtle);
+      color: var(--accent-camel);
+    }
+
+    /* ===========================================
+       DOC VIEWER (main content)
+       =========================================== */
+    .doc-viewer {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .doc-viewer-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      gap: 12px;
+    }
+
+    .doc-viewer-empty svg {
+      opacity: 0.3;
+    }
+
+    .doc-viewer-empty-text {
+      font-size: 14px;
+    }
+
+    .doc-viewer-header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      flex-shrink: 0;
+      z-index: 5;
+    }
+
+    .doc-viewer-top-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .doc-viewer-info {
+      /* Title container */
+    }
+
+    .doc-viewer-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .doc-viewer-path {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      word-break: break-all;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .doc-viewer-path-text {
+      /* No flex-grow, stays with content width */
+    }
+
+    .copy-path-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 2px;
+      border-radius: 3px;
+      opacity: 0.6;
+      transition: opacity 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .copy-path-btn:hover {
+      opacity: 1;
+      color: var(--accent-camel);
+    }
+
+    .copy-path-btn.copied {
+      color: var(--semantic-success);
+    }
+
+    .doc-viewer-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .doc-view-toggle {
+      display: flex;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .doc-view-toggle button {
+      padding: 5px 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-tertiary);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .doc-view-toggle button:hover {
+      color: var(--text-secondary);
+    }
+
+    .doc-view-toggle button.active {
+      background: var(--accent-camel-subtle);
+      color: var(--accent-camel);
+    }
+
+    .doc-open-btn {
+      padding: 5px 10px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .doc-open-btn:hover {
+      background: var(--bg-elevated);
+      color: var(--accent-camel);
+      border-color: var(--accent-camel);
+    }
+
+    .doc-viewer-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      background: var(--bg-base);
+    }
+
+    /* Source view - VS Code style */
+    .doc-source {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.45;
+      counter-reset: line;
+    }
+
+    .doc-source-line {
+      display: flex;
+      min-height: 19px;
+      padding-right: 16px;
+    }
+
+    .doc-source-line:hover {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .doc-source-num {
+      width: 50px;
+      text-align: right;
+      padding-right: 16px;
+      color: var(--text-muted);
+      user-select: none;
+      flex-shrink: 0;
+      font-size: 12px;
+    }
+
+    .doc-source-content {
+      flex: 1;
+      color: var(--text-primary);
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    /* Highlight.js syntax colors - VS Code dark+ inspired */
+    .doc-source-content .hljs-comment,
+    .doc-source-content .hljs-quote { color: #6a9955; }
+    .doc-source-content .hljs-string,
+    .doc-source-content .hljs-title { color: #ce9178; }
+    .doc-source-content .hljs-keyword,
+    .doc-source-content .hljs-selector-tag,
+    .doc-source-content .hljs-built_in { color: #569cd6; }
+    .doc-source-content .hljs-function,
+    .doc-source-content .hljs-title.function_ { color: #dcdcaa; }
+    .doc-source-content .hljs-number,
+    .doc-source-content .hljs-literal { color: #b5cea8; }
+    .doc-source-content .hljs-variable,
+    .doc-source-content .hljs-template-variable { color: #9cdcfe; }
+    .doc-source-content .hljs-attr,
+    .doc-source-content .hljs-attribute { color: #9cdcfe; }
+    .doc-source-content .hljs-type,
+    .doc-source-content .hljs-class { color: #4ec9b0; }
+    .doc-source-content .hljs-section { color: #d4a574; }
+    .doc-source-content .hljs-bullet { color: #d4a574; }
+    .doc-source-content .hljs-link { color: #569cd6; text-decoration: underline; }
+    .doc-source-content .hljs-emphasis { font-style: italic; }
+    .doc-source-content .hljs-strong { font-weight: bold; }
+
+    /* Reader view - rendered markdown */
+    .doc-rendered {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .doc-rendered h1 {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin: 0 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .doc-rendered h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent-camel);
+      margin: 24px 0 12px 0;
+    }
+
+    .doc-rendered h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 20px 0 8px 0;
+    }
+
+    .doc-rendered p {
+      margin: 0 0 12px 0;
+    }
+
+    .doc-rendered ul, .doc-rendered ol {
+      margin: 0 0 12px 0;
+      padding-left: 20px;
+    }
+
+    .doc-rendered li {
+      margin-bottom: 4px;
+    }
+
+    .doc-rendered code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--bg-raised);
+      padding: 2px 5px;
+      border-radius: 3px;
+      color: var(--accent-terra);
+    }
+
+    .doc-rendered pre {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 12px;
+      margin: 0 0 12px 0;
+      overflow-x: auto;
+    }
+
+    .doc-rendered pre code {
+      background: none;
+      padding: 0;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    .doc-rendered blockquote {
+      border-left: 2px solid var(--accent-camel);
+      padding-left: 12px;
+      margin: 12px 0;
+      color: var(--text-tertiary);
+    }
+
+    .doc-rendered table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 0 12px 0;
+      font-size: 13px;
+    }
+
+    .doc-rendered th, .doc-rendered td {
+      padding: 8px 10px;
+      border: 1px solid var(--border-subtle);
+      text-align: left;
+    }
+
+    .doc-rendered th {
+      background: var(--bg-raised);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--text-secondary);
+    }
+
+    .doc-rendered hr {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 16px 0;
+    }
+
+    .doc-rendered a {
+      color: var(--accent-camel);
+      text-decoration: none;
+    }
+
+    .doc-rendered a:hover {
+      text-decoration: underline;
+    }
+
+    .doc-rendered strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .doc-rendered em {
+      font-style: italic;
+    }
+
+    /* Backlinks */
+    .doc-backlinks {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      flex-shrink: 0;
+    }
+
+    .doc-backlinks-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .doc-backlinks-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .doc-backlink {
+      padding: 3px 8px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .doc-backlink:hover {
+      background: var(--accent-camel-subtle);
+      border-color: var(--accent-camel);
+      color: var(--accent-camel);
+    }
+
+    /* Search results in docs */
+    .doc-search-result {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .doc-search-result:hover {
+      background: var(--bg-raised);
+    }
+
+    .doc-search-result mark {
+      background: var(--accent-camel-subtle);
+      color: var(--accent-camel);
+      padding: 1px 2px;
+      border-radius: 2px;
+    }
+
+    .doc-search-snippet {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      line-height: 1.4;
+    }
+
+    .doc-search-snippet mark {
+      background: var(--accent-camel-subtle);
+      color: var(--accent-camel);
+      padding: 1px 2px;
+      border-radius: 2px;
+    }
+
+
+    /* ===========================================
+       SCROLLBAR
+       =========================================== */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-base);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-default);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--border-emphasis);
+    }
+  </style>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">Knowledge</div>
+      <div class="logo-sub">Cross-project learning</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Views</div>
+      <div class="nav-item active" data-view="dashboard">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Dashboard
+      </div>
+      <div class="nav-item" data-view="sessions">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12,6 12,12 16,14"/>
+        </svg>
+        Sessions
+        <span class="nav-badge" id="sessions-count">0</span>
+      </div>
+      <div class="nav-item" data-view="errors">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        Errors
+        <span class="nav-badge" id="errors-count">0</span>
+      </div>
+      <div class="nav-item" data-view="decisions">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Decisions
+        <span class="nav-badge" id="decisions-count">0</span>
+      </div>
+      <div class="nav-item" data-view="learnings">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        Learnings
+        <span class="nav-badge" id="learnings-count">0</span>
+      </div>
+      <div class="nav-item" data-view="prompts">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        Prompts
+        <span class="nav-badge" id="prompts-count">0</span>
+      </div>
+      <div class="nav-item" data-view="tags">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+          <line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+        Tags
+        <span class="nav-badge" id="tags-count">0</span>
+      </div>
+      <div class="nav-item" data-view="docs">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          <line x1="8" y1="6" x2="16" y2="6"/>
+          <line x1="8" y1="10" x2="16" y2="10"/>
+          <line x1="8" y1="14" x2="12" y2="14"/>
+        </svg>
+        Docs
+        <span class="nav-badge" id="docs-count">0</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="header">
+      <h1 class="page-title" id="page-title">Dashboard</h1>
+      <div class="search-box" id="search-container" style="display: none;">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" class="search-input" id="search-input" placeholder="Search...">
+      </div>
+    </header>
+
+    <div class="content" id="content">
+      <!-- Content injected by JS -->
+    </div>
+  </main>
+
+  <script>
+    // ===========================================
+    // STATE
+    // ===========================================
+    const state = {
+      view: 'dashboard',
+      stats: {},
+      sessions: [],
+      errors: [],
+      decisions: [],
+      learnings: [],
+      prompts: [],
+      projects: [],
+      tags: [],  // tag vocabulary
+      docs: [],  // indexed documents
+      docsTree: {},  // documents organized by category
+      docsSearchResults: null,  // search results (null = show tree)
+      watchedDirs: [],  // watched directories
+      selectedDoc: null,  // currently viewed document
+      docViewMode: 'source',  // 'source' or 'reader'
+      selectedItem: null,
+      searchQuery: '',
+      selectedPrompts: new Set(),  // for batch review
+      filters: {
+        project: '',
+        resolved: null,
+        scored: null,
+        minScore: null,
+        maxScore: null,
+        tag: '',  // tag filter for prompts
+        docCategory: '',  // category filter for docs
+        showActive: true,
+        showDeleted: false,
+        showTrivial: false
+      }
+    };
+
+    // ===========================================
+    // API
+    // ===========================================
+    const API = {
+      async fetch(endpoint) {
+        const res = await fetch(`/api${endpoint}`);
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+        return res.json();
+      },
+
+      async post(endpoint, data) {
+        const res = await fetch(`/api${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+        return res.json();
+      },
+
+      async delete(endpoint) {
+        const res = await fetch(`/api${endpoint}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+        return res.json();
+      },
+
+      getStats: () => API.fetch('/stats'),
+      getActivity: (limit = 10) => API.fetch(`/activity?limit=${limit}`),
+      getProjects: () => API.fetch('/projects'),
+
+      getSessions: (params = {}) => {
+        const qs = new URLSearchParams(params).toString();
+        return API.fetch(`/sessions${qs ? '?' + qs : ''}`);
+      },
+      getSession: (id) => API.fetch(`/sessions/${id}`),
+
+      getErrors: (params = {}) => {
+        const qs = new URLSearchParams(params).toString();
+        return API.fetch(`/errors${qs ? '?' + qs : ''}`);
+      },
+      getError: (id) => API.fetch(`/errors/${id}`),
+
+      getDecisions: (params = {}) => {
+        const qs = new URLSearchParams(params).toString();
+        return API.fetch(`/decisions${qs ? '?' + qs : ''}`);
+      },
+      getDecision: (id) => API.fetch(`/decisions/${id}`),
+
+      getLearnings: (params = {}) => {
+        const qs = new URLSearchParams(params).toString();
+        return API.fetch(`/learnings${qs ? '?' + qs : ''}`);
+      },
+      getLearning: (id) => API.fetch(`/learnings/${id}`),
+
+      getPrompts: (params = {}) => {
+        const qs = new URLSearchParams(params).toString();
+        return API.fetch(`/prompts${qs ? '?' + qs : ''}`);
+      },
+      getPrompt: (id) => API.fetch(`/prompts/${id}`),
+      scorePrompts: (scores) => API.post('/prompts/score', { scores }),
+      deletePrompt: (id) => API.delete(`/prompts/${id}`),
+      bulkDeletePrompts: (ids) => API.post('/prompts/bulk-delete', { prompt_ids: ids }),
+      getPruneCandidates: (params = {}) => {
+        const qs = new URLSearchParams(params).toString();
+        return API.fetch(`/prompts/prune-candidates${qs ? '?' + qs : ''}`);
+      },
+      getDeletedPrompts: (days = 30) => API.fetch(`/prompts/deleted?days=${days}`),
+      suggestScores: (promptIds = null, limit = 100) => API.post('/prompts/suggest-scores', {
+        prompt_ids: promptIds,
+        limit: limit
+      }),
+
+      // Bulk processing
+      processAllPrompts: (dryRun = false, minScore = 7) => API.post('/prompts/process-all', {
+        min_score_to_keep: minScore,
+        dry_run: dryRun
+      }),
+
+      // Tags
+      getTags: () => API.fetch('/tags'),
+      createTag: (tag) => API.post('/tags', tag),
+      deleteTag: (id) => API.delete(`/tags/${id}`),
+      updatePromptTags: (promptId, tags) => {
+        return fetch(`/api/prompts/${promptId}/tags`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tags })
+        }).then(res => res.json());
+      },
+      suggestTagsForPrompts: (promptIds) => API.post('/prompts/suggest-tags', { prompt_ids: promptIds }),
+
+      // Docs
+      getDocs: (params = {}) => {
+        const qs = new URLSearchParams(params).toString();
+        return API.fetch(`/docs${qs ? '?' + qs : ''}`);
+      },
+      getDoc: (id) => API.fetch(`/docs/${id}`),
+      getDocBacklinks: (id) => API.fetch(`/docs/${id}/backlinks`),
+      getDocLinks: (id) => API.fetch(`/docs/${id}/links`),
+      searchDocs: (q, category = null) => {
+        const params = new URLSearchParams({ q });
+        if (category) params.append('category', category);
+        return API.fetch(`/docs/search?${params.toString()}`);
+      },
+      reindexDocs: () => API.post('/docs/reindex', {}),
+      openDocInEditor: (id) => API.post(`/docs/${id}/open`, {}),
+      addDocument: (path) => API.post('/docs/add', { path }),
+      // Watched directories
+      browseDirectory: (directory, pattern = '**/*.md') => {
+        const params = new URLSearchParams({ directory, pattern });
+        return API.fetch(`/docs/browse?${params.toString()}`);
+      },
+      addWatch: (data) => API.post('/docs/watch', data),
+      getWatches: () => API.fetch('/docs/watches'),
+      removeWatch: (id) => API.delete(`/docs/watch/${id}`)
+    };
+
+    // ===========================================
+    // UTILS
+    // ===========================================
+    function formatDate(dateStr) {
+      if (!dateStr) return 'N/A';
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function truncate(str, len = 100) {
+      if (!str) return '';
+      return str.length > len ? str.slice(0, len) + '...' : str;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    function formatPendingActions(actionsStr) {
+      if (!actionsStr) return '';
+      try {
+        const actions = JSON.parse(actionsStr);
+        if (Array.isArray(actions) && actions.length > 0) {
+          return '<ul style="margin: 0; padding-left: 20px;">' +
+            actions.map(a => `<li>${escapeHtml(a)}</li>`).join('') +
+            '</ul>';
+        }
+        return escapeHtml(actionsStr);
+      } catch {
+        return escapeHtml(actionsStr);
+      }
+    }
+
+    // ===========================================
+    // RENDER FUNCTIONS
+    // ===========================================
+    function renderDashboard() {
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card" data-view="sessions" onclick="switchView('sessions')">
+            <div class="stat-label">Sessions</div>
+            <div class="stat-value">${state.stats.sessions || 0}</div>
+          </div>
+          <div class="stat-card" data-view="errors" onclick="switchView('errors')">
+            <div class="stat-label">Errors</div>
+            <div class="stat-value">${state.stats.errors || 0}</div>
+          </div>
+          <div class="stat-card" data-view="errors" onclick="switchView('errors')">
+            <div class="stat-label">Resolutions</div>
+            <div class="stat-value">${state.stats.resolutions || 0}</div>
+          </div>
+          <div class="stat-card" data-view="decisions" onclick="switchView('decisions')">
+            <div class="stat-label">Decisions</div>
+            <div class="stat-value">${state.stats.decisions || 0}</div>
+          </div>
+          <div class="stat-card" data-view="learnings" onclick="switchView('learnings')">
+            <div class="stat-label">Learnings</div>
+            <div class="stat-value">${state.stats.learnings || 0}</div>
+          </div>
+          <div class="stat-card" data-view="prompts" onclick="switchView('prompts')">
+            <div class="stat-label">Prompts</div>
+            <div class="stat-value">${state.stats.prompts || 0}</div>
+          </div>
+          <div class="stat-card" data-view="tags" onclick="switchView('tags')">
+            <div class="stat-label">Tags</div>
+            <div class="stat-value">${state.stats.tags || 0}</div>
+          </div>
+          <div class="stat-card" data-view="docs" onclick="switchView('docs')">
+            <div class="stat-label">Docs</div>
+            <div class="stat-value">${state.stats.docs || 0}</div>
+          </div>
+        </div>
+
+        <div class="activity-section">
+          <div class="section-header">/ Recent Activity</div>
+          <div class="activity-list" id="activity-list">
+            <div class="loading"><div class="spinner"></div> Loading...</div>
+          </div>
+        </div>
+      `;
+
+      loadActivity();
+    }
+
+    async function navigateToActivity(type, id) {
+      // Map activity type to view name
+      const viewMap = {
+        'session': 'sessions',
+        'error': 'errors',
+        'decision': 'decisions',
+        'learning': 'learnings'
+      };
+      const view = viewMap[type];
+      if (!view) return;
+
+      // Switch to the view
+      await switchView(view);
+
+      // Select the specific item
+      setTimeout(() => {
+        if (type === 'session') selectSession(id);
+        else if (type === 'error') selectError(id);
+        else if (type === 'decision') selectDecision(id);
+        else if (type === 'learning') selectLearning(id);
+      }, 100);
+    }
+
+    async function loadActivity() {
+      try {
+        const activity = await API.getActivity(10);
+        const list = document.getElementById('activity-list');
+
+        if (activity.length === 0) {
+          list.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">:)</div>
+              <div class="empty-title">No activity yet</div>
+              <div class="empty-desc">Activity will appear here as you use the knowledge system</div>
+            </div>
+          `;
+          return;
+        }
+
+        list.innerHTML = activity.map(item => `
+          <div class="activity-item clickable" onclick="navigateToActivity('${item.type}', ${item.id})">
+            <span class="activity-type ${item.type}">${item.type}</span>
+            <div class="activity-content">
+              <div class="activity-desc">${escapeHtml(truncate(item.description, 80))}</div>
+              <div class="activity-meta">
+                ${item.project || 'No project'} &bull; ${formatDate(item.timestamp)}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error('Failed to load activity:', err);
+      }
+    }
+
+    function renderSessions() {
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <div class="filters-bar">
+          <select class="filter-select" id="project-filter">
+            <option value="">All projects</option>
+            ${state.projects.map(p => `<option value="${p}">${p}</option>`).join('')}
+          </select>
+        </div>
+
+        <div class="list-container">
+          <div class="list-header">
+            <span class="list-title">/ Sessions</span>
+            <span class="list-count">${state.sessions.length} items</span>
+          </div>
+          <div class="list-items" id="list-items">
+            ${renderSessionsList()}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('project-filter').addEventListener('change', (e) => {
+        state.filters.project = e.target.value;
+        loadSessions();
+      });
+    }
+
+    function renderSessionsList() {
+      if (state.sessions.length === 0) {
+        return `
+          <div class="empty-state">
+            <div class="empty-icon">:)</div>
+            <div class="empty-title">No sessions found</div>
+            <div class="empty-desc">Session data will appear here</div>
+          </div>
+        `;
+      }
+
+      return state.sessions.map(s => `
+        <div class="list-item-wrapper" data-id="${s.id}">
+          <div class="list-item ${state.selectedItem?.id === s.id ? 'selected' : ''}"
+               onclick="selectSession(${s.id})">
+            <div class="item-title">
+              ${escapeHtml(s.project || 'Unknown project')}
+              ${s.ended_cleanly ? '<span class="status-badge clean">Clean</span>' : '<span class="status-badge abrupt">Abrupt</span>'}
+            </div>
+            <div class="item-meta">
+              <span>${formatDate(s.start_time)}</span>
+              <span>${s.tool_calls || 0} tool calls</span>
+              <span>${s.files_modified || 0} files</span>
+            </div>
+          </div>
+          <div class="inline-detail" id="detail-${s.id}"></div>
+        </div>
+      `).join('');
+    }
+
+    async function selectSession(id) {
+      try {
+        // If clicking the same item, toggle it closed
+        if (state.selectedItem?.id === id) {
+          closeSessionDetail();
+          return;
+        }
+
+        const session = await API.getSession(id);
+        state.selectedItem = session;
+
+        // Close any existing detail panels
+        document.querySelectorAll('.inline-detail').forEach(el => {
+          el.innerHTML = '';
+        });
+
+        // Update list selection
+        document.querySelectorAll('.list-item').forEach(el => {
+          const wrapper = el.closest('.list-item-wrapper');
+          el.classList.toggle('selected', wrapper && parseInt(wrapper.dataset.id) === id);
+        });
+
+        // Show detail inline below the clicked item
+        const detailContainer = document.getElementById(`detail-${id}`);
+        if (detailContainer) {
+          detailContainer.innerHTML = `
+            <div class="detail-panel inline">
+              <div class="detail-header">
+                <span class="detail-title">${escapeHtml(session.project || 'Session Details')}</span>
+                <button class="detail-close" onclick="closeSessionDetail()">Close</button>
+              </div>
+
+              <div class="detail-grid">
+                <div class="detail-field">
+                  <span class="field-label">Session ID</span>
+                  <span class="field-value">${session.id}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Claude Session</span>
+                  <span class="field-value mono">${escapeHtml(truncate(session.claude_session_id, 20))}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Started</span>
+                  <span class="field-value">${formatDate(session.start_time)}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Ended</span>
+                  <span class="field-value">${session.end_time ? formatDate(session.end_time) : 'In progress'}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Tool Calls</span>
+                  <span class="field-value">${session.tool_calls || 0}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Files Modified</span>
+                  <span class="field-value">${session.files_modified || 0}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Errors</span>
+                  <span class="field-value">${session.errors_encountered || 0}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Decisions</span>
+                  <span class="field-value">${session.decisions_made || 0}</span>
+                </div>
+              </div>
+
+              ${session.current_task ? `
+              <div class="detail-section">
+                <div class="detail-section-title">/ Session Context</div>
+                <div class="detail-field">
+                  <span class="field-label">Current Task</span>
+                  <div class="detail-content">${escapeHtml(session.current_task)}</div>
+                </div>
+                ${session.task_context ? `
+                <div class="detail-field" style="margin-top: 12px;">
+                  <span class="field-label">Context</span>
+                  <div class="detail-content">${escapeHtml(session.task_context)}</div>
+                </div>
+                ` : ''}
+                ${session.pending_actions ? `
+                <div class="detail-field" style="margin-top: 12px;">
+                  <span class="field-label">Pending Actions</span>
+                  <div class="detail-content">${formatPendingActions(session.pending_actions)}</div>
+                </div>
+                ` : ''}
+                ${session.last_context_update ? `
+                <div class="detail-field" style="margin-top: 12px;">
+                  <span class="field-label">Context Updated</span>
+                  <span class="field-value">${formatDate(session.last_context_update)}</span>
+                </div>
+                ` : ''}
+              </div>
+              ` : ''}
+            </div>
+          `;
+        }
+      } catch (err) {
+        console.error('Failed to load session:', err);
+      }
+    }
+
+    function closeSessionDetail() {
+      state.selectedItem = null;
+      document.querySelectorAll('.inline-detail').forEach(el => {
+        el.innerHTML = '';
+      });
+      document.querySelectorAll('.list-item').forEach(el => el.classList.remove('selected'));
+    }
+
+    function renderErrors() {
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <div class="filters-bar">
+          <select class="filter-select" id="project-filter">
+            <option value="">All projects</option>
+            ${state.projects.map(p => `<option value="${p}">${p}</option>`).join('')}
+          </select>
+          <select class="filter-select" id="resolved-filter">
+            <option value="">All status</option>
+            <option value="true">Resolved</option>
+            <option value="false">Unresolved</option>
+          </select>
+        </div>
+
+        <div class="list-container">
+          <div class="list-header">
+            <span class="list-title">/ Errors</span>
+            <span class="list-count">${state.errors.length} items</span>
+          </div>
+          <div class="list-items" id="list-items">
+            ${renderErrorsList()}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('project-filter').addEventListener('change', (e) => {
+        state.filters.project = e.target.value;
+        loadErrors();
+      });
+
+      document.getElementById('resolved-filter').addEventListener('change', (e) => {
+        state.filters.resolved = e.target.value === '' ? null : e.target.value === 'true';
+        loadErrors();
+      });
+    }
+
+    function renderErrorsList() {
+      if (state.errors.length === 0) {
+        return `
+          <div class="empty-state">
+            <div class="empty-icon">:)</div>
+            <div class="empty-title">No errors found</div>
+            <div class="empty-desc">That's a good thing!</div>
+          </div>
+        `;
+      }
+
+      return state.errors.map(e => `
+        <div class="list-item-wrapper" data-id="${e.id}">
+          <div class="list-item ${state.selectedItem?.id === e.id ? 'selected' : ''}"
+               onclick="selectError(${e.id})">
+            <div class="item-title">
+              ${escapeHtml(truncate(e.description, 60))}
+              ${e.resolution_id ? '<span class="status-badge resolved">Resolved</span>' : '<span class="status-badge unresolved">Open</span>'}
+            </div>
+            <div class="item-meta">
+              <span>${escapeHtml(e.project || 'No project')}</span>
+              <span>${formatDate(e.logged_at)}</span>
+              ${e.module ? `<span>${escapeHtml(e.module)}</span>` : ''}
+            </div>
+            ${e.symptom ? `<div class="item-preview">${escapeHtml(e.symptom)}</div>` : ''}
+          </div>
+          <div class="inline-detail" id="error-detail-${e.id}"></div>
+        </div>
+      `).join('');
+    }
+
+    async function selectError(id) {
+      try {
+        // Toggle close if clicking same item
+        if (state.selectedItem?.id === id) {
+          closeErrorDetail();
+          return;
+        }
+
+        const error = await API.getError(id);
+        state.selectedItem = error;
+
+        // Close any existing inline details
+        document.querySelectorAll('.inline-detail').forEach(el => {
+          el.innerHTML = '';
+        });
+
+        // Update list selection
+        document.querySelectorAll('.list-item').forEach(el => {
+          const wrapper = el.closest('.list-item-wrapper');
+          el.classList.toggle('selected', wrapper && parseInt(wrapper.dataset.id) === id);
+        });
+
+        let resolutionHtml = '';
+        if (error.resolution_id) {
+          resolutionHtml = `
+            <div class="detail-section">
+              <div class="detail-section-title">/ Resolution</div>
+              <div class="detail-grid">
+                <div class="detail-field">
+                  <span class="field-label">Cause</span>
+                  <span class="field-value">${escapeHtml(error.cause || 'N/A')}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Resolved At</span>
+                  <span class="field-value">${formatDate(error.resolved_at)}</span>
+                </div>
+              </div>
+              <div class="detail-field" style="margin-top: 12px;">
+                <span class="field-label">Fix</span>
+                <div class="field-value mono">${escapeHtml(error.fix || 'N/A')}</div>
+              </div>
+              ${error.lesson ? `
+              <div class="detail-field" style="margin-top: 12px;">
+                <span class="field-label">Lesson Learned</span>
+                <div class="detail-content">${escapeHtml(error.lesson)}</div>
+              </div>
+              ` : ''}
+            </div>
+          `;
+        }
+
+        const detailContainer = document.getElementById(`error-detail-${id}`);
+        if (detailContainer) {
+          detailContainer.innerHTML = `
+            <div class="detail-panel inline">
+              <div class="detail-header">
+                <span class="detail-title">Error Details</span>
+                <button class="detail-close" onclick="closeErrorDetail()">Close</button>
+              </div>
+
+              <div class="detail-grid">
+                <div class="detail-field">
+                  <span class="field-label">Project</span>
+                  <span class="field-value">${escapeHtml(error.project || 'N/A')}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Module</span>
+                  <span class="field-value">${escapeHtml(error.module || 'N/A')}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Logged At</span>
+                  <span class="field-value">${formatDate(error.logged_at)}</span>
+                </div>
+              </div>
+
+              <div class="detail-field" style="margin-top: 16px;">
+                <span class="field-label">Description</span>
+                <div class="detail-content">${escapeHtml(error.description)}</div>
+              </div>
+
+              ${error.symptom ? `
+              <div class="detail-field" style="margin-top: 12px;">
+                <span class="field-label">Symptom</span>
+                <div class="detail-content">${escapeHtml(error.symptom)}</div>
+              </div>
+              ` : ''}
+
+              ${error.stack_trace ? `
+              <div class="detail-field" style="margin-top: 12px;">
+                <span class="field-label">Stack Trace</span>
+                <div class="field-value mono">${escapeHtml(error.stack_trace)}</div>
+              </div>
+              ` : ''}
+
+              ${resolutionHtml}
+            </div>
+          `;
+        }
+      } catch (err) {
+        console.error('Failed to load error:', err);
+      }
+    }
+
+    function closeErrorDetail() {
+      state.selectedItem = null;
+      document.querySelectorAll('.inline-detail').forEach(el => {
+        el.innerHTML = '';
+      });
+      document.querySelectorAll('.list-item').forEach(el => el.classList.remove('selected'));
+    }
+
+    function renderDecisions() {
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <div class="filters-bar">
+          <select class="filter-select" id="project-filter">
+            <option value="">All projects</option>
+            ${state.projects.map(p => `<option value="${p}">${p}</option>`).join('')}
+          </select>
+        </div>
+
+        <div class="list-container">
+          <div class="list-header">
+            <span class="list-title">/ Decisions</span>
+            <span class="list-count">${state.decisions.length} items</span>
+          </div>
+          <div class="list-items" id="list-items">
+            ${renderDecisionsList()}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('project-filter').addEventListener('change', (e) => {
+        state.filters.project = e.target.value;
+        loadDecisions();
+      });
+    }
+
+    function renderDecisionsList() {
+      if (state.decisions.length === 0) {
+        return `
+          <div class="empty-state">
+            <div class="empty-icon">:)</div>
+            <div class="empty-title">No decisions found</div>
+            <div class="empty-desc">Architectural decisions will appear here</div>
+          </div>
+        `;
+      }
+
+      return state.decisions.map(d => `
+        <div class="list-item-wrapper" data-id="${d.id}">
+          <div class="list-item ${state.selectedItem?.id === d.id ? 'selected' : ''}"
+               onclick="selectDecision(${d.id})">
+            <div class="item-title">${escapeHtml(d.title)}</div>
+            <div class="item-meta">
+              <span>${escapeHtml(d.project || 'No project')}</span>
+              <span>${formatDate(d.date)}</span>
+            </div>
+            <div class="item-preview">${escapeHtml(d.choice)}</div>
+          </div>
+          <div class="inline-detail" id="decision-detail-${d.id}"></div>
+        </div>
+      `).join('');
+    }
+
+    async function selectDecision(id) {
+      try {
+        // Toggle close if clicking same item
+        if (state.selectedItem?.id === id) {
+          closeDecisionDetail();
+          return;
+        }
+
+        const decision = await API.getDecision(id);
+        state.selectedItem = decision;
+
+        // Close any existing inline details
+        document.querySelectorAll('.inline-detail').forEach(el => {
+          el.innerHTML = '';
+        });
+
+        // Update list selection
+        document.querySelectorAll('.list-item').forEach(el => {
+          const wrapper = el.closest('.list-item-wrapper');
+          el.classList.toggle('selected', wrapper && parseInt(wrapper.dataset.id) === id);
+        });
+
+        const detailContainer = document.getElementById(`decision-detail-${id}`);
+        if (detailContainer) {
+          detailContainer.innerHTML = `
+            <div class="detail-panel inline">
+              <div class="detail-header">
+                <span class="detail-title">${escapeHtml(decision.title)}</span>
+                <button class="detail-close" onclick="closeDecisionDetail()">Close</button>
+              </div>
+
+              <div class="detail-grid">
+                <div class="detail-field">
+                  <span class="field-label">Project</span>
+                  <span class="field-value">${escapeHtml(decision.project || 'N/A')}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Created</span>
+                  <span class="field-value">${formatDate(decision.date)}</span>
+                </div>
+              </div>
+
+              <div class="detail-section">
+                <div class="detail-section-title">/ Context</div>
+                <div class="detail-content">${escapeHtml(decision.context)}</div>
+              </div>
+
+              <div class="detail-section">
+                <div class="detail-section-title">/ Choice</div>
+                <div class="detail-content">${escapeHtml(decision.choice)}</div>
+              </div>
+
+              ${decision.options ? `
+              <div class="detail-section">
+                <div class="detail-section-title">/ Options Considered</div>
+                <div class="detail-content">${escapeHtml(decision.options)}</div>
+              </div>
+              ` : ''}
+
+              ${decision.tradeoffs ? `
+              <div class="detail-section">
+                <div class="detail-section-title">/ Tradeoffs</div>
+                <div class="detail-content">${escapeHtml(decision.tradeoffs)}</div>
+              </div>
+              ` : ''}
+
+              ${decision.affects ? `
+              <div class="detail-section">
+                <div class="detail-section-title">/ Affects</div>
+                <div class="detail-content">${escapeHtml(decision.affects)}</div>
+              </div>
+              ` : ''}
+            </div>
+          `;
+        }
+      } catch (err) {
+        console.error('Failed to load decision:', err);
+      }
+    }
+
+    function closeDecisionDetail() {
+      state.selectedItem = null;
+      document.querySelectorAll('.inline-detail').forEach(el => {
+        el.innerHTML = '';
+      });
+      document.querySelectorAll('.list-item').forEach(el => el.classList.remove('selected'));
+    }
+
+    // ===========================================
+    // LEARNINGS VIEW
+    // ===========================================
+
+    function renderLearnings() {
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <div class="filters-bar">
+          <select class="filter-select" id="project-filter">
+            <option value="">All projects</option>
+            ${state.projects.map(p => `<option value="${p}">${p}</option>`).join('')}
+          </select>
+          <input type="text" class="search-input" id="search-input"
+                 placeholder="Search learnings..." value="${state.searchQuery}">
+        </div>
+        <div class="list-container">
+          <div class="list-header">
+            <span class="list-title">/ Learnings</span>
+            <span class="list-count">${state.learnings.length} items</span>
+          </div>
+          <div class="list-items" id="list-items">
+            ${renderLearningsList()}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('project-filter').addEventListener('change', (e) => {
+        state.filters.project = e.target.value;
+        loadLearnings();
+      });
+
+      document.getElementById('search-input').addEventListener('keyup', debounce((e) => {
+        state.searchQuery = e.target.value;
+        loadLearnings();
+      }, 300));
+    }
+
+    function renderLearningsList() {
+      if (state.learnings.length === 0) {
+        return `
+          <div class="empty-state">
+            <div class="empty-icon">📚</div>
+            <div class="empty-title">No learnings found</div>
+            <div class="empty-desc">Principles and patterns will appear here</div>
+          </div>
+        `;
+      }
+
+      return state.learnings.map(l => {
+        let tags = [];
+        try {
+          tags = typeof l.tags === 'string' ? JSON.parse(l.tags) : (l.tags || []);
+        } catch (e) {}
+
+        return `
+          <div class="list-item-wrapper" data-id="${l.id}">
+            <div class="list-item ${state.selectedItem?.id === l.id ? 'selected' : ''}"
+                 onclick="selectLearning(${l.id})">
+              <div class="item-title">${escapeHtml(l.title)}</div>
+              <div class="item-meta">
+                <span>${l.project ? escapeHtml(l.project) : 'Universal'}</span>
+                <span>${formatDate(l.date)}</span>
+                ${l.session_id ? `<span>Session #${l.session_id}</span>` : ''}
+              </div>
+              <div class="item-preview">${escapeHtml(l.insight?.substring(0, 150) || '')}${l.insight?.length > 150 ? '...' : ''}</div>
+              ${tags.length > 0 ? `
+                <div class="item-tags">
+                  ${tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+                </div>
+              ` : ''}
+            </div>
+            <div class="inline-detail" id="learning-detail-${l.id}"></div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function selectLearning(id) {
+      try {
+        if (state.selectedItem?.id === id) {
+          closeLearningDetail();
+          return;
+        }
+
+        const learning = await API.getLearning(id);
+        state.selectedItem = learning;
+
+        document.querySelectorAll('.inline-detail').forEach(el => {
+          el.innerHTML = '';
+        });
+
+        document.querySelectorAll('.list-item').forEach(el => {
+          const wrapper = el.closest('.list-item-wrapper');
+          el.classList.toggle('selected', wrapper && parseInt(wrapper.dataset.id) === id);
+        });
+
+        const tags = Array.isArray(learning.tags) ? learning.tags : [];
+        const examples = Array.isArray(learning.examples) ? learning.examples : [];
+
+        const detailContainer = document.getElementById(`learning-detail-${id}`);
+        if (detailContainer) {
+          detailContainer.innerHTML = `
+            <div class="detail-panel inline">
+              <div class="detail-header">
+                <span class="detail-title">${escapeHtml(learning.title)}</span>
+                <button class="detail-close" onclick="closeLearningDetail()">Close</button>
+              </div>
+
+              <div class="detail-grid">
+                <div class="detail-field">
+                  <span class="field-label">Scope</span>
+                  <span class="field-value">${learning.project ? escapeHtml(learning.project) : 'Universal'}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Date</span>
+                  <span class="field-value">${formatDate(learning.date)}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Source</span>
+                  <span class="field-value">${escapeHtml(learning.source_type || 'observation')}</span>
+                </div>
+                ${learning.claude_session_id ? `
+                  <div class="detail-field">
+                    <span class="field-label">Session</span>
+                    <span class="field-value">${learning.claude_session_id.substring(0, 8)}...</span>
+                  </div>
+                ` : ''}
+              </div>
+
+              <div class="detail-section">
+                <div class="field-label">Insight</div>
+                <div class="field-value-block">${escapeHtml(learning.insight)}</div>
+              </div>
+
+              ${learning.applies_when ? `
+                <div class="detail-section">
+                  <div class="field-label">Applies When</div>
+                  <div class="field-value-block">${escapeHtml(learning.applies_when)}</div>
+                </div>
+              ` : ''}
+
+              ${learning.suggested_approach ? `
+                <div class="detail-section">
+                  <div class="field-label">Suggested Approach</div>
+                  <div class="field-value-block">${escapeHtml(learning.suggested_approach)}</div>
+                </div>
+              ` : ''}
+
+              ${tags.length > 0 ? `
+                <div class="detail-section">
+                  <div class="field-label">Tags</div>
+                  <div class="item-tags">
+                    ${tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              ${examples.length > 0 ? `
+                <div class="detail-section">
+                  <div class="field-label">Examples</div>
+                  <ul class="examples-list">
+                    ${examples.map(e => `<li>${escapeHtml(e)}</li>`).join('')}
+                  </ul>
+                </div>
+              ` : ''}
+
+              <div class="detail-meta">
+                <span>Frequency: ${learning.frequency || 1}</span>
+                ${learning.last_invoked ? `<span>Last recalled: ${formatDate(learning.last_invoked)}</span>` : ''}
+              </div>
+            </div>
+          `;
+        }
+      } catch (err) {
+        console.error('Failed to load learning:', err);
+      }
+    }
+
+    function closeLearningDetail() {
+      state.selectedItem = null;
+      document.querySelectorAll('.inline-detail').forEach(el => {
+        el.innerHTML = '';
+      });
+      document.querySelectorAll('.list-item').forEach(el => el.classList.remove('selected'));
+    }
+
+    function renderPrompts() {
+      const content = document.getElementById('content');
+
+      // Group tags by category for dropdown
+      const tagsByCategory = {};
+      state.tags.forEach(t => {
+        const cat = t.category || 'other';
+        if (!tagsByCategory[cat]) tagsByCategory[cat] = [];
+        tagsByCategory[cat].push(t);
+      });
+
+      const tagOptions = Object.entries(tagsByCategory)
+        .map(([cat, tags]) => `
+          <optgroup label="${cat}">
+            ${tags.map(t => `<option value="${t.name}">${t.name}</option>`).join('')}
+          </optgroup>
+        `).join('');
+
+      content.innerHTML = `
+        <div class="filters-bar">
+          <select class="filter-select" id="project-filter">
+            <option value="">All projects</option>
+            ${state.projects.map(p => `<option value="${p}">${p}</option>`).join('')}
+          </select>
+          <select class="filter-select" id="tag-filter">
+            <option value="">All tags</option>
+            ${tagOptions}
+          </select>
+          <select class="filter-select" id="score-filter">
+            <option value="">Any score</option>
+            <option value="unscored">Unscored</option>
+            <option value="1-3">Low (1-3)</option>
+            <option value="4-6">Medium (4-6)</option>
+            <option value="7-10">High (7-10)</option>
+          </select>
+          <div class="filter-multiselect" id="visibility-filter">
+            <button type="button" class="filter-multiselect-toggle" id="visibility-toggle">
+              <span id="visibility-label">${getVisibilityLabel()}</span>
+              <span class="chevron">▼</span>
+            </button>
+            <div class="filter-multiselect-dropdown" id="visibility-dropdown">
+              <label class="filter-multiselect-option">
+                <input type="checkbox" id="vis-active" ${state.filters.showActive !== false ? 'checked' : ''}>
+                Active
+              </label>
+              <label class="filter-multiselect-option">
+                <input type="checkbox" id="vis-deleted" ${state.filters.showDeleted ? 'checked' : ''}>
+                Deleted
+              </label>
+              <label class="filter-multiselect-option">
+                <input type="checkbox" id="vis-trivial" ${state.filters.showTrivial ? 'checked' : ''}>
+                Trivial
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="selection-bar">
+          <div class="selection-controls">
+            <button class="btn-secondary btn-sm" onclick="selectAllPrompts()">All</button>
+            <button class="btn-secondary btn-sm" onclick="clearPromptSelection()">Clear</button>
+            <div class="selection-presets">
+              <span class="selection-presets-label">Quick:</span>
+              <button class="btn-preset" onclick="selectLast(10)">Last 10</button>
+              <button class="btn-preset" onclick="selectLast(50)">Last 50</button>
+              <button class="btn-preset" onclick="selectLast(100)">Last 100</button>
+            </div>
+            <span class="selection-count" id="selection-count">${state.selectedPrompts.size} selected</span>
+          </div>
+          <div class="selection-actions">
+            <button class="btn-secondary btn-sm" id="process-all-btn" onclick="processAllPrompts()">
+              Process All
+            </button>
+            <button class="btn-primary" id="review-btn" onclick="openReviewPrompts()" ${state.selectedPrompts.size === 0 ? 'disabled' : ''}>
+              Review${state.selectedPrompts.size > 0 ? ` (${state.selectedPrompts.size})` : ''}
+            </button>
+          </div>
+        </div>
+
+        <div class="list-container">
+          <div class="list-header">
+            <span class="list-title">/ Prompts</span>
+            <span class="list-count">${state.prompts.length} items</span>
+          </div>
+          <div class="list-items" id="list-items">
+            ${renderPromptsList()}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('project-filter').addEventListener('change', (e) => {
+        state.filters.project = e.target.value;
+        loadPrompts();
+      });
+
+      document.getElementById('score-filter').addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (val === '') {
+          state.filters.scored = null;
+          state.filters.minScore = null;
+          state.filters.maxScore = null;
+        } else if (val === 'unscored') {
+          state.filters.scored = false;
+          state.filters.minScore = null;
+          state.filters.maxScore = null;
+        } else {
+          const [min, max] = val.split('-').map(Number);
+          state.filters.scored = null;
+          state.filters.minScore = min;
+          state.filters.maxScore = max;
+        }
+        loadPrompts();
+      });
+
+      document.getElementById('tag-filter').addEventListener('change', (e) => {
+        state.filters.tag = e.target.value;
+        loadPrompts();
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#visibility-filter')) {
+          document.getElementById('visibility-dropdown')?.classList.remove('open');
+        }
+      });
+
+      // Visibility filter toggle and checkboxes
+      document.getElementById('visibility-toggle').addEventListener('click', toggleVisibilityDropdown);
+      document.getElementById('vis-active').addEventListener('change', updateVisibilityFilter);
+      document.getElementById('vis-deleted').addEventListener('change', updateVisibilityFilter);
+      document.getElementById('vis-trivial').addEventListener('change', updateVisibilityFilter);
+    }
+
+    function toggleVisibilityDropdown() {
+      document.getElementById('visibility-dropdown').classList.toggle('open');
+    }
+
+    function getVisibilityLabel() {
+      const parts = [];
+      if (state.filters.showActive !== false) parts.push('Active');
+      if (state.filters.showDeleted) parts.push('Deleted');
+      if (state.filters.showTrivial) parts.push('Trivial');
+      return parts.length > 0 ? parts.join(', ') : 'None';
+    }
+
+    function updateVisibilityFilter() {
+      state.filters.showActive = document.getElementById('vis-active').checked;
+      state.filters.showDeleted = document.getElementById('vis-deleted').checked;
+      state.filters.showTrivial = document.getElementById('vis-trivial').checked;
+      document.getElementById('visibility-label').textContent = getVisibilityLabel();
+      loadPrompts();
+    }
+
+    function togglePromptSelection(id) {
+      if (state.selectedPrompts.has(id)) {
+        state.selectedPrompts.delete(id);
+      } else {
+        state.selectedPrompts.add(id);
+      }
+      updateSelectionUI();
+    }
+
+    function selectAllPrompts() {
+      state.prompts.forEach(p => state.selectedPrompts.add(p.id));
+      updateSelectionUI();
+      document.getElementById('list-items').innerHTML = renderPromptsList();
+    }
+
+    function clearPromptSelection() {
+      state.selectedPrompts.clear();
+      updateSelectionUI();
+      document.getElementById('list-items').innerHTML = renderPromptsList();
+    }
+
+    function selectLast(n) {
+      // Prompts are already sorted by timestamp desc, so first N are most recent
+      state.prompts.slice(0, n).forEach(p => state.selectedPrompts.add(p.id));
+      updateSelectionUI();
+      document.getElementById('list-items').innerHTML = renderPromptsList();
+    }
+
+    function updateSelectionUI() {
+      const count = state.selectedPrompts.size;
+      const countEl = document.getElementById('selection-count');
+      const btnEl = document.getElementById('review-btn');
+      if (countEl) countEl.textContent = `${count} selected`;
+      if (btnEl) {
+        btnEl.disabled = count === 0;
+        btnEl.textContent = count > 0 ? `Review (${count})` : 'Review';
+      }
+    }
+
+    function renderPromptsList() {
+      if (state.prompts.length === 0) {
+        return `
+          <div class="empty-state">
+            <div class="empty-icon">:)</div>
+            <div class="empty-title">No prompts found</div>
+            <div class="empty-desc">Logged prompts will appear here</div>
+          </div>
+        `;
+      }
+
+      return state.prompts.map(p => {
+        const tagsHtml = (p.tags && p.tags.length > 0)
+          ? `<div class="item-tags-right">${p.tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join('')}</div>`
+          : '';
+        const isSelected = state.selectedPrompts.has(p.id);
+
+        return `
+        <div class="list-item-wrapper" data-id="${p.id}">
+          <div class="list-item ${state.selectedItem?.id === p.id ? 'selected' : ''}"
+               onclick="selectPrompt(${p.id})">
+            <div class="item-row">
+              <input type="checkbox" class="prompt-checkbox"
+                     ${isSelected ? 'checked' : ''}
+                     onclick="event.stopPropagation(); togglePromptSelection(${p.id})">
+              <div class="item-content">
+                <div class="item-title">
+                  ${escapeHtml(truncate(p.preview, 60))}
+                  ${p.deleted_at ? '<span class="status-badge unresolved">Deleted</span>' : ''}
+                  ${p.importance_score !== null ? `<span class="status-badge resolved">Score: ${p.importance_score}</span>` : ''}
+                </div>
+                <div class="item-meta">
+                  <span>${escapeHtml(p.project || 'No project')}</span>
+                  <span>${formatDate(p.timestamp)}</span>
+                  <span>${p.char_count || 0} chars</span>
+                </div>
+              </div>
+              ${tagsHtml}
+              ${!p.deleted_at ? `<button class="btn-delete-inline" onclick="event.stopPropagation(); quickDeletePrompt(${p.id})" title="Delete">×</button>` : ''}
+            </div>
+          </div>
+          <div class="inline-detail" id="prompt-detail-${p.id}"></div>
+        </div>
+      `}).join('');
+    }
+
+    async function selectPrompt(id) {
+      try {
+        // Toggle close if clicking same item
+        if (state.selectedItem?.id === id) {
+          closePromptDetail();
+          return;
+        }
+
+        const prompt = await API.getPrompt(id);
+        state.selectedItem = prompt;
+
+        // Close any existing inline details
+        document.querySelectorAll('.inline-detail').forEach(el => {
+          el.innerHTML = '';
+        });
+
+        // Update list selection
+        document.querySelectorAll('.list-item').forEach(el => {
+          const wrapper = el.closest('.list-item-wrapper');
+          el.classList.toggle('selected', wrapper && parseInt(wrapper.dataset.id) === id);
+        });
+
+        const detailContainer = document.getElementById(`prompt-detail-${id}`);
+        if (detailContainer) {
+          const currentTags = prompt.tags || [];
+          const tagsHtml = currentTags.map(t =>
+            `<span class="tag-chip removable">${escapeHtml(t)}<span class="remove-tag" onclick="removeTagFromPrompt(${prompt.id}, '${escapeHtml(t)}')">×</span></span>`
+          ).join('');
+
+          detailContainer.innerHTML = `
+            <div class="detail-panel inline">
+              <div class="detail-header">
+                <span class="detail-title">Prompt Details</span>
+                <button class="detail-close" onclick="closePromptDetail()">Close</button>
+              </div>
+
+              <div class="detail-grid">
+                <div class="detail-field">
+                  <span class="field-label">Project</span>
+                  <span class="field-value">${escapeHtml(prompt.project || 'N/A')}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Timestamp</span>
+                  <span class="field-value">${formatDate(prompt.timestamp)}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Character Count</span>
+                  <span class="field-value">${prompt.char_count || 0}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Importance Score</span>
+                  <span class="field-value">
+                    <input type="number" class="score-input" id="score-input"
+                           value="${prompt.importance_score || ''}" min="1" max="10"
+                           placeholder="1-10">
+                  </span>
+                </div>
+              </div>
+
+              <div class="detail-section">
+                <div class="detail-section-title">/ Tags</div>
+                <div class="tag-input-wrapper" style="position: relative;">
+                  ${tagsHtml}
+                  <input type="text" id="tag-input" placeholder="Add tag..."
+                         onkeydown="handleTagInput(event, ${prompt.id})"
+                         onfocus="showTagSuggestions(${prompt.id})"
+                         oninput="filterTagSuggestions()">
+                  <div class="tag-suggestions" id="tag-suggestions"></div>
+                </div>
+              </div>
+
+              <div class="detail-section">
+                <div class="detail-section-title">/ Content</div>
+                <div class="field-value mono">${escapeHtml(prompt.prompt)}</div>
+              </div>
+
+              <div class="actions-bar">
+                <button class="btn-primary" onclick="savePromptScore(${prompt.id})">Save Score</button>
+                ${!prompt.deleted_at ? `<button class="btn-danger" onclick="confirmDeletePrompt(${prompt.id})">Delete</button>` : ''}
+              </div>
+            </div>
+          `;
+        }
+      } catch (err) {
+        console.error('Failed to load prompt:', err);
+      }
+    }
+
+    async function confirmDeletePrompt(id) {
+      if (!confirm('Are you sure you want to delete this prompt? This action can be undone by viewing deleted prompts.')) {
+        return;
+      }
+
+      try {
+        await API.deletePrompt(id);
+        await loadStats();  // Refresh sidebar stats
+        closePromptDetail();
+        await loadPrompts();
+        showToast('Prompt deleted successfully');
+      } catch (err) {
+        console.error('Failed to delete prompt:', err);
+        alert('Failed to delete prompt');
+      }
+    }
+
+    async function quickDeletePrompt(id) {
+      try {
+        await API.deletePrompt(id);
+        await loadStats();
+        await loadPrompts();
+        showToast('Prompt deleted');
+      } catch (err) {
+        console.error('Failed to delete prompt:', err);
+      }
+    }
+
+    function showToast(message) {
+      // Simple toast notification
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      // Trigger animation
+      setTimeout(() => toast.classList.add('show'), 10);
+
+      // Remove after 3 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // ===========================================
+    // PROCESS ALL PROMPTS
+    // ===========================================
+
+    async function processAllPrompts() {
+      const btn = document.getElementById('process-all-btn');
+      if (!btn || btn.classList.contains('btn-processing')) return;
+
+      // First do a dry run to show what will happen
+      try {
+        const preview = await API.processAllPrompts(true);
+        const alreadyScored = preview.to_soft_delete;
+        const msg = `This will:\n` +
+          `  1. Score ${preview.unscored_count} unscored prompts\n` +
+          `  2. Soft-delete anything below 7${alreadyScored ? ` (${alreadyScored} already qualify)` : ''}\n` +
+          `  3. Tag untagged survivors\n\n` +
+          `Uses GPT-4o-mini. May take a few minutes. Continue?`;
+
+        if (!confirm(msg)) return;
+      } catch (err) {
+        showToast(`Dry run failed: ${err.message}`);
+        return;
+      }
+
+      // Show progress overlay
+      btn.classList.add('btn-processing');
+      btn.textContent = 'Processing…';
+
+      const progress = document.createElement('div');
+      progress.className = 'process-progress';
+      progress.id = 'process-progress';
+      progress.innerHTML = `
+        <div class="process-progress-title">Processing All Prompts</div>
+        <div class="process-progress-steps">
+          <div class="process-step active" id="step-score">
+            <span class="process-step-icon">⟳</span>
+            <span>Scoring unscored prompts…</span>
+          </div>
+          <div class="process-step" id="step-prune">
+            <span class="process-step-icon">○</span>
+            <span>Pruning low scores (&lt;7)</span>
+          </div>
+          <div class="process-step" id="step-tag">
+            <span class="process-step-icon">○</span>
+            <span>Tagging untagged prompts</span>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(progress);
+
+      try {
+        const result = await API.processAllPrompts(false);
+
+        // Update progress to done
+        const stepScore = document.getElementById('step-score');
+        const stepPrune = document.getElementById('step-prune');
+        const stepTag = document.getElementById('step-tag');
+
+        if (stepScore) {
+          stepScore.className = 'process-step done';
+          stepScore.innerHTML = `<span class="process-step-icon">✓</span><span>Scored ${result.scored}/${result.unscored_count}</span>`;
+        }
+        if (stepPrune) {
+          stepPrune.className = 'process-step done';
+          stepPrune.innerHTML = `<span class="process-step-icon">✓</span><span>Pruned ${result.soft_deleted || 0}/${result.to_soft_delete}</span>`;
+        }
+        if (stepTag) {
+          stepTag.className = 'process-step done';
+          stepTag.innerHTML = `<span class="process-step-icon">✓</span><span>Tagged ${result.tagged}/${result.untagged_count}</span>`;
+        }
+
+        if (result.errors && result.errors.length > 0) {
+          const errDiv = document.createElement('div');
+          errDiv.style.cssText = 'margin-top: 8px; font-size: 11px; color: var(--semantic-error);';
+          errDiv.textContent = `${result.errors.length} error(s) — check console`;
+          progress.appendChild(errDiv);
+          console.warn('Process all errors:', result.errors);
+        }
+
+        // Refresh data
+        await loadStats();
+        await loadPrompts();
+
+        // Auto-dismiss progress after 3s
+        setTimeout(() => {
+          progress.remove();
+        }, 3000);
+
+      } catch (err) {
+        const progressEl = document.getElementById('process-progress');
+        if (progressEl) {
+          progressEl.innerHTML = `
+            <div class="process-progress-title" style="color: var(--semantic-error);">Processing Failed</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">${err.message}</div>
+          `;
+          setTimeout(() => progressEl.remove(), 4000);
+        }
+      } finally {
+        btn.classList.remove('btn-processing');
+        btn.textContent = 'Process All';
+      }
+    }
+
+    // ===========================================
+    // TAG MANAGEMENT
+    // ===========================================
+    function showTagSuggestions(promptId) {
+      const currentTags = state.selectedItem?.tags || [];
+      const suggestionsEl = document.getElementById('tag-suggestions');
+      if (!suggestionsEl) return;
+
+      // Filter out already-applied tags
+      const availableTags = state.tags.filter(t => !currentTags.includes(t.name));
+
+      if (availableTags.length === 0) {
+        suggestionsEl.innerHTML = '<div class="tag-suggestion" style="color: var(--text-muted)">No more tags available</div>';
+      } else {
+        suggestionsEl.innerHTML = availableTags.map(t => `
+          <div class="tag-suggestion" onclick="addTagToPrompt(${promptId}, '${escapeHtml(t.name)}')">
+            ${escapeHtml(t.name)}
+            <span class="tag-suggestion-category">${escapeHtml(t.category || '')}</span>
+          </div>
+        `).join('');
+      }
+      suggestionsEl.classList.add('show');
+
+      // Hide on click outside
+      document.addEventListener('click', hideTagSuggestionsOnClickOutside, true);
+    }
+
+    function hideTagSuggestionsOnClickOutside(e) {
+      const wrapper = document.querySelector('.tag-input-wrapper');
+      if (wrapper && !wrapper.contains(e.target)) {
+        const suggestionsEl = document.getElementById('tag-suggestions');
+        if (suggestionsEl) suggestionsEl.classList.remove('show');
+        document.removeEventListener('click', hideTagSuggestionsOnClickOutside, true);
+      }
+    }
+
+    function filterTagSuggestions() {
+      const input = document.getElementById('tag-input');
+      const suggestionsEl = document.getElementById('tag-suggestions');
+      if (!input || !suggestionsEl) return;
+
+      const query = input.value.toLowerCase().trim();
+      const currentTags = state.selectedItem?.tags || [];
+
+      const filteredTags = state.tags.filter(t =>
+        !currentTags.includes(t.name) &&
+        t.name.toLowerCase().includes(query)
+      );
+
+      if (filteredTags.length === 0) {
+        suggestionsEl.innerHTML = '<div class="tag-suggestion" style="color: var(--text-muted)">No matching tags</div>';
+      } else {
+        suggestionsEl.innerHTML = filteredTags.map(t => `
+          <div class="tag-suggestion" onclick="addTagToPrompt(${state.selectedItem.id}, '${escapeHtml(t.name)}')">
+            ${escapeHtml(t.name)}
+            <span class="tag-suggestion-category">${escapeHtml(t.category || '')}</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    function handleTagInput(event, promptId) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        const input = event.target;
+        const tagName = input.value.trim().toLowerCase().replace(/\s+/g, '-');
+        if (tagName) {
+          addTagToPrompt(promptId, tagName);
+          input.value = '';
+        }
+      } else if (event.key === 'Escape') {
+        const suggestionsEl = document.getElementById('tag-suggestions');
+        if (suggestionsEl) suggestionsEl.classList.remove('show');
+      }
+    }
+
+    async function addTagToPrompt(promptId, tagName) {
+      try {
+        const currentTags = state.selectedItem?.tags || [];
+        if (currentTags.includes(tagName)) {
+          showToast('Tag already applied');
+          return;
+        }
+
+        const newTags = [...currentTags, tagName];
+        const result = await API.updatePromptTags(promptId, newTags);
+
+        // Update local state
+        state.selectedItem.tags = result.tags;
+
+        // Re-render the detail view
+        await selectPrompt(promptId);
+
+        // Update list view
+        await loadPrompts();
+
+        if (result.unknown_tags && result.unknown_tags.length > 0) {
+          showToast(`Tag "${tagName}" not in vocabulary`);
+        } else {
+          showToast(`Added tag: ${tagName}`);
+        }
+      } catch (err) {
+        console.error('Failed to add tag:', err);
+        showToast('Failed to add tag');
+      }
+    }
+
+    async function removeTagFromPrompt(promptId, tagName) {
+      try {
+        const currentTags = state.selectedItem?.tags || [];
+        const newTags = currentTags.filter(t => t !== tagName);
+        const result = await API.updatePromptTags(promptId, newTags);
+
+        // Update local state
+        state.selectedItem.tags = result.tags;
+
+        // Re-render
+        await selectPrompt(promptId);
+        await loadPrompts();
+
+        showToast(`Removed tag: ${tagName}`);
+      } catch (err) {
+        console.error('Failed to remove tag:', err);
+        showToast('Failed to remove tag');
+      }
+    }
+
+    // Tag suggestion modal state
+    let tagSuggestState = {
+      suggestions: [],
+      currentIndex: 0
+    };
+
+    async function openTagSuggestor() {
+      try {
+        // Get untagged prompts
+        const untagged = state.prompts.filter(p => !p.tags || p.tags.length === 0).slice(0, 10);
+        if (untagged.length === 0) {
+          showToast('No untagged prompts to suggest for');
+          return;
+        }
+
+        const promptIds = untagged.map(p => p.id);
+        const result = await API.suggestTagsForPrompts(promptIds);
+        tagSuggestState.suggestions = result.suggestions || [];
+        tagSuggestState.currentIndex = 0;
+
+        if (tagSuggestState.suggestions.length === 0) {
+          showToast('No tag suggestions available');
+          return;
+        }
+
+        showTagSuggestModal();
+      } catch (err) {
+        console.error('Failed to get tag suggestions:', err);
+        alert('Failed to get tag suggestions. Check if OpenAI API key is configured.');
+      }
+    }
+
+    function showTagSuggestModal() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.id = 'tag-suggest-modal';
+      renderTagSuggestContent(modal);
+      document.body.appendChild(modal);
+    }
+
+    function renderTagSuggestContent(modal) {
+      const suggestion = tagSuggestState.suggestions[tagSuggestState.currentIndex];
+      const prompt = state.prompts.find(p => p.id === suggestion.id);
+
+      modal.innerHTML = `
+        <div class="modal">
+          <div class="modal-header">
+            <h2 class="modal-title">Tag Suggestions</h2>
+            <button class="detail-close" onclick="closeTagSuggestModal()">Close</button>
+          </div>
+          <div class="modal-content">
+            <div class="modal-desc">
+              Prompt ${tagSuggestState.currentIndex + 1} of ${tagSuggestState.suggestions.length}
+            </div>
+
+            <div class="detail-section" style="margin-top: 16px;">
+              <div class="detail-section-title">/ Prompt Preview</div>
+              <div class="field-value mono" style="max-height: 150px; overflow-y: auto;">
+                ${escapeHtml(prompt?.preview || 'N/A')}
+              </div>
+            </div>
+
+            <div class="detail-section" style="margin-top: 16px;">
+              <div class="detail-section-title">/ Suggested Tags</div>
+              <div class="item-tags" style="margin-top: 8px;">
+                ${(suggestion.tags || []).map(t => `
+                  <span class="tag-chip" style="cursor: pointer;" onclick="applyTagSuggestion(${suggestion.id}, '${escapeHtml(t)}')">${escapeHtml(t)}</span>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="actions-bar" style="margin-top: 24px;">
+              <button class="btn-secondary" onclick="applyAllTagSuggestions(${suggestion.id})">Apply All</button>
+              <button class="btn-secondary" onclick="skipTagSuggestion()">Skip</button>
+              ${tagSuggestState.currentIndex > 0 ? '<button class="btn-secondary" onclick="prevTagSuggestion()">Previous</button>' : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function applyTagSuggestion(promptId, tagName) {
+      await addTagToPrompt(promptId, tagName);
+    }
+
+    async function applyAllTagSuggestions(promptId) {
+      const suggestion = tagSuggestState.suggestions[tagSuggestState.currentIndex];
+      for (const tagName of suggestion.tags || []) {
+        await addTagToPrompt(promptId, tagName);
+      }
+      nextTagSuggestion();
+    }
+
+    function skipTagSuggestion() {
+      nextTagSuggestion();
+    }
+
+    function nextTagSuggestion() {
+      tagSuggestState.currentIndex++;
+      if (tagSuggestState.currentIndex >= tagSuggestState.suggestions.length) {
+        closeTagSuggestModal();
+        showToast('All suggestions reviewed');
+        loadPrompts();
+      } else {
+        const modal = document.getElementById('tag-suggest-modal');
+        if (modal) renderTagSuggestContent(modal);
+      }
+    }
+
+    function prevTagSuggestion() {
+      if (tagSuggestState.currentIndex > 0) {
+        tagSuggestState.currentIndex--;
+        const modal = document.getElementById('tag-suggest-modal');
+        if (modal) renderTagSuggestContent(modal);
+      }
+    }
+
+    function closeTagSuggestModal() {
+      const modal = document.getElementById('tag-suggest-modal');
+      if (modal) modal.remove();
+    }
+
+    // ===========================================
+    // TAGS VIEW
+    // ===========================================
+    function renderTagsView() {
+      const content = document.getElementById('content');
+
+      // Group tags by category
+      const byCategory = {};
+      state.tags.forEach(t => {
+        const cat = t.category || 'uncategorized';
+        if (!byCategory[cat]) byCategory[cat] = [];
+        byCategory[cat].push(t);
+      });
+
+      const categoryOrder = ['prompt-type', 'topic', 'priority', 'meta', 'uncategorized'];
+      const sortedCategories = Object.keys(byCategory).sort((a, b) => {
+        return categoryOrder.indexOf(a) - categoryOrder.indexOf(b);
+      });
+
+      content.innerHTML = `
+        <div class="filters-bar">
+          <button class="btn-primary" onclick="openAddTagModal()">+ Add Tag</button>
+        </div>
+
+        <div class="tags-grid">
+          ${sortedCategories.map(cat => `
+            <div class="tag-category-card">
+              <div class="tag-category-header">
+                <span class="tag-category-name">${escapeHtml(cat)}</span>
+                <span class="tag-category-count">${byCategory[cat].length}</span>
+              </div>
+              <div class="tag-category-items">
+                ${byCategory[cat].map(tag => `
+                  <div class="tag-vocab-item" style="border-left: 3px solid ${tag.color || 'var(--border-subtle)'}">
+                    <div class="tag-vocab-name">${escapeHtml(tag.name)}</div>
+                    <div class="tag-vocab-desc">${escapeHtml(tag.description || '')}</div>
+                    <div class="tag-vocab-meta">
+                      <span class="tag-vocab-source">${escapeHtml(tag.source || 'seed')}</span>
+                      <button class="btn-delete-small" onclick="deleteTagFromVocab(${tag.id}, '${escapeHtml(tag.name)}')" title="Delete">×</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function openAddTagModal() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.id = 'add-tag-modal';
+      modal.innerHTML = `
+        <div class="modal" style="max-width: 400px;">
+          <div class="modal-header">
+            <h2 class="modal-title">Add New Tag</h2>
+            <button class="detail-close" onclick="closeAddTagModal()">Close</button>
+          </div>
+          <div class="modal-content">
+            <div class="form-field">
+              <label class="field-label">Name</label>
+              <input type="text" id="new-tag-name" class="form-input" placeholder="e.g., migration">
+            </div>
+            <div class="form-field">
+              <label class="field-label">Category</label>
+              <select id="new-tag-category" class="filter-select" style="width: 100%;">
+                <option value="prompt-type">prompt-type</option>
+                <option value="topic">topic</option>
+                <option value="priority">priority</option>
+                <option value="meta">meta</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="field-label">Description</label>
+              <input type="text" id="new-tag-description" class="form-input" placeholder="Brief description">
+            </div>
+            <div class="form-field">
+              <label class="field-label">Color</label>
+              <input type="color" id="new-tag-color" value="#d4a574" style="width: 60px; height: 32px;">
+            </div>
+            <div class="actions-bar" style="margin-top: 16px;">
+              <button class="btn-primary" onclick="submitNewTag()">Add Tag</button>
+              <button class="btn-secondary" onclick="closeAddTagModal()">Cancel</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    function closeAddTagModal() {
+      const modal = document.getElementById('add-tag-modal');
+      if (modal) modal.remove();
+    }
+
+    async function submitNewTag() {
+      const name = document.getElementById('new-tag-name').value.trim();
+      const category = document.getElementById('new-tag-category').value;
+      const description = document.getElementById('new-tag-description').value.trim();
+      const color = document.getElementById('new-tag-color').value;
+
+      if (!name) {
+        alert('Tag name is required');
+        return;
+      }
+
+      try {
+        await API.createTag({ name, category, description, color });
+        closeAddTagModal();
+        await loadTags();
+        await loadStats();
+        renderTagsView();
+        showToast(`Tag "${name}" added`);
+      } catch (err) {
+        console.error('Failed to create tag:', err);
+        alert('Failed to create tag. It may already exist.');
+      }
+    }
+
+    async function deleteTagFromVocab(id, name) {
+      if (!confirm(`Delete tag "${name}"? This won't remove the tag from existing prompts.`)) {
+        return;
+      }
+
+      try {
+        await API.deleteTag(id);
+        await loadTags();
+        await loadStats();
+        renderTagsView();
+        showToast(`Tag "${name}" deleted`);
+      } catch (err) {
+        console.error('Failed to delete tag:', err);
+        alert('Failed to delete tag');
+      }
+    }
+
+    // ===========================================
+    // REVIEW WORKFLOW (batch select)
+    // ===========================================
+    let reviewState = {
+      prompts: [],           // prompts to review (from selection)
+      currentIndex: 0,       // current position
+      suggestions: {},       // id -> { tags: [], score: number, reason: string }
+      changes: {}            // id -> { tags: [], score: number } - pending changes
+    };
+
+    async function openReviewPrompts() {
+      // Get selected prompts
+      const selectedIds = Array.from(state.selectedPrompts);
+      if (selectedIds.length === 0) {
+        showToast('No prompts selected');
+        return;
+      }
+
+      // Show loading modal
+      showReviewLoading();
+
+      try {
+        // Get full prompt data for selected IDs
+        const prompts = state.prompts.filter(p => selectedIds.includes(p.id));
+
+        reviewState.prompts = prompts;
+        reviewState.currentIndex = 0;
+        reviewState.suggestions = {};
+        reviewState.changes = {};
+
+        if (prompts.length === 0) {
+          closeReviewModal();
+          showToast('No prompts to review');
+          return;
+        }
+
+        // Get AI suggestions for first batch (up to 10)
+        await fetchSuggestionsForBatch(0, Math.min(10, prompts.length));
+
+        renderReviewModal();
+      } catch (err) {
+        console.error('Failed to open review:', err);
+        closeReviewModal();
+        alert('Failed to load prompts for review');
+      }
+    }
+
+    function showReviewLoading() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.id = 'review-modal';
+      modal.innerHTML = `
+        <div class="modal" style="max-width: 600px;">
+          <div class="modal-content" style="text-align: center; padding: 48px;">
+            <div class="spinner" style="margin: 0 auto 16px;"></div>
+            <p style="color: var(--text-secondary);">Loading prompts and getting AI suggestions...</p>
+            <p style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">This may take a few seconds</p>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    async function fetchSuggestionsForBatch(startIdx, endIdx) {
+      const batch = reviewState.prompts.slice(startIdx, endIdx);
+      const idsToFetch = batch.filter(p => !reviewState.suggestions[p.id]).map(p => p.id);
+
+      if (idsToFetch.length === 0) return;
+
+      try {
+        // Get tag suggestions
+        const tagResult = await API.suggestTagsForPrompts(idsToFetch);
+        const tagSuggestions = tagResult.suggestions || [];
+
+        // Get score suggestions
+        const scoreResult = await API.suggestScores(idsToFetch, idsToFetch.length);
+        const scoreSuggestions = scoreResult.suggestions || [];
+
+        // Merge into reviewState.suggestions
+        idsToFetch.forEach(id => {
+          const tagData = tagSuggestions.find(s => s.id === id);
+          const scoreData = scoreSuggestions.find(s => s.id === id);
+
+          reviewState.suggestions[id] = {
+            tags: tagData?.tags || [],
+            score: scoreData?.score || null,
+            reason: scoreData?.reason || ''
+          };
+        });
+      } catch (err) {
+        console.error('Failed to fetch suggestions:', err);
+        // Continue without suggestions
+      }
+    }
+
+    // ===========================================
+    // DOCS VIEW
+    // ===========================================
+    async function loadDocs() {
+      try {
+        const [data, watches] = await Promise.all([
+          API.getDocs(),
+          API.getWatches().catch(() => [])
+        ]);
+        state.docs = data.documents || [];
+        state.docsTree = data.tree || {};
+        state.watchedDirs = watches || [];
+        document.getElementById('docs-count').textContent = state.docs.length;
+      } catch (err) {
+        console.error('Failed to load docs:', err);
+      }
+    }
+
+    function renderDocs() {
+      const content = document.getElementById('content');
+
+      // Show the docs explorer in sidebar
+      showDocsExplorer();
+
+      // Main content is the document viewer
+      if (state.selectedDoc) {
+        renderDocViewer();
+      } else {
+        content.innerHTML = `
+          <div class="doc-viewer-empty">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14,2 14,8 20,8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <div class="doc-viewer-empty-text">Select a document from the explorer</div>
+          </div>
+        `;
+      }
+    }
+
+    function showDocsExplorer() {
+      // Add docs explorer to sidebar if not already there
+      let explorer = document.getElementById('docs-explorer');
+      if (!explorer) {
+        const sidebar = document.querySelector('.sidebar');
+        explorer = document.createElement('div');
+        explorer.id = 'docs-explorer';
+        explorer.className = 'docs-explorer';
+        explorer.innerHTML = `
+          <div class="docs-explorer-header">
+            <input type="text" class="docs-explorer-search" id="docs-search" placeholder="Search...">
+            <button class="docs-explorer-add" onclick="showAddDocModal()" title="Add document">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+            <button class="docs-explorer-refresh" onclick="reindexDocs()" title="Re-index">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+            </button>
+          </div>
+          <div class="docs-explorer-tree" id="docs-tree"></div>
+        `;
+        sidebar.appendChild(explorer);
+        setupDocsSearch();
+      }
+      renderDocsTree();
+    }
+
+    function hideDocsExplorer() {
+      const explorer = document.getElementById('docs-explorer');
+      if (explorer) {
+        explorer.remove();
+      }
+    }
+
+    function renderDocsTree() {
+      const tree = document.getElementById('docs-tree');
+      if (!tree) return;
+
+      const categoryLabels = {
+        'global': 'Global',
+        'config': 'Config',
+        'skill': 'Skills',
+        'extension': 'Extensions',
+        'workflow': 'Workflow',
+        'memory': 'Memory',
+        'spec': 'Specs',
+        'doc': 'Docs',
+        'custom': 'Custom',
+        'watched': 'Watched',
+      };
+
+      const categoryOrder = [
+        'global', 'config', 'skill', 'extension', 'workflow',
+        'memory', 'spec', 'doc', 'custom'
+      ];
+
+      let html = '';
+
+      // Watched directories section (shown at top when watches exist)
+      if (state.watchedDirs.length > 0) {
+        html += `
+          <div class="explorer-category" data-category="_watches">
+            <div class="explorer-category-header" onclick="toggleExplorerCategory('_watches')">
+              <svg class="explorer-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9,18 15,12 9,6"/>
+              </svg>
+              <span class="explorer-category-name" style="color: var(--accent-camel);">Watched Dirs</span>
+              <span class="explorer-category-count">${state.watchedDirs.reduce((sum, w) => sum + w.file_count, 0)}</span>
+            </div>
+            <div class="explorer-category-items">
+        `;
+        for (const watch of state.watchedDirs) {
+          const missing = !watch.exists;
+          // Find docs belonging to this watch — match by watched_dir_id first,
+          // fall back to path prefix matching (normalise separators for comparison)
+          const watchDirNorm = watch.directory.replace(/\\/g, '/').replace(/\/$/, '');
+          const watchDocs = state.docs.filter(d => {
+            if (d.watched_dir_id === watch.id) return true;
+            // Path-based fallback: doc path starts with the watch directory
+            const docPathNorm = (d.path || '').replace(/\\/g, '/');
+            return docPathNorm.startsWith(watchDirNorm + '/');
+          });
+
+          html += `
+            <div class="explorer-watch-group collapsed${missing ? ' missing' : ''}" data-watch="${watch.id}">
+              <div class="explorer-watch-header" onclick="toggleWatchGroup(${watch.id})" title="${escapeHtml(watch.directory)}&#10;Pattern: ${escapeHtml(watch.glob_pattern)}">
+                <svg class="explorer-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9,18 15,12 9,6"/>
+                </svg>
+                <svg class="explorer-watch-folder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span class="explorer-watch-label">${escapeHtml(watch.label || watch.directory)}</span>
+                <span class="explorer-watch-count">${watchDocs.length || watch.file_count}</span>
+                <button class="explorer-watch-remove" onclick="event.stopPropagation(); removeWatchedDir(${watch.id}, this.closest('.explorer-watch-header').querySelector('.explorer-watch-label').textContent)" title="Remove watch">&times;</button>
+              </div>
+              <div class="explorer-watch-files">
+                ${watchDocs.length > 0
+                  ? watchDocs.map(d => renderExplorerFile(d)).join('')
+                  : '<div class="explorer-empty" style="padding: 4px 8px 4px 40px; font-size: 11px;">No files indexed</div>'}
+              </div>
+            </div>
+          `;
+        }
+        html += `
+            </div>
+          </div>
+        `;
+      }
+
+      for (const category of categoryOrder) {
+        if (!state.docsTree[category]) continue;
+
+        const catData = state.docsTree[category];
+        const globalDocs = catData._global || [];
+        const projects = catData.projects || {};
+        const hasContent = globalDocs.length > 0 || Object.keys(projects).length > 0;
+
+        if (!hasContent) continue;
+
+        html += `
+          <div class="explorer-category collapsed" data-category="${category}">
+            <div class="explorer-category-header" onclick="toggleExplorerCategory('${category}')">
+              <svg class="explorer-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9,18 15,12 9,6"/>
+              </svg>
+              <span class="explorer-category-name">${categoryLabels[category] || category}</span>
+              <span class="explorer-category-count">${globalDocs.length + Object.values(projects).flat().length}</span>
+            </div>
+            <div class="explorer-category-items">
+        `;
+
+        // Global docs - already sorted by modified_at DESC from backend
+        for (const doc of globalDocs) {
+          html += renderExplorerFile(doc);
+        }
+
+        // Project groups - sort by most recent file in each project
+        const sortedProjects = Object.entries(projects).sort((a, b) => {
+          const aLatest = a[1][0]?.modified_at || '0';
+          const bLatest = b[1][0]?.modified_at || '0';
+          return bLatest.localeCompare(aLatest); // DESC
+        });
+
+        for (const [projectName, docs] of sortedProjects) {
+          html += `
+            <div class="explorer-project" data-project="${projectName}">
+              <div class="explorer-project-header" onclick="toggleExplorerProject('${category}', '${projectName}')">
+                <svg class="explorer-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9,18 15,12 9,6"/>
+                </svg>
+                <span class="explorer-project-name">${projectName}</span>
+              </div>
+              <div class="explorer-project-items">
+                ${docs.map(d => renderExplorerFile(d)).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        html += `
+            </div>
+          </div>
+        `;
+      }
+
+      tree.innerHTML = html || '<div class="explorer-empty">No documents. Click refresh.</div>';
+    }
+
+    function renderExplorerFile(doc) {
+      const isActive = state.selectedDoc?.id === doc.id;
+      const pathParts = doc.path.split(/[/\\]/);
+      const fileName = pathParts.pop();
+
+      // For skills, show the skill folder name (e.g., "/sessionstart" instead of "SKILL.md")
+      let displayName = fileName;
+      if (doc.category === 'skill' && fileName === 'SKILL.md') {
+        const skillName = pathParts.pop(); // Get parent folder name
+        displayName = '/' + skillName;
+      }
+
+      const icon = doc.file_type === 'py'
+        ? `<svg class="explorer-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>`
+        : `<svg class="explorer-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>`;
+
+      return `
+        <div class="explorer-file ${isActive ? 'active' : ''}" onclick="selectDoc(${doc.id})" title="${doc.path}">
+          ${icon}
+          <span class="explorer-file-name">${escapeHtml(displayName)}</span>
+        </div>
+      `;
+    }
+
+    function toggleExplorerCategory(category) {
+      const el = document.querySelector(`.explorer-category[data-category="${category}"]`);
+      if (el) el.classList.toggle('collapsed');
+    }
+
+    function toggleExplorerProject(category, project) {
+      const el = document.querySelector(`.explorer-category[data-category="${category}"] .explorer-project[data-project="${project}"]`);
+      if (el) el.classList.toggle('collapsed');
+    }
+
+    function toggleWatchGroup(watchId) {
+      const el = document.querySelector(`.explorer-watch-group[data-watch="${watchId}"]`);
+      if (el) el.classList.toggle('collapsed');
+    }
+
+    async function selectDoc(docId) {
+      try {
+        const doc = await API.getDoc(docId);
+        state.selectedDoc = doc;
+
+        // Load backlinks
+        const backlinksData = await API.getDocBacklinks(docId);
+        state.selectedDoc.backlinks = backlinksData.backlinks || [];
+
+        // Update explorer selection
+        document.querySelectorAll('.explorer-file').forEach(el => el.classList.remove('active'));
+        const activeFile = document.querySelector(`.explorer-file[onclick="selectDoc(${docId})"]`);
+        if (activeFile) activeFile.classList.add('active');
+
+        // Render in main content area
+        renderDocViewer();
+      } catch (err) {
+        console.error('Failed to load document:', err);
+      }
+    }
+
+    function renderDocViewer() {
+      const content = document.getElementById('content');
+      content.classList.add('docs-view');
+      if (!state.selectedDoc) return;
+
+      const doc = state.selectedDoc;
+      const isSource = state.docViewMode === 'source';
+
+      content.innerHTML = `
+        <div class="doc-viewer">
+          <div class="doc-viewer-header">
+            <div class="doc-viewer-top-row">
+              <div class="doc-viewer-info">
+                <div class="doc-viewer-title">${escapeHtml(doc.title)}</div>
+              </div>
+              <div class="doc-viewer-actions">
+                <div class="doc-view-toggle">
+                  <button class="${!isSource ? 'active' : ''}" onclick="setDocViewMode('reader')">Reader</button>
+                  <button class="${isSource ? 'active' : ''}" onclick="setDocViewMode('source')">Source</button>
+                </div>
+                <button class="doc-open-btn" onclick="openDocInEditor(${doc.id})">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                    <polyline points="15,3 21,3 21,9"/>
+                    <line x1="10" y1="14" x2="21" y2="3"/>
+                  </svg>
+                  Open in VS Code
+                </button>
+              </div>
+            </div>
+            <div class="doc-viewer-path">
+              <span class="doc-viewer-path-text">${escapeHtml(doc.path)}</span>
+              <button class="copy-path-btn" onclick="copyDocPath('${escapeHtml(doc.path).replace(/\\/g, '\\\\')}')" title="Copy path">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="doc-viewer-body">
+            ${isSource ? renderDocSource(doc) : renderDocContent(doc)}
+          </div>
+          ${doc.backlinks && doc.backlinks.length > 0 ? renderBacklinks(doc.backlinks) : ''}
+        </div>
+      `;
+    }
+
+    function renderDocContent(doc) {
+      if (doc.file_type === 'py') {
+        // Python files get syntax-highlighted source view
+        return renderDocSource(doc);
+      }
+
+      // Markdown rendering
+      let html = doc.content;
+
+      // Headers
+      html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+      html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+      html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+      // Bold and italic
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+      // Code blocks
+      html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+        return `<pre><code class="language-${lang}">${escapeHtml(code.trim())}</code></pre>`;
+      });
+
+      // Inline code
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+      // Blockquotes
+      html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+
+      // Links - make internal links clickable
+      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+        if (url.startsWith('http')) {
+          return `<a href="${url}" target="_blank">${text}</a>`;
+        }
+        return `<a class="internal-link" onclick="navigateToDoc('${escapeHtml(url)}')">${text}</a>`;
+      });
+
+      // Skill references - make clickable
+      html = html.replace(/(?<![`\w])\/([a-z][a-z0-9-]+)(?![`\w])/g, (match, skill) => {
+        return `<a class="internal-link" onclick="navigateToSkill('${skill}')">${match}</a>`;
+      });
+
+      // Lists
+      html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+      html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+
+      // Tables
+      html = html.replace(/^\|(.+)\|$/gm, (match, content) => {
+        const cells = content.split('|').map(c => c.trim());
+        return '<tr>' + cells.map(c => `<td>${c}</td>`).join('') + '</tr>';
+      });
+      html = html.replace(/(<tr>.*<\/tr>\n?)+/g, '<table>$&</table>');
+      html = html.replace(/<table>(.*?)<tr>(.*?)<\/tr>/s, (match, before, firstRow) => {
+        // Make first row headers
+        const headerRow = firstRow.replace(/<td>/g, '<th>').replace(/<\/td>/g, '</th>');
+        return `<table><tr>${headerRow}</tr>`;
+      });
+      // Remove separator rows
+      html = html.replace(/<tr><td>[-:\s|]+<\/td>.*?<\/tr>/g, '');
+
+      // Horizontal rules
+      html = html.replace(/^---+$/gm, '<hr>');
+
+      // Paragraphs
+      html = html.replace(/\n\n+/g, '</p><p>');
+      html = '<p>' + html + '</p>';
+      html = html.replace(/<p><(h[123]|ul|ol|pre|table|blockquote|hr)/g, '<$1');
+      html = html.replace(/<\/(h[123]|ul|ol|pre|table|blockquote)><\/p>/g, '</$1>');
+      html = html.replace(/<p><\/p>/g, '');
+
+      return `<div class="doc-rendered">${html}</div>`;
+    }
+
+    function renderDocSource(doc) {
+      // Determine language for syntax highlighting
+      const langMap = {
+        'py': 'python',
+        'md': 'markdown',
+        'json': 'json',
+        'yaml': 'yaml',
+        'text': 'plaintext'
+      };
+      const language = langMap[doc.file_type] || 'plaintext';
+
+      // Use highlight.js if available
+      let highlightedLines;
+      if (typeof hljs !== 'undefined') {
+        try {
+          const result = hljs.highlight(doc.content, { language });
+          // Split highlighted HTML by newlines (preserving spans across lines)
+          highlightedLines = result.value.split('\n');
+        } catch (e) {
+          // Fallback to plain text
+          highlightedLines = doc.content.split('\n').map(line => escapeHtml(line));
+        }
+      } else {
+        highlightedLines = doc.content.split('\n').map(line => escapeHtml(line));
+      }
+
+      return `
+        <div class="doc-source">
+          ${highlightedLines.map((line, i) => `
+            <div class="doc-source-line">
+              <span class="doc-source-num">${i + 1}</span>
+              <span class="doc-source-content">${line || ' '}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderBacklinks(backlinks) {
+      return `
+        <div class="doc-backlinks">
+          <div class="doc-backlinks-label">Linked from (${backlinks.length})</div>
+          <div class="doc-backlinks-list">
+            ${backlinks.map(bl => `
+              <div class="doc-backlink" onclick="selectDoc(${bl.id})">${escapeHtml(bl.title)}</div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function setDocViewMode(mode) {
+      state.docViewMode = mode;
+      renderDocViewer();
+    }
+
+    async function copyDocPath(path) {
+      try {
+        await navigator.clipboard.writeText(path);
+        const btn = document.querySelector('.copy-path-btn');
+        if (btn) {
+          btn.classList.add('copied');
+          btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20,6 9,17 4,12"/>
+          </svg>`;
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>`;
+          }, 1500);
+        }
+      } catch (err) {
+        console.error('Failed to copy path:', err);
+      }
+    }
+
+    async function openDocInEditor(docId) {
+      try {
+        await API.openDocInEditor(docId);
+      } catch (err) {
+        console.error('Failed to open in editor:', err);
+        alert('Failed to open in VS Code. Make sure "code" command is in PATH.');
+      }
+    }
+
+    async function reindexDocs() {
+      const btn = document.querySelector('.docs-explorer-refresh');
+      if (btn) btn.style.opacity = '0.5';
+
+      try {
+        const stats = await API.reindexDocs();
+        await loadDocs();
+        renderDocsTree();
+        alert(`Indexed: ${stats.indexed}, Updated: ${stats.updated}, Unchanged: ${stats.unchanged}, Removed: ${stats.removed}`);
+      } catch (err) {
+        console.error('Failed to reindex:', err);
+        alert('Failed to reindex documents');
+      } finally {
+        if (btn) btn.style.opacity = '1';
+      }
+    }
+
+    function showAddDocModal() {
+      // Remove any existing modal
+      closeAddDocModal();
+
+      const modal = document.createElement('div');
+      modal.className = 'add-doc-modal-overlay';
+      modal.id = 'add-doc-modal';
+      modal.innerHTML = `
+        <div class="add-doc-modal" style="width: 560px;">
+          <div class="add-doc-modal-header">
+            <div class="add-doc-modal-title">Add Document</div>
+            <button class="add-doc-modal-close" onclick="closeAddDocModal()">&times;</button>
+          </div>
+          <div class="add-doc-modal-tabs">
+            <button class="add-doc-tab active" data-tab="file" onclick="switchAddDocTab('file')">Add File</button>
+            <button class="add-doc-tab" data-tab="watch" onclick="switchAddDocTab('watch')">Watch Directory</button>
+          </div>
+          <div class="add-doc-tab-content" id="tab-file">
+            <div class="add-doc-modal-body">
+              <div class="add-doc-modal-label">File Path</div>
+              <input type="text" class="add-doc-modal-input" id="add-doc-path" placeholder="C:\\path\\to\\file.md" autocomplete="off">
+              <div class="add-doc-modal-hint">Paste the full absolute path to the file you want to add</div>
+            </div>
+            <div class="add-doc-modal-footer">
+              <button class="add-doc-modal-btn add-doc-modal-btn-cancel" onclick="closeAddDocModal()">Cancel</button>
+              <button class="add-doc-modal-btn add-doc-modal-btn-add" id="add-doc-btn" onclick="addDocument()">Add</button>
+            </div>
+          </div>
+          <div class="add-doc-tab-content" id="tab-watch" style="display: none;">
+            <div class="add-doc-modal-body">
+              <div class="add-doc-modal-label">Directory Path</div>
+              <input type="text" class="add-doc-modal-input" id="watch-dir-path" placeholder="C:\\path\\to\\project\\docs" autocomplete="off">
+              <div style="margin-top: 12px;">
+                <div class="add-doc-modal-label">Glob Pattern</div>
+                <input type="text" class="add-doc-modal-input" id="watch-glob-pattern" value="**/*.md" autocomplete="off">
+              </div>
+              <div style="display: flex; gap: 12px; margin-top: 12px;">
+                <div style="flex: 1;">
+                  <div class="add-doc-modal-label">Category</div>
+                  <input type="text" class="add-doc-modal-input" id="watch-category" placeholder="Auto-detect" autocomplete="off">
+                </div>
+                <div style="flex: 1;">
+                  <div class="add-doc-modal-label">Project</div>
+                  <input type="text" class="add-doc-modal-input" id="watch-project" placeholder="Auto-detect" autocomplete="off">
+                </div>
+              </div>
+              <div style="margin-top: 12px;">
+                <button class="add-doc-modal-btn" id="preview-btn" onclick="previewWatchFiles()" style="background: var(--bg-raised); border: 1px solid var(--border-default); color: var(--text-secondary);">Preview Files</button>
+              </div>
+              <div id="watch-preview" style="display: none; margin-top: 12px; max-height: 200px; overflow-y: auto; background: var(--bg-base); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 8px;"></div>
+            </div>
+            <div class="add-doc-modal-footer">
+              <button class="add-doc-modal-btn add-doc-modal-btn-cancel" onclick="closeAddDocModal()">Cancel</button>
+              <button class="add-doc-modal-btn add-doc-modal-btn-add" id="watch-btn" onclick="addWatchedDir()">Watch</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+
+      // Focus the input
+      const input = document.getElementById('add-doc-path');
+      if (input) {
+        input.focus();
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') addDocument();
+          if (e.key === 'Escape') closeAddDocModal();
+        });
+      }
+
+      // Close on overlay click
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeAddDocModal();
+      });
+    }
+
+    function switchAddDocTab(tab) {
+      // Toggle active tab button
+      document.querySelectorAll('.add-doc-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+      });
+      // Toggle tab content
+      document.getElementById('tab-file').style.display = tab === 'file' ? 'block' : 'none';
+      document.getElementById('tab-watch').style.display = tab === 'watch' ? 'block' : 'none';
+      // Focus relevant input
+      if (tab === 'file') {
+        document.getElementById('add-doc-path')?.focus();
+      } else {
+        document.getElementById('watch-dir-path')?.focus();
+      }
+    }
+
+    async function previewWatchFiles() {
+      const dirInput = document.getElementById('watch-dir-path');
+      const patternInput = document.getElementById('watch-glob-pattern');
+      const previewDiv = document.getElementById('watch-preview');
+      const btn = document.getElementById('preview-btn');
+      if (!dirInput || !previewDiv || !btn) return;
+
+      const directory = dirInput.value.trim();
+      if (!directory) {
+        alert('Please enter a directory path');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Scanning...';
+      previewDiv.style.display = 'block';
+      previewDiv.innerHTML = '<div style="color: var(--text-muted); font-size: 12px;">Scanning...</div>';
+
+      try {
+        const data = await API.browseDirectory(directory, patternInput?.value || '**/*.md');
+        if (data.files.length === 0) {
+          previewDiv.innerHTML = '<div style="color: var(--text-muted); font-size: 12px;">No files found</div>';
+        } else {
+          previewDiv.innerHTML = `
+            <div style="color: var(--text-tertiary); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px;">${data.count} file${data.count !== 1 ? 's' : ''} found</div>
+            ${data.files.map(f => `<div style="font-size: 12px; color: var(--text-secondary); padding: 2px 0; font-family: var(--font-mono);">${escapeHtml(f.name)}</div>`).join('')}
+          `;
+        }
+      } catch (err) {
+        previewDiv.innerHTML = `<div style="color: var(--semantic-error); font-size: 12px;">${escapeHtml(err.message || 'Failed to browse directory')}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Preview Files';
+      }
+    }
+
+    async function addWatchedDir() {
+      const dirInput = document.getElementById('watch-dir-path');
+      const patternInput = document.getElementById('watch-glob-pattern');
+      const categoryInput = document.getElementById('watch-category');
+      const projectInput = document.getElementById('watch-project');
+      const btn = document.getElementById('watch-btn');
+      if (!dirInput || !btn) return;
+
+      const directory = dirInput.value.trim();
+      if (!directory) {
+        alert('Please enter a directory path');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Watching...';
+
+      try {
+        const data = {
+          directory,
+          glob_pattern: patternInput?.value?.trim() || '**/*.md',
+        };
+        const cat = categoryInput?.value?.trim();
+        const proj = projectInput?.value?.trim();
+        if (cat) data.category = cat;
+        if (proj) data.project = proj;
+
+        await API.addWatch(data);
+
+        closeAddDocModal();
+        await loadDocs();
+        renderDocsTree();
+        showToast('Directory watch added', 'success');
+      } catch (err) {
+        alert('Failed to add watch: ' + (err.message || 'Unknown error'));
+        btn.disabled = false;
+        btn.textContent = 'Watch';
+      }
+    }
+
+    async function removeWatchedDir(watchId, label) {
+      if (!confirm(`Remove watch on "${label}"? This will remove its indexed documents.`)) return;
+
+      try {
+        await API.removeWatch(watchId);
+        await loadDocs();
+        renderDocsTree();
+        showToast('Watch removed', 'success');
+      } catch (err) {
+        alert('Failed to remove watch: ' + (err.message || 'Unknown error'));
+      }
+    }
+
+    function closeAddDocModal() {
+      const modal = document.getElementById('add-doc-modal');
+      if (modal) modal.remove();
+    }
+
+    async function addDocument() {
+      const input = document.getElementById('add-doc-path');
+      const btn = document.getElementById('add-doc-btn');
+      if (!input || !btn) return;
+
+      const path = input.value.trim();
+      if (!path) {
+        alert('Please enter a file path');
+        return;
+      }
+
+      // Disable button while adding
+      btn.disabled = true;
+      btn.textContent = 'Adding...';
+
+      try {
+        const result = await API.addDocument(path);
+
+        // Success - close modal, refresh tree, select new doc
+        closeAddDocModal();
+        await loadDocs();
+        renderDocsTree();
+
+        // Select the newly added document
+        if (result.id) {
+          await selectDoc(result.id);
+        }
+
+        // Show toast/notification
+        showToast(`Added: ${result.title || 'Document'}`, 'success');
+      } catch (err) {
+        console.error('Failed to add document:', err);
+        alert('Failed to add document: ' + (err.message || 'Unknown error'));
+        btn.disabled = false;
+        btn.textContent = 'Add';
+      }
+    }
+
+    function showToast(message, type = 'info') {
+      // Remove existing toast
+      const existing = document.querySelector('.toast');
+      if (existing) existing.remove();
+
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        padding: 12px 20px;
+        background: ${type === 'success' ? 'var(--semantic-success)' : 'var(--accent-camel)'};
+        color: var(--bg-base);
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        box-shadow: var(--shadow-lg);
+        z-index: 1100;
+        animation: toast-in 0.3s ease-out;
+      `;
+      toast.textContent = message;
+
+      // Add animation keyframes if not exists
+      if (!document.getElementById('toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = `
+          @keyframes toast-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      document.body.appendChild(toast);
+
+      // Auto-remove after 3 seconds
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(20px)';
+        toast.style.transition = 'all 0.3s ease-out';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    function setupDocsSearch() {
+      const input = document.getElementById('docs-search');
+      if (!input) return;
+
+      let timeout;
+      input.addEventListener('input', (e) => {
+        clearTimeout(timeout);
+        const query = e.target.value.trim();
+
+        if (query.length < 2) {
+          state.docsSearchResults = null;
+          renderDocsTree();
+          return;
+        }
+
+        timeout = setTimeout(async () => {
+          try {
+            const data = await API.searchDocs(query);
+            state.docsSearchResults = data.results || [];
+            renderDocsSearchResults(state.docsSearchResults);
+          } catch (err) {
+            console.error('Search failed:', err);
+          }
+        }, 300);
+      });
+    }
+
+    function renderDocsSearchResults(results) {
+      const tree = document.getElementById('docs-tree');
+      if (!tree) return;
+
+      if (results.length === 0) {
+        tree.innerHTML = '<div class="explorer-empty">No results found</div>';
+        return;
+      }
+
+      tree.innerHTML = results.map(r => `
+        <div class="explorer-search-result" onclick="selectDoc(${r.id})">
+          <div class="explorer-search-title">${escapeHtml(r.title)}</div>
+          <div class="explorer-search-snippet">${r.snippet || ''}</div>
+        </div>
+      `).join('');
+    }
+
+    async function navigateToSkill(skillName) {
+      // Find the skill document
+      const skillDoc = state.docs.find(d => d.category === 'skill' && d.path.includes(`/${skillName}/`));
+      if (skillDoc) {
+        await selectDoc(skillDoc.id);
+      }
+    }
+
+    async function navigateToDoc(path) {
+      // Try to find matching document
+      const doc = state.docs.find(d => d.path.endsWith(path) || d.path.includes(path));
+      if (doc) {
+        await selectDoc(doc.id);
+      }
+    }
+
+    function renderReviewModal() {
+      const modal = document.getElementById('review-modal');
+      if (!modal) return;
+
+      const prompt = reviewState.prompts[reviewState.currentIndex];
+      if (!prompt) {
+        closeReviewModal();
+        return;
+      }
+
+      const suggestion = reviewState.suggestions[prompt.id] || { tags: [], score: null };
+      const changes = reviewState.changes[prompt.id] || {
+        tags: [...(prompt.tags || [])],
+        score: prompt.importance_score
+      };
+
+      // Initialize changes from suggestions if not yet set
+      if (!reviewState.changes[prompt.id]) {
+        reviewState.changes[prompt.id] = {
+          tags: [...new Set([...(prompt.tags || []), ...suggestion.tags])],
+          score: prompt.importance_score || suggestion.score
+        };
+      }
+
+      const currentChanges = reviewState.changes[prompt.id];
+
+      modal.innerHTML = `
+        <div class="modal review-modal">
+          <div class="modal-header">
+            <h2 class="modal-title">Review</h2>
+            <span class="review-progress">${reviewState.currentIndex + 1} of ${reviewState.prompts.length}</span>
+            <button class="detail-close" onclick="closeReviewModal()">Close</button>
+          </div>
+
+          <div class="modal-content review-content">
+            <div class="review-section">
+              <div class="review-section-title">/ Prompt Content</div>
+              <div class="review-prompt-content">${escapeHtml(prompt.preview || '')}</div>
+              <div class="review-prompt-meta">
+                <span>${escapeHtml(prompt.project || 'No project')}</span>
+                <span>${formatDate(prompt.timestamp)}</span>
+                <span>${prompt.char_count || 0} chars</span>
+              </div>
+            </div>
+
+            ${suggestion.tags.length > 0 || suggestion.score ? `
+              <div class="review-section">
+                <div class="review-section-title">/ AI Suggestions</div>
+                <div class="review-suggestions">
+                  ${suggestion.tags.length > 0 ? `
+                    <div class="review-suggest-row">
+                      <span class="review-suggest-label">Tags:</span>
+                      <div class="review-suggest-tags">
+                        ${suggestion.tags.map(t => `<span class="tag-chip suggestion">${escapeHtml(t)}</span>`).join('')}
+                      </div>
+                    </div>
+                  ` : ''}
+                  ${suggestion.score ? `
+                    <div class="review-suggest-row">
+                      <span class="review-suggest-label">Score:</span>
+                      <span class="review-suggest-score">${suggestion.score}</span>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            ` : ''}
+
+            <div class="review-section">
+              <div class="review-section-title">/ Your Actions</div>
+
+              <div class="review-action-row">
+                <span class="review-action-label">Tags:</span>
+                <div class="review-tags-input">
+                  ${currentChanges.tags.map(t => `
+                    <span class="tag-chip removable">${escapeHtml(t)}
+                      <span class="remove-tag" onclick="removeReviewTag('${escapeHtml(t)}')">×</span>
+                    </span>
+                  `).join('')}
+                  <input type="text" class="review-tag-input" id="review-tag-input"
+                         placeholder="+ add tag"
+                         onkeydown="handleReviewTagInput(event)"
+                         onfocus="showReviewTagSuggestions()"
+                         oninput="filterReviewTagSuggestions()">
+                  <div class="review-tag-suggestions" id="review-tag-suggestions"></div>
+                </div>
+              </div>
+
+              <div class="review-action-row">
+                <span class="review-action-label">Score:</span>
+                <div class="review-score-buttons">
+                  ${[1,2,3,4,5,6,7,8,9,10].map(n => `
+                    <button class="score-btn ${currentChanges.score === n ? 'active' : ''} ${n <= 3 ? 'low' : n >= 7 ? 'high' : ''}"
+                            onclick="setReviewScore(${n})">${n}</button>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer review-footer">
+            <button class="btn-danger" onclick="deleteReviewPrompt()">Delete</button>
+            <div class="review-nav-buttons">
+              <button class="btn-secondary" ${reviewState.currentIndex === 0 ? 'disabled' : ''}
+                      onclick="prevReviewPrompt()">← Prev</button>
+              <button class="btn-secondary" onclick="skipReviewPrompt()">Skip</button>
+              <button class="btn-primary" onclick="applyAndNextReview()">Apply & Next →</button>
+              ${reviewState.prompts.length > 1 ? `
+                <button class="btn-primary btn-apply-all" onclick="acceptAllSuggestions()">Accept All Suggestions</button>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function setReviewScore(score) {
+      const prompt = reviewState.prompts[reviewState.currentIndex];
+      if (!prompt) return;
+
+      if (!reviewState.changes[prompt.id]) {
+        reviewState.changes[prompt.id] = { tags: [...(prompt.tags || [])], score: null };
+      }
+      reviewState.changes[prompt.id].score = score;
+      renderReviewModal();
+    }
+
+    function removeReviewTag(tagName) {
+      const prompt = reviewState.prompts[reviewState.currentIndex];
+      if (!prompt) return;
+
+      if (!reviewState.changes[prompt.id]) {
+        reviewState.changes[prompt.id] = { tags: [...(prompt.tags || [])], score: prompt.importance_score };
+      }
+      reviewState.changes[prompt.id].tags = reviewState.changes[prompt.id].tags.filter(t => t !== tagName);
+      renderReviewModal();
+    }
+
+    function addReviewTag(tagName) {
+      const prompt = reviewState.prompts[reviewState.currentIndex];
+      if (!prompt) return;
+
+      const normalized = tagName.toLowerCase().trim().replace(/\s+/g, '-');
+      if (!normalized) return;
+
+      if (!reviewState.changes[prompt.id]) {
+        reviewState.changes[prompt.id] = { tags: [...(prompt.tags || [])], score: prompt.importance_score };
+      }
+
+      if (!reviewState.changes[prompt.id].tags.includes(normalized)) {
+        reviewState.changes[prompt.id].tags.push(normalized);
+      }
+      renderReviewModal();
+    }
+
+    function handleReviewTagInput(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        const input = event.target;
+        if (input.value.trim()) {
+          addReviewTag(input.value);
+          input.value = '';
+        }
+      } else if (event.key === 'Escape') {
+        document.getElementById('review-tag-suggestions').style.display = 'none';
+      }
+    }
+
+    function showReviewTagSuggestions() {
+      const prompt = reviewState.prompts[reviewState.currentIndex];
+      const currentTags = reviewState.changes[prompt?.id]?.tags || prompt?.tags || [];
+      const suggestionsEl = document.getElementById('review-tag-suggestions');
+      if (!suggestionsEl) return;
+
+      const availableTags = state.tags.filter(t => !currentTags.includes(t.name));
+
+      if (availableTags.length === 0) {
+        suggestionsEl.innerHTML = '<div class="tag-suggestion">No more tags</div>';
+      } else {
+        suggestionsEl.innerHTML = availableTags.slice(0, 10).map(t => `
+          <div class="tag-suggestion" onclick="addReviewTag('${escapeHtml(t.name)}')">${escapeHtml(t.name)}</div>
+        `).join('');
+      }
+      suggestionsEl.style.display = 'block';
+    }
+
+    function filterReviewTagSuggestions() {
+      const input = document.getElementById('review-tag-input');
+      const suggestionsEl = document.getElementById('review-tag-suggestions');
+      if (!input || !suggestionsEl) return;
+
+      const query = input.value.toLowerCase().trim();
+      const prompt = reviewState.prompts[reviewState.currentIndex];
+      const currentTags = reviewState.changes[prompt?.id]?.tags || prompt?.tags || [];
+
+      const filtered = state.tags.filter(t =>
+        !currentTags.includes(t.name) && t.name.includes(query)
+      );
+
+      if (filtered.length === 0) {
+        suggestionsEl.innerHTML = '<div class="tag-suggestion">No matches</div>';
+      } else {
+        suggestionsEl.innerHTML = filtered.slice(0, 10).map(t => `
+          <div class="tag-suggestion" onclick="addReviewTag('${escapeHtml(t.name)}')">${escapeHtml(t.name)}</div>
+        `).join('');
+      }
+    }
+
+    async function applyAndNextReview() {
+      const prompt = reviewState.prompts[reviewState.currentIndex];
+      if (!prompt) return;
+
+      const changes = reviewState.changes[prompt.id];
+      if (changes) {
+        try {
+          // Apply tags
+          if (changes.tags) {
+            await API.updatePromptTags(prompt.id, changes.tags);
+          }
+          // Apply score
+          if (changes.score !== null && changes.score !== prompt.importance_score) {
+            await API.scorePrompts([{ id: prompt.id, score: changes.score }]);
+          }
+        } catch (err) {
+          console.error('Failed to apply changes:', err);
+        }
+      }
+
+      nextReviewPrompt();
+    }
+
+    function skipReviewPrompt() {
+      nextReviewPrompt();
+    }
+
+    async function acceptAllSuggestions() {
+      // Count how many have suggestions
+      const withSuggestions = reviewState.prompts.filter(p => {
+        const s = reviewState.suggestions[p.id];
+        return s && (s.score || (s.tags && s.tags.length > 0));
+      });
+
+      if (withSuggestions.length === 0) {
+        showToast('No AI suggestions available');
+        return;
+      }
+
+      if (!confirm(`Accept AI suggestions for ${withSuggestions.length} prompts?`)) {
+        return;
+      }
+
+      try {
+        let applied = 0;
+        for (const prompt of reviewState.prompts) {
+          const suggestion = reviewState.suggestions[prompt.id];
+          if (!suggestion) continue;
+
+          // Apply suggested tags (merge with existing)
+          if (suggestion.tags && suggestion.tags.length > 0) {
+            const mergedTags = [...new Set([...(prompt.tags || []), ...suggestion.tags])];
+            await API.updatePromptTags(prompt.id, mergedTags);
+          }
+
+          // Apply suggested score
+          if (suggestion.score && prompt.importance_score === null) {
+            await API.scorePrompts([{ id: prompt.id, score: suggestion.score }]);
+          }
+
+          applied++;
+        }
+
+        await loadStats();
+        await loadPrompts();
+        closeReviewModal();
+        showToast(`Accepted suggestions for ${applied} prompts`);
+      } catch (err) {
+        console.error('Failed to accept suggestions:', err);
+        showToast('Error applying suggestions');
+      }
+    }
+
+    async function nextReviewPrompt() {
+      reviewState.currentIndex++;
+
+      if (reviewState.currentIndex >= reviewState.prompts.length) {
+        await loadStats();
+        await loadPrompts();
+        closeReviewModal();
+        showToast('Review complete!');
+        return;
+      }
+
+      // Pre-fetch suggestions for next batch if needed
+      if (reviewState.currentIndex % 5 === 0) {
+        const startIdx = reviewState.currentIndex;
+        const endIdx = Math.min(startIdx + 10, reviewState.prompts.length);
+        fetchSuggestionsForBatch(startIdx, endIdx);
+      }
+
+      renderReviewModal();
+    }
+
+    function prevReviewPrompt() {
+      if (reviewState.currentIndex > 0) {
+        reviewState.currentIndex--;
+        renderReviewModal();
+      }
+    }
+
+    async function deleteReviewPrompt() {
+      const prompt = reviewState.prompts[reviewState.currentIndex];
+      if (!prompt) return;
+
+      if (!confirm('Delete this prompt?')) return;
+
+      try {
+        await API.deletePrompt(prompt.id);
+        // Remove from review list and selection
+        reviewState.prompts.splice(reviewState.currentIndex, 1);
+        state.selectedPrompts.delete(prompt.id);
+
+        if (reviewState.prompts.length === 0) {
+          await loadStats();
+          await loadPrompts();
+          closeReviewModal();
+          showToast('All prompts reviewed');
+          return;
+        }
+
+        // Adjust index if at end
+        if (reviewState.currentIndex >= reviewState.prompts.length) {
+          reviewState.currentIndex = reviewState.prompts.length - 1;
+        }
+
+        renderReviewModal();
+        showToast('Prompt deleted');
+      } catch (err) {
+        console.error('Failed to delete:', err);
+      }
+    }
+
+    function closeReviewModal() {
+      const modal = document.getElementById('review-modal');
+      if (modal) modal.remove();
+      reviewState.prompts = [];
+      reviewState.currentIndex = 0;
+      reviewState.suggestions = {};
+      reviewState.changes = {};
+      // Clear selection and update UI
+      state.selectedPrompts.clear();
+      updateSelectionUI();
+      document.getElementById('list-items').innerHTML = renderPromptsList();
+    }
+
+    function closePromptDetail() {
+      state.selectedItem = null;
+      document.querySelectorAll('.inline-detail').forEach(el => {
+        el.innerHTML = '';
+      });
+      document.querySelectorAll('.list-item').forEach(el => el.classList.remove('selected'));
+    }
+
+    async function savePromptScore(id) {
+      const scoreInput = document.getElementById('score-input');
+      const score = parseInt(scoreInput.value);
+
+      if (isNaN(score) || score < 1 || score > 10) {
+        alert('Score must be between 1 and 10');
+        return;
+      }
+
+      try {
+        await API.scorePrompts([{ id, score }]);
+        await loadStats();  // Refresh sidebar stats
+        // Refresh the list
+        await loadPrompts();
+        // Update the selected item
+        selectPrompt(id);
+      } catch (err) {
+        console.error('Failed to save score:', err);
+        alert('Failed to save score');
+      }
+    }
+
+    // ===========================================
+    // DATA LOADING
+    // ===========================================
+    async function loadStats() {
+      try {
+        state.stats = await API.getStats();
+        document.getElementById('sessions-count').textContent = state.stats.sessions;
+        document.getElementById('errors-count').textContent = state.stats.errors;
+        document.getElementById('decisions-count').textContent = state.stats.decisions;
+        document.getElementById('learnings-count').textContent = state.stats.learnings;
+        document.getElementById('prompts-count').textContent = state.stats.prompts;
+        document.getElementById('tags-count').textContent = state.stats.tags;
+      } catch (err) {
+        console.error('Failed to load stats:', err);
+      }
+    }
+
+    async function loadProjects() {
+      try {
+        state.projects = await API.getProjects();
+      } catch (err) {
+        console.error('Failed to load projects:', err);
+      }
+    }
+
+    async function loadSessions() {
+      try {
+        const params = {};
+        if (state.filters.project) params.project = state.filters.project;
+        if (state.searchQuery) params.search = state.searchQuery;
+
+        state.sessions = await API.getSessions(params);
+        document.getElementById('list-items').innerHTML = renderSessionsList();
+      } catch (err) {
+        console.error('Failed to load sessions:', err);
+      }
+    }
+
+    async function loadErrors() {
+      try {
+        const params = {};
+        if (state.filters.project) params.project = state.filters.project;
+        if (state.filters.resolved !== null) params.resolved = state.filters.resolved;
+        if (state.searchQuery) params.search = state.searchQuery;
+
+        state.errors = await API.getErrors(params);
+        document.getElementById('list-items').innerHTML = renderErrorsList();
+      } catch (err) {
+        console.error('Failed to load errors:', err);
+      }
+    }
+
+    async function loadDecisions() {
+      try {
+        const params = {};
+        if (state.filters.project) params.project = state.filters.project;
+        if (state.searchQuery) params.search = state.searchQuery;
+
+        state.decisions = await API.getDecisions(params);
+        document.getElementById('list-items').innerHTML = renderDecisionsList();
+      } catch (err) {
+        console.error('Failed to load decisions:', err);
+      }
+    }
+
+    async function loadLearnings() {
+      try {
+        const params = {};
+        if (state.filters.project) params.project = state.filters.project;
+        if (state.searchQuery) params.search = state.searchQuery;
+
+        state.learnings = await API.getLearnings(params);
+        document.getElementById('list-items').innerHTML = renderLearningsList();
+      } catch (err) {
+        console.error('Failed to load learnings:', err);
+      }
+    }
+
+    async function loadPrompts() {
+      try {
+        const params = {};
+        if (state.filters.project) params.project = state.filters.project;
+        if (state.filters.scored !== null) params.scored = state.filters.scored;
+        if (state.filters.minScore !== null) params.min_score = state.filters.minScore;
+        if (state.filters.maxScore !== null) params.max_score = state.filters.maxScore;
+        if (state.filters.tag) params.tag = state.filters.tag;
+        // Visibility filters
+        params.show_active = state.filters.showActive;
+        params.show_deleted = state.filters.showDeleted;
+        params.show_trivial = state.filters.showTrivial;
+
+        state.prompts = await API.getPrompts(params);
+
+        // Keep only selections that are still in the filtered list
+        const visibleIds = new Set(state.prompts.map(p => p.id));
+        state.selectedPrompts = new Set([...state.selectedPrompts].filter(id => visibleIds.has(id)));
+
+        document.getElementById('list-items').innerHTML = renderPromptsList();
+        updateSelectionUI();
+      } catch (err) {
+        console.error('Failed to load prompts:', err);
+      }
+    }
+
+    async function loadTags() {
+      try {
+        const result = await API.getTags();
+        state.tags = result.tags || [];
+      } catch (err) {
+        console.error('Failed to load tags:', err);
+        state.tags = [];
+      }
+    }
+
+    // ===========================================
+    // NAVIGATION
+    // ===========================================
+    async function switchView(view) {
+      // Hide docs explorer when leaving docs view
+      if (state.view === 'docs' && view !== 'docs') {
+        hideDocsExplorer();
+        state.selectedDoc = null;
+        document.getElementById('content').classList.remove('docs-view');
+      }
+
+      state.view = view;
+      state.selectedItem = null;
+      state.searchQuery = '';
+      state.selectedPrompts.clear();  // Clear selection when switching views
+      state.filters = { project: '', resolved: null, scored: null, minScore: null, maxScore: null, tag: '', docCategory: '', showActive: true, showDeleted: false, showTrivial: false };
+
+      // Update nav
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.view === view);
+      });
+
+      // Update title
+      const titles = {
+        dashboard: 'Dashboard',
+        sessions: 'Sessions',
+        errors: 'Errors',
+        decisions: 'Decisions',
+        learnings: 'Learnings',
+        prompts: 'Prompts',
+        tags: 'Tags',
+        docs: 'Docs'
+      };
+      document.title = `${titles[view] || view} — Knowledge Viewer`;
+      document.getElementById('page-title').textContent = titles[view];
+
+      // Show/hide search (docs has its own search)
+      const searchable = ['errors', 'decisions', 'learnings'];
+      document.getElementById('search-container').style.display =
+        searchable.includes(view) ? 'flex' : 'none';
+      document.getElementById('search-input').value = '';
+
+      // Render view
+      switch (view) {
+        case 'dashboard':
+          await loadStats();  // Refresh stats when returning to dashboard
+          renderDashboard();
+          break;
+        case 'sessions':
+          await loadSessions();
+          renderSessions();
+          break;
+        case 'errors':
+          await loadErrors();
+          renderErrors();
+          break;
+        case 'decisions':
+          await loadDecisions();
+          renderDecisions();
+          break;
+        case 'learnings':
+          await loadLearnings();
+          renderLearnings();
+          break;
+        case 'prompts':
+          await loadTags();  // Load tag vocabulary for filters
+          await loadPrompts();
+          renderPrompts();
+          break;
+        case 'tags':
+          await loadTags();
+          renderTagsView();
+          break;
+        case 'docs':
+          await loadDocs();
+          renderDocs();
+          break;
+      }
+    }
+
+    // ===========================================
+    // SEARCH
+    // ===========================================
+    let searchTimeout;
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        state.searchQuery = e.target.value;
+        if (state.view === 'errors') loadErrors();
+        else if (state.view === 'decisions') loadDecisions();
+        else if (state.view === 'learnings') loadLearnings();
+      }, 300);
+    });
+
+    // ===========================================
+    // INIT
+    // ===========================================
+    document.querySelectorAll('.nav-item').forEach(el => {
+      el.addEventListener('click', () => switchView(el.dataset.view));
+    });
+
+    async function init() {
+      await loadStats();
+      await loadProjects();
+      renderDashboard();
+    }
+
+    init();
+  </script>
+</body>
+</html>
