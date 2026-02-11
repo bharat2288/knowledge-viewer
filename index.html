@@ -524,6 +524,13 @@
     .status-badge.unresolved { background: #3a1e1e; color: #cd6464; }
     .status-badge.clean { background: #1e3a2f; color: #7ab07a; }
     .status-badge.abrupt { background: #3a2a1e; color: #d4a574; }
+    .status-badge.source {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+    .status-badge.source.codex { background: #1c2932; color: #8db2c7; }
+    .status-badge.source.claude { background: #2b251e; color: #c7a87a; }
 
     /* Tag chips */
     .item-tags {
@@ -1487,73 +1494,37 @@
       cursor: pointer;
     }
 
-    .filter-multiselect {
-      position: relative;
-      display: inline-block;
+    /* Filter chips — toggle buttons for visibility categories */
+    .filter-chips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .filter-multiselect-toggle {
-      padding: 8px 12px;
+    .filter-chip {
+      padding: 5px 12px;
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      color: var(--text-primary);
+      border-radius: 16px;
+      color: var(--text-tertiary);
       font-family: var(--font-base);
-      font-size: 13px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 120px;
+      transition: all 0.15s ease;
+      user-select: none;
     }
 
-    .filter-multiselect-toggle:hover {
+    .filter-chip:hover {
       border-color: var(--border-default);
+      color: var(--text-secondary);
     }
 
-    .filter-multiselect-toggle .chevron {
-      margin-left: auto;
-      font-size: 10px;
-      color: var(--text-muted);
-    }
-
-    .filter-multiselect-dropdown {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      margin-top: 4px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      box-shadow: var(--shadow-md);
-      z-index: 100;
-      min-width: 140px;
-      display: none;
-    }
-
-    .filter-multiselect-dropdown.open {
-      display: block;
-    }
-
-    .filter-multiselect-option {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 13px;
-      color: var(--text-primary);
-    }
-
-    .filter-multiselect-option:hover {
-      background: var(--bg-raised);
-    }
-
-    .filter-multiselect-option input[type="checkbox"] {
-      accent-color: var(--accent-camel);
-      width: 14px;
-      height: 14px;
-      cursor: pointer;
+    .filter-chip.active {
+      background: var(--accent-camel-subtle);
+      border-color: var(--accent-camel);
+      color: var(--accent-camel);
     }
 
     /* ===========================================
@@ -2819,10 +2790,12 @@
         minScore: null,
         maxScore: null,
         tag: '',  // tag filter for prompts
+        source: '',  // source filter for prompts (claude|codex)
         docCategory: '',  // category filter for docs
         showActive: true,
         showDeleted: false,
-        showTrivial: false
+        showTrivial: false,
+        showPastes: false
       }
     };
 
@@ -2955,6 +2928,15 @@
         hour: '2-digit',
         minute: '2-digit'
       });
+    }
+
+    function normalizeSource(source) {
+      const s = (source || 'claude').toLowerCase();
+      return s === 'codex' ? 'codex' : 'claude';
+    }
+
+    function formatSource(source) {
+      return normalizeSource(source) === 'codex' ? 'Codex' : 'Claude';
     }
 
     function truncate(str, len = 100) {
@@ -3789,6 +3771,10 @@
             <option value="">All projects</option>
             ${state.projects.map(p => `<option value="${p}">${p}</option>`).join('')}
           </select>
+          <div class="filter-chips" id="source-chips">
+            <span class="filter-chip ${state.filters.source === 'claude' ? 'active' : ''}" data-source="claude">Claude</span>
+            <span class="filter-chip ${state.filters.source === 'codex' ? 'active' : ''}" data-source="codex">Codex</span>
+          </div>
           <select class="filter-select" id="tag-filter">
             <option value="">All tags</option>
             ${tagOptions}
@@ -3800,25 +3786,11 @@
             <option value="4-6">Medium (4-6)</option>
             <option value="7-10">High (7-10)</option>
           </select>
-          <div class="filter-multiselect" id="visibility-filter">
-            <button type="button" class="filter-multiselect-toggle" id="visibility-toggle">
-              <span id="visibility-label">${getVisibilityLabel()}</span>
-              <span class="chevron">▼</span>
-            </button>
-            <div class="filter-multiselect-dropdown" id="visibility-dropdown">
-              <label class="filter-multiselect-option">
-                <input type="checkbox" id="vis-active" ${state.filters.showActive !== false ? 'checked' : ''}>
-                Active
-              </label>
-              <label class="filter-multiselect-option">
-                <input type="checkbox" id="vis-deleted" ${state.filters.showDeleted ? 'checked' : ''}>
-                Deleted
-              </label>
-              <label class="filter-multiselect-option">
-                <input type="checkbox" id="vis-trivial" ${state.filters.showTrivial ? 'checked' : ''}>
-                Trivial
-              </label>
-            </div>
+          <div class="filter-chips" id="visibility-chips">
+            <span class="filter-chip ${state.filters.showActive !== false ? 'active' : ''}" data-filter="showActive">Active</span>
+            <span class="filter-chip ${state.filters.showDeleted ? 'active' : ''}" data-filter="showDeleted">Deleted</span>
+            <span class="filter-chip ${state.filters.showTrivial ? 'active' : ''}" data-filter="showTrivial">Trivial</span>
+            <span class="filter-chip ${state.filters.showPastes ? 'active' : ''}" data-filter="showPastes">Pastes</span>
           </div>
         </div>
 
@@ -3860,6 +3832,19 @@
         loadPrompts();
       });
 
+      // Source filter chips — exclusive toggle (click active to deselect = show all)
+      document.getElementById('source-chips').addEventListener('click', (e) => {
+        const chip = e.target.closest('.filter-chip');
+        if (!chip) return;
+        const source = chip.dataset.source;
+        // Toggle: if already selected, deselect (show all); otherwise select this one
+        state.filters.source = (state.filters.source === source) ? '' : source;
+        document.querySelectorAll('#source-chips .filter-chip').forEach(c => {
+          c.classList.toggle('active', c.dataset.source === state.filters.source);
+        });
+        loadPrompts();
+      });
+
       document.getElementById('score-filter').addEventListener('change', (e) => {
         const val = e.target.value;
         if (val === '') {
@@ -3884,38 +3869,15 @@
         loadPrompts();
       });
 
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('#visibility-filter')) {
-          document.getElementById('visibility-dropdown')?.classList.remove('open');
-        }
+      // Visibility filter chips — click to toggle
+      document.getElementById('visibility-chips').addEventListener('click', (e) => {
+        const chip = e.target.closest('.filter-chip');
+        if (!chip) return;
+        const filterKey = chip.dataset.filter;
+        state.filters[filterKey] = !state.filters[filterKey];
+        chip.classList.toggle('active', state.filters[filterKey]);
+        loadPrompts();
       });
-
-      // Visibility filter toggle and checkboxes
-      document.getElementById('visibility-toggle').addEventListener('click', toggleVisibilityDropdown);
-      document.getElementById('vis-active').addEventListener('change', updateVisibilityFilter);
-      document.getElementById('vis-deleted').addEventListener('change', updateVisibilityFilter);
-      document.getElementById('vis-trivial').addEventListener('change', updateVisibilityFilter);
-    }
-
-    function toggleVisibilityDropdown() {
-      document.getElementById('visibility-dropdown').classList.toggle('open');
-    }
-
-    function getVisibilityLabel() {
-      const parts = [];
-      if (state.filters.showActive !== false) parts.push('Active');
-      if (state.filters.showDeleted) parts.push('Deleted');
-      if (state.filters.showTrivial) parts.push('Trivial');
-      return parts.length > 0 ? parts.join(', ') : 'None';
-    }
-
-    function updateVisibilityFilter() {
-      state.filters.showActive = document.getElementById('vis-active').checked;
-      state.filters.showDeleted = document.getElementById('vis-deleted').checked;
-      state.filters.showTrivial = document.getElementById('vis-trivial').checked;
-      document.getElementById('visibility-label').textContent = getVisibilityLabel();
-      loadPrompts();
     }
 
     function togglePromptSelection(id) {
@@ -3989,6 +3951,7 @@
                   ${p.importance_score !== null ? `<span class="status-badge resolved">Score: ${p.importance_score}</span>` : ''}
                 </div>
                 <div class="item-meta">
+                  <span class="status-badge source ${normalizeSource(p.source)}">${formatSource(p.source)}</span>
                   <span>${escapeHtml(p.project || 'No project')}</span>
                   <span>${formatDate(p.timestamp)}</span>
                   <span>${p.char_count || 0} chars</span>
@@ -4043,6 +4006,10 @@
                 <div class="detail-field">
                   <span class="field-label">Project</span>
                   <span class="field-value">${escapeHtml(prompt.project || 'N/A')}</span>
+                </div>
+                <div class="detail-field">
+                  <span class="field-label">Source</span>
+                  <span class="field-value">${formatSource(prompt.source)}</span>
                 </div>
                 <div class="detail-field">
                   <span class="field-label">Timestamp</span>
@@ -5592,6 +5559,7 @@
               <div class="review-prompt-content">${escapeHtml(prompt.preview || '')}</div>
               <div class="review-prompt-meta">
                 <span>${escapeHtml(prompt.project || 'No project')}</span>
+                <span class="status-badge source ${normalizeSource(prompt.source)}">${formatSource(prompt.source)}</span>
                 <span>${formatDate(prompt.timestamp)}</span>
                 <span>${prompt.char_count || 0} chars</span>
               </div>
@@ -6021,10 +5989,12 @@
         if (state.filters.minScore !== null) params.min_score = state.filters.minScore;
         if (state.filters.maxScore !== null) params.max_score = state.filters.maxScore;
         if (state.filters.tag) params.tag = state.filters.tag;
+        if (state.filters.source) params.source = state.filters.source;
         // Visibility filters
         params.show_active = state.filters.showActive;
         params.show_deleted = state.filters.showDeleted;
         params.show_trivial = state.filters.showTrivial;
+        params.show_pastes = state.filters.showPastes;
 
         state.prompts = await API.getPrompts(params);
 
@@ -6064,7 +6034,7 @@
       state.selectedItem = null;
       state.searchQuery = '';
       state.selectedPrompts.clear();  // Clear selection when switching views
-      state.filters = { project: '', resolved: null, scored: null, minScore: null, maxScore: null, tag: '', docCategory: '', showActive: true, showDeleted: false, showTrivial: false };
+      state.filters = { project: '', resolved: null, scored: null, minScore: null, maxScore: null, tag: '', source: '', docCategory: '', showActive: true, showDeleted: false, showTrivial: false, showPastes: false };
 
       // Update nav
       document.querySelectorAll('.nav-item').forEach(el => {

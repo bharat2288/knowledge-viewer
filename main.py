@@ -15,6 +15,7 @@ import os
 import re
 import sqlite3
 import subprocess
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -44,6 +45,7 @@ except ImportError:
 # Database paths (configurable via env vars, default to DEV_ROOT/knowledge/)
 KNOWLEDGE_DB = Path(os.getenv("KV_KNOWLEDGE_DB", DEV_ROOT / "knowledge" / "knowledge.db"))
 PROMPTS_DB = Path(os.getenv("KV_PROMPTS_DB", DEV_ROOT / "knowledge" / "prompts.db"))
+CODEX_PROMPT_WATCHER = DEV_ROOT / "claude-workflow-system" / "codex" / "prompt_watcher.py"
 
 app = FastAPI(title="Knowledge Viewer", version="1.0.0")
 
@@ -63,6 +65,7 @@ def ensure_prompts_schema():
     migrations = [
         ("deleted_at", "ALTER TABLE prompts ADD COLUMN deleted_at TEXT"),
         ("tags", "ALTER TABLE prompts ADD COLUMN tags TEXT DEFAULT '[]'"),
+        ("source", "ALTER TABLE prompts ADD COLUMN source TEXT DEFAULT 'claude'"),
     ]
 
     for col_name, sql in migrations:
@@ -861,7 +864,7 @@ async def serve_frontend():
     index_path = Path(__file__).parent / "index.html"
     if not index_path.exists():
         raise HTTPException(status_code=500, detail="Frontend not found")
-    return FileResponse(index_path, media_type="text/html")
+    return FileResponse(index_path, media_type="text/html", headers={"Cache-Control": "no-store"})
 
 
 # =============================================================================
@@ -1330,9 +1333,11 @@ async def list_prompts(
     min_score: Optional[int] = None,
     max_score: Optional[int] = None,
     tag: Optional[str] = None,
+    source: Optional[str] = None,
     show_active: bool = Query(default=True, description="Show active prompts (not deleted, passes filter)"),
     show_deleted: bool = Query(default=False, description="Show deleted prompts"),
-    show_trivial: bool = Query(default=False, description="Show trivial prompts (auto-filtered)"),
+    show_trivial: bool = Query(default=False, description="Show trivial prompts (auto-filtered, not pastes)"),
+    show_pastes: bool = Query(default=False, description="Show large pastes (auto-filtered)"),
     limit: int = Query(default=500, le=5000),
     offset: int = 0
 ):
@@ -1344,13 +1349,20 @@ async def list_prompts(
     params = []
 
     # Build visibility filter (OR conditions for selected categories)
+    # Pastes are separated from trivial: pastes have filter_reason starting with 'large_paste'
     visibility_parts = []
     if show_active:
         visibility_parts.append("(deleted_at IS NULL AND passes_filter = 1)")
     if show_deleted:
         visibility_parts.append("(deleted_at IS NOT NULL)")
     if show_trivial:
-        visibility_parts.append("(deleted_at IS NULL AND passes_filter = 0)")
+        visibility_parts.append(
+            "(deleted_at IS NULL AND passes_filter = 0 AND (filter_reason IS NULL OR filter_reason NOT LIKE 'large_paste%'))"
+        )
+    if show_pastes:
+        visibility_parts.append(
+            "(deleted_at IS NULL AND passes_filter = 0 AND filter_reason LIKE 'large_paste%')"
+        )
 
     if visibility_parts:
         conditions.append(f"({' OR '.join(visibility_parts)})")
@@ -1376,14 +1388,18 @@ async def list_prompts(
         conditions.append("importance_score <= ?")
         params.append(max_score)
 
+    if source:
+        conditions.append("source = ?")
+        params.append(source)
+
     where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
 
     cursor.execute(f"""
-        SELECT id, timestamp, project, char_count, importance_score,
+        SELECT id, timestamp, project, source, char_count, importance_score,
                SUBSTR(prompt, 1, 200) as preview, deleted_at, tags
         FROM prompts
         {where_clause}
-        ORDER BY timestamp DESC
+        ORDER BY (timestamp IS NULL OR timestamp = ''), datetime(timestamp) DESC, id DESC
         LIMIT ? OFFSET ?
     """, params + [limit, offset])
 
@@ -1482,7 +1498,7 @@ async def suggest_scores(data: SuggestScoresRequest):
             FROM prompts
             WHERE id IN ({placeholders}) AND deleted_at IS NULL
               AND passes_filter = 1
-            ORDER BY timestamp DESC
+            ORDER BY (timestamp IS NULL OR timestamp = ''), datetime(timestamp) DESC, id DESC
         """, data.prompt_ids)
     else:
         # Get oldest unscored prompts (only those passing filter)
@@ -1515,6 +1531,29 @@ async def suggest_scores(data: SuggestScoresRequest):
             await asyncio.sleep(0.5)
 
     return {"suggestions": suggestions}
+
+
+class SyncCodexRequest(BaseModel):
+    """Request to sync Codex prompts into prompts.db."""
+    project_dir: Optional[str] = None
+
+
+@app.post("/api/prompts/sync-codex")
+async def sync_codex_prompts(data: SyncCodexRequest = SyncCodexRequest()):
+    """Run Codex prompt watcher once to backfill new prompts."""
+    if not CODEX_PROMPT_WATCHER.exists():
+        raise HTTPException(status_code=500, detail=f"Codex prompt watcher not found: {CODEX_PROMPT_WATCHER}")
+
+    cmd = [sys.executable, str(CODEX_PROMPT_WATCHER), "--once"]
+    if data.project_dir:
+        cmd += ["--project-dir", data.project_dir]
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    return {
+        "returncode": result.returncode,
+        "stdout": result.stdout.strip(),
+        "stderr": result.stderr.strip()
+    }
 
 
 async def score_batch_with_llm(prompts: list[dict]) -> list[dict]:
