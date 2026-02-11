@@ -3810,6 +3810,9 @@
             <button class="btn-secondary btn-sm" id="process-all-btn" onclick="processAllPrompts()">
               Process All
             </button>
+            <button class="btn-secondary btn-sm" onclick="syncCodexPrompts()">
+              Sync Codex
+            </button>
             <button class="btn-primary" id="review-btn" onclick="openReviewPrompts()" ${state.selectedPrompts.size === 0 ? 'disabled' : ''}>
               Review${state.selectedPrompts.size > 0 ? ` (${state.selectedPrompts.size})` : ''}
             </button>
@@ -4203,6 +4206,27 @@
       } finally {
         btn.classList.remove('btn-processing');
         btn.textContent = 'Process All';
+      }
+    }
+
+    async function syncCodexPrompts() {
+      try {
+        const projectDir = prompt('Codex project dir (optional). Leave blank to keep current:', '');
+        const payload = {};
+        if (projectDir && projectDir.trim()) {
+          payload.project_dir = projectDir.trim();
+        }
+        const result = await API.post('/prompts/sync-codex', payload);
+        if (result.returncode !== 0) {
+          console.error('Codex sync stderr:', result.stderr);
+          showToast('Codex sync failed. Check console.');
+          return;
+        }
+        await loadPrompts();
+        showToast('Codex sync complete');
+      } catch (err) {
+        console.error('Failed to sync Codex prompts:', err);
+        alert('Failed to sync Codex prompts');
       }
     }
 
