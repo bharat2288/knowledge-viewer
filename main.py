@@ -1,5 +1,6 @@
 """
 Knowledge Viewer - FastAPI backend for browsing knowledge database.
+# v2: two-dimensional visibility (lifecycle x type)
 
 Serves a single-file frontend and API endpoints for:
 - Sessions
@@ -1334,10 +1335,12 @@ async def list_prompts(
     max_score: Optional[int] = None,
     tag: Optional[str] = None,
     source: Optional[str] = None,
-    show_active: bool = Query(default=True, description="Show active prompts (not deleted, passes filter)"),
-    show_deleted: bool = Query(default=False, description="Show deleted prompts"),
-    show_trivial: bool = Query(default=False, description="Show trivial prompts (auto-filtered, not pastes)"),
-    show_pastes: bool = Query(default=False, description="Show large pastes (auto-filtered)"),
+    # Two-dimensional visibility: lifecycle x type
+    lifecycle_active: bool = Query(default=True, description="Include non-deleted prompts"),
+    lifecycle_deleted: bool = Query(default=False, description="Include deleted prompts"),
+    type_substantive: bool = Query(default=True, description="Include substantive prompts (passes_filter=1)"),
+    type_trivial: bool = Query(default=False, description="Include trivial/short prompts"),
+    type_pastes: bool = Query(default=False, description="Include large pastes"),
     limit: int = Query(default=500, le=5000),
     offset: int = 0
 ):
@@ -1348,26 +1351,29 @@ async def list_prompts(
     conditions = []
     params = []
 
-    # Build visibility filter (OR conditions for selected categories)
-    # Pastes are separated from trivial: pastes have filter_reason starting with 'large_paste'
-    visibility_parts = []
-    if show_active:
-        visibility_parts.append("(deleted_at IS NULL AND passes_filter = 1)")
-    if show_deleted:
-        visibility_parts.append("(deleted_at IS NOT NULL)")
-    if show_trivial:
-        visibility_parts.append(
-            "(deleted_at IS NULL AND passes_filter = 0 AND (filter_reason IS NULL OR filter_reason NOT LIKE 'large_paste%'))"
-        )
-    if show_pastes:
-        visibility_parts.append(
-            "(deleted_at IS NULL AND passes_filter = 0 AND filter_reason LIKE 'large_paste%')"
-        )
+    # Two-dimensional visibility filter: lifecycle (rows) x type (columns)
+    # Result = any matching lifecycle AND any matching type
+    lifecycle_parts = []
+    if lifecycle_active:
+        lifecycle_parts.append("deleted_at IS NULL")
+    if lifecycle_deleted:
+        lifecycle_parts.append("deleted_at IS NOT NULL")
 
-    if visibility_parts:
-        conditions.append(f"({' OR '.join(visibility_parts)})")
+    type_parts = []
+    if type_substantive:
+        type_parts.append("passes_filter = 1")
+    if type_trivial:
+        type_parts.append(
+            "(passes_filter = 0 AND (filter_reason IS NULL OR filter_reason NOT LIKE 'large_paste%'))"
+        )
+    if type_pastes:
+        type_parts.append("filter_reason LIKE 'large_paste%'")
+
+    if lifecycle_parts and type_parts:
+        conditions.append(f"({' OR '.join(lifecycle_parts)})")
+        conditions.append(f"({' OR '.join(type_parts)})")
     else:
-        # If nothing selected, show nothing
+        # If either dimension has nothing selected, show nothing
         conditions.append("1 = 0")
 
     if project:
@@ -1533,6 +1539,34 @@ async def suggest_scores(data: SuggestScoresRequest):
     return {"suggestions": suggestions}
 
 
+def resolve_project_from_text(text: str) -> str:
+    """Extract project dir under DEV_ROOT from text if present and valid."""
+    if not text:
+        return ""
+    marker = r"C:\Users\bhara\dev\\"
+    idx = text.find(marker)
+    if idx == -1:
+        return ""
+    rest = text[idx + len(marker):]
+    parts = rest.split("\\", 1)
+    if not parts:
+        return ""
+    project = parts[0].strip()
+    if not project:
+        return ""
+    candidate = DEV_ROOT / project
+    if candidate.exists() and candidate.is_dir():
+        return project
+    return ""
+
+
+def is_valid_project_name(name: str) -> bool:
+    if not name:
+        return False
+    candidate = DEV_ROOT / name
+    return candidate.exists() and candidate.is_dir()
+
+
 class SyncCodexRequest(BaseModel):
     """Request to sync Codex prompts into prompts.db."""
     project_dir: Optional[str] = None
@@ -1553,6 +1587,64 @@ async def sync_codex_prompts(data: SyncCodexRequest = SyncCodexRequest()):
         "returncode": result.returncode,
         "stdout": result.stdout.strip(),
         "stderr": result.stderr.strip()
+    }
+
+
+class CleanupCodexProjectsRequest(BaseModel):
+    """Cleanup Codex project names."""
+    default_project: Optional[str] = None
+    only_missing: bool = True
+
+
+@app.post("/api/prompts/cleanup-codex-projects")
+async def cleanup_codex_projects(data: CleanupCodexProjectsRequest = CleanupCodexProjectsRequest()):
+    """Normalize Codex project names: infer from prompt text or apply default."""
+    conn = get_prompts_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT id, prompt, project
+        FROM prompts
+        WHERE source = 'codex'
+    """)
+    rows = cursor.fetchall()
+
+    updated = 0
+    inferred = 0
+    overwritten = 0
+
+    for row in rows:
+        prompt_id = row["id"]
+        prompt_text = row["prompt"] or ""
+        project = (row["project"] or "").strip()
+
+        if data.only_missing and project and is_valid_project_name(project):
+            continue
+
+        new_project = resolve_project_from_text(prompt_text)
+        if new_project:
+            inferred += 1
+        elif data.default_project:
+            new_project = data.default_project
+            overwritten += 1
+        else:
+            new_project = ""
+
+        if new_project != project:
+            cursor.execute(
+                "UPDATE prompts SET project = ? WHERE id = ?",
+                (new_project, prompt_id)
+            )
+            updated += cursor.rowcount
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "updated": updated,
+        "inferred": inferred,
+        "overwritten": overwritten,
+        "total_codex": len(rows)
     }
 
 

@@ -2792,10 +2792,13 @@
         tag: '',  // tag filter for prompts
         source: '',  // source filter for prompts (claude|codex)
         docCategory: '',  // category filter for docs
-        showActive: true,
-        showDeleted: false,
-        showTrivial: false,
-        showPastes: false
+        // Lifecycle dimension
+        lifecycleActive: true,
+        lifecycleDeleted: false,
+        // Type dimension
+        typeSubstantive: true,
+        typeTrivial: false,
+        typePastes: false
       }
     };
 
@@ -3786,11 +3789,14 @@
             <option value="4-6">Medium (4-6)</option>
             <option value="7-10">High (7-10)</option>
           </select>
-          <div class="filter-chips" id="visibility-chips">
-            <span class="filter-chip ${state.filters.showActive !== false ? 'active' : ''}" data-filter="showActive">Active</span>
-            <span class="filter-chip ${state.filters.showDeleted ? 'active' : ''}" data-filter="showDeleted">Deleted</span>
-            <span class="filter-chip ${state.filters.showTrivial ? 'active' : ''}" data-filter="showTrivial">Trivial</span>
-            <span class="filter-chip ${state.filters.showPastes ? 'active' : ''}" data-filter="showPastes">Pastes</span>
+          <div class="filter-chips" id="lifecycle-chips">
+            <span class="filter-chip ${state.filters.lifecycleActive ? 'active' : ''}" data-filter="lifecycleActive">Active</span>
+            <span class="filter-chip ${state.filters.lifecycleDeleted ? 'active' : ''}" data-filter="lifecycleDeleted">Deleted</span>
+          </div>
+          <div class="filter-chips" id="type-chips">
+            <span class="filter-chip ${state.filters.typeSubstantive ? 'active' : ''}" data-filter="typeSubstantive">Substantive</span>
+            <span class="filter-chip ${state.filters.typeTrivial ? 'active' : ''}" data-filter="typeTrivial">Trivial</span>
+            <span class="filter-chip ${state.filters.typePastes ? 'active' : ''}" data-filter="typePastes">Pastes</span>
           </div>
         </div>
 
@@ -3812,6 +3818,9 @@
             </button>
             <button class="btn-secondary btn-sm" onclick="syncCodexPrompts()">
               Sync Codex
+            </button>
+            <button class="btn-secondary btn-sm" onclick="cleanupCodexProjects()">
+              Clean Codex Projects
             </button>
             <button class="btn-primary" id="review-btn" onclick="openReviewPrompts()" ${state.selectedPrompts.size === 0 ? 'disabled' : ''}>
               Review${state.selectedPrompts.size > 0 ? ` (${state.selectedPrompts.size})` : ''}
@@ -3872,8 +3881,18 @@
         loadPrompts();
       });
 
-      // Visibility filter chips — click to toggle
-      document.getElementById('visibility-chips').addEventListener('click', (e) => {
+      // Lifecycle chips — click to toggle
+      document.getElementById('lifecycle-chips').addEventListener('click', (e) => {
+        const chip = e.target.closest('.filter-chip');
+        if (!chip) return;
+        const filterKey = chip.dataset.filter;
+        state.filters[filterKey] = !state.filters[filterKey];
+        chip.classList.toggle('active', state.filters[filterKey]);
+        loadPrompts();
+      });
+
+      // Type chips — click to toggle
+      document.getElementById('type-chips').addEventListener('click', (e) => {
         const chip = e.target.closest('.filter-chip');
         if (!chip) return;
         const filterKey = chip.dataset.filter;
@@ -4211,11 +4230,8 @@
 
     async function syncCodexPrompts() {
       try {
-        const projectDir = prompt('Codex project dir (optional). Leave blank to keep current:', '');
         const payload = {};
-        if (projectDir && projectDir.trim()) {
-          payload.project_dir = projectDir.trim();
-        }
+        if (state.filters.project) payload.project_dir = `C:\\Users\\bhara\\dev\\${state.filters.project}`;
         const result = await API.post('/prompts/sync-codex', payload);
         if (result.returncode !== 0) {
           console.error('Codex sync stderr:', result.stderr);
@@ -4227,6 +4243,21 @@
       } catch (err) {
         console.error('Failed to sync Codex prompts:', err);
         alert('Failed to sync Codex prompts');
+      }
+    }
+
+    async function cleanupCodexProjects() {
+      try {
+        const payload = {
+          default_project: state.filters.project || null,
+          only_missing: true
+        };
+        const result = await API.post('/prompts/cleanup-codex-projects', payload);
+        await loadPrompts();
+        showToast(`Cleaned Codex: ${result.updated} updated`);
+      } catch (err) {
+        console.error('Failed to clean Codex projects:', err);
+        alert('Failed to clean Codex projects');
       }
     }
 
@@ -6014,11 +6045,12 @@
         if (state.filters.maxScore !== null) params.max_score = state.filters.maxScore;
         if (state.filters.tag) params.tag = state.filters.tag;
         if (state.filters.source) params.source = state.filters.source;
-        // Visibility filters
-        params.show_active = state.filters.showActive;
-        params.show_deleted = state.filters.showDeleted;
-        params.show_trivial = state.filters.showTrivial;
-        params.show_pastes = state.filters.showPastes;
+        // Two-dimensional visibility: lifecycle x type
+        params.lifecycle_active = state.filters.lifecycleActive;
+        params.lifecycle_deleted = state.filters.lifecycleDeleted;
+        params.type_substantive = state.filters.typeSubstantive;
+        params.type_trivial = state.filters.typeTrivial;
+        params.type_pastes = state.filters.typePastes;
 
         state.prompts = await API.getPrompts(params);
 
@@ -6058,7 +6090,7 @@
       state.selectedItem = null;
       state.searchQuery = '';
       state.selectedPrompts.clear();  // Clear selection when switching views
-      state.filters = { project: '', resolved: null, scored: null, minScore: null, maxScore: null, tag: '', source: '', docCategory: '', showActive: true, showDeleted: false, showTrivial: false, showPastes: false };
+      state.filters = { project: '', resolved: null, scored: null, minScore: null, maxScore: null, tag: '', source: '', docCategory: '', lifecycleActive: true, lifecycleDeleted: false, typeSubstantive: true, typeTrivial: false, typePastes: false };
 
       // Update nav
       document.querySelectorAll('.nav-item').forEach(el => {
