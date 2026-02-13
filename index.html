@@ -1079,6 +1079,142 @@
       line-height: 1.7;
     }
 
+    .field-value-block {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    /* ===========================================
+       COPYABLE BLOCKS & COLLAPSIBLE TEXT
+       =========================================== */
+
+    .copyable-block {
+      position: relative;
+    }
+
+    .copyable-block .copy-block-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      color: var(--text-tertiary);
+      padding: 4px 6px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+    }
+
+    .copyable-block:hover .copy-block-btn {
+      opacity: 1;
+    }
+
+    .copyable-block .copy-block-btn:hover {
+      background: var(--accent-camel);
+      color: var(--bg-base);
+      border-color: var(--accent-camel);
+    }
+
+    .copyable-block .copy-block-btn.copied {
+      opacity: 1;
+      color: var(--semantic-success);
+      border-color: var(--semantic-success);
+    }
+
+    .text-collapsible {
+      max-height: 72px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .text-collapsible.expanded {
+      max-height: none;
+    }
+
+    .text-expand-toggle {
+      background: none;
+      border: none;
+      color: var(--accent-camel);
+      font-size: 12px;
+      cursor: pointer;
+      padding: 4px 0;
+      margin-top: 4px;
+    }
+
+    .text-expand-toggle:hover {
+      text-decoration: underline;
+    }
+
+    /* Detail header actions (Expand + Close) */
+    .detail-header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .detail-expand-btn {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .detail-expand-btn:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    /* Modal-expanded detail panel */
+    .detail-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .detail-panel.modal-expanded {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      user-select: text;
+    }
+
+    .detail-panel.modal-expanded .text-collapsible {
+      max-height: none;
+      overflow: visible;
+    }
+
+    .detail-panel.modal-expanded .text-expand-toggle {
+      display: none;
+    }
+
     /* ===========================================
        PROMPTS SCORING
        =========================================== */
@@ -1448,9 +1584,9 @@
        =========================================== */
     .filters-bar {
       display: flex;
-      gap: 12px;
+      flex-direction: column;
+      gap: 8px;
       margin-bottom: 20px;
-      flex-wrap: wrap;
     }
 
     .filter-select {
@@ -1525,6 +1661,184 @@
       background: var(--accent-camel-subtle);
       border-color: var(--accent-camel);
       color: var(--accent-camel);
+    }
+
+    /* Filter bar: labeled groups in rows */
+    .filters-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0 14px;
+    }
+
+    .filter-group:first-child {
+      padding-left: 0;
+    }
+
+    .filter-group-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      line-height: 1;
+    }
+
+    .filter-divider {
+      width: 1px;
+      height: 28px;
+      background: var(--border-subtle);
+      align-self: flex-end;
+      flex-shrink: 0;
+    }
+
+    /* Overflow menu for admin actions */
+    .actions-overflow {
+      position: relative;
+    }
+
+    .overflow-trigger {
+      padding: 6px 14px;
+      font-size: 12px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: var(--font-base);
+      transition: all 0.15s ease;
+    }
+
+    .overflow-trigger:hover {
+      border-color: var(--border-default);
+      color: var(--text-primary);
+    }
+
+    .overflow-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      min-width: 240px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      box-shadow: var(--shadow-lg);
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .overflow-menu.open {
+      display: block;
+    }
+
+    .overflow-menu-item {
+      display: block;
+      width: 100%;
+      padding: 10px 14px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      font-family: var(--font-base);
+      transition: background 0.1s ease;
+    }
+
+    .overflow-menu-item:hover {
+      background: var(--bg-surface);
+    }
+
+    .overflow-menu-item + .overflow-menu-item {
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .overflow-menu-item-label {
+      font-size: 13px;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .overflow-menu-desc {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    /* Source dot (replaces full source badge in list items) */
+    .source-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .source-dot.claude {
+      background: #c7a87a;
+    }
+
+    .source-dot.codex {
+      background: #8db2c7;
+    }
+
+    /* Larger checkbox click zone */
+    .prompt-checkbox-zone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .prompt-checkbox-zone input[type="checkbox"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      border: 1.5px solid var(--border-default);
+      border-radius: 3px;
+      background: var(--bg-base);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s ease;
+    }
+
+    .prompt-checkbox-zone input[type="checkbox"]:hover {
+      border-color: var(--accent-camel);
+    }
+
+    .prompt-checkbox-zone input[type="checkbox"]:checked {
+      background: var(--accent-camel);
+      border-color: var(--accent-camel);
+    }
+
+    .prompt-checkbox-zone input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 1px;
+      width: 4px;
+      height: 8px;
+      border: solid var(--bg-base);
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    /* Tags row below meta (left-aligned, horizontal wrap) */
+    .item-tags-below {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
     }
 
     /* ===========================================
@@ -3162,7 +3476,13 @@
             <div class="detail-panel inline">
               <div class="detail-header">
                 <span class="detail-title">${escapeHtml(session.project || 'Session Details')}</span>
-                <button class="detail-close" onclick="closeSessionDetail()">Close</button>
+                <div class="detail-header-actions">
+                  <button class="detail-expand-btn" onclick="expandDetailToModal(this)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                    Expand
+                  </button>
+                  <button class="detail-close" onclick="closeSessionDetail()">Close</button>
+                </div>
               </div>
 
               <div class="detail-grid">
@@ -3172,7 +3492,10 @@
                 </div>
                 <div class="detail-field">
                   <span class="field-label">Claude Session</span>
-                  <span class="field-value mono">${escapeHtml(truncate(session.claude_session_id, 20))}</span>
+                  <div class="copyable-block">
+                    <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                    <span class="field-value mono">${escapeHtml(session.claude_session_id)}</span>
+                  </div>
                 </div>
                 <div class="detail-field">
                   <span class="field-label">Started</span>
@@ -3205,18 +3528,27 @@
                 <div class="detail-section-title">/ Session Context</div>
                 <div class="detail-field">
                   <span class="field-label">Current Task</span>
-                  <div class="detail-content">${escapeHtml(session.current_task)}</div>
+                  <div class="copyable-block">
+                    <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                    <div class="detail-content">${escapeHtml(session.current_task)}</div>
+                  </div>
                 </div>
                 ${session.task_context ? `
                 <div class="detail-field" style="margin-top: 12px;">
                   <span class="field-label">Context</span>
-                  <div class="detail-content">${escapeHtml(session.task_context)}</div>
+                  <div class="copyable-block">
+                    <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                    <div class="detail-content">${escapeHtml(session.task_context)}</div>
+                  </div>
                 </div>
                 ` : ''}
                 ${session.pending_actions ? `
                 <div class="detail-field" style="margin-top: 12px;">
                   <span class="field-label">Pending Actions</span>
-                  <div class="detail-content">${formatPendingActions(session.pending_actions)}</div>
+                  <div class="copyable-block">
+                    <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                    <div class="detail-content">${formatPendingActions(session.pending_actions)}</div>
+                  </div>
                 </div>
                 ` : ''}
                 ${session.last_context_update ? `
@@ -3229,6 +3561,7 @@
               ` : ''}
             </div>
           `;
+          initExpandableBlocks(detailContainer);
         }
       } catch (err) {
         console.error('Failed to load session:', err);
@@ -3350,12 +3683,18 @@
               </div>
               <div class="detail-field" style="margin-top: 12px;">
                 <span class="field-label">Fix</span>
-                <div class="field-value mono">${escapeHtml(error.fix || 'N/A')}</div>
+                <div class="copyable-block">
+                  <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                  <div class="field-value mono text-collapsible" data-expandable>${escapeHtml(error.fix || 'N/A')}</div>
+                </div>
               </div>
               ${error.lesson ? `
               <div class="detail-field" style="margin-top: 12px;">
                 <span class="field-label">Lesson Learned</span>
-                <div class="detail-content">${escapeHtml(error.lesson)}</div>
+                <div class="copyable-block">
+                  <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                  <div class="detail-content">${escapeHtml(error.lesson)}</div>
+                </div>
               </div>
               ` : ''}
             </div>
@@ -3368,7 +3707,13 @@
             <div class="detail-panel inline">
               <div class="detail-header">
                 <span class="detail-title">Error Details</span>
-                <button class="detail-close" onclick="closeErrorDetail()">Close</button>
+                <div class="detail-header-actions">
+                  <button class="detail-expand-btn" onclick="expandDetailToModal(this)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                    Expand
+                  </button>
+                  <button class="detail-close" onclick="closeErrorDetail()">Close</button>
+                </div>
               </div>
 
               <div class="detail-grid">
@@ -3388,26 +3733,36 @@
 
               <div class="detail-field" style="margin-top: 16px;">
                 <span class="field-label">Description</span>
-                <div class="detail-content">${escapeHtml(error.description)}</div>
+                <div class="copyable-block">
+                  <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                  <div class="detail-content">${escapeHtml(error.description)}</div>
+                </div>
               </div>
 
               ${error.symptom ? `
               <div class="detail-field" style="margin-top: 12px;">
                 <span class="field-label">Symptom</span>
-                <div class="detail-content">${escapeHtml(error.symptom)}</div>
+                <div class="copyable-block">
+                  <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                  <div class="detail-content">${escapeHtml(error.symptom)}</div>
+                </div>
               </div>
               ` : ''}
 
               ${error.stack_trace ? `
               <div class="detail-field" style="margin-top: 12px;">
                 <span class="field-label">Stack Trace</span>
-                <div class="field-value mono">${escapeHtml(error.stack_trace)}</div>
+                <div class="copyable-block">
+                  <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                  <div class="field-value mono text-collapsible" data-expandable>${escapeHtml(error.stack_trace)}</div>
+                </div>
               </div>
               ` : ''}
 
               ${resolutionHtml}
             </div>
           `;
+          initExpandableBlocks(detailContainer);
         }
       } catch (err) {
         console.error('Failed to load error:', err);
@@ -3504,7 +3859,13 @@
             <div class="detail-panel inline">
               <div class="detail-header">
                 <span class="detail-title">${escapeHtml(decision.title)}</span>
-                <button class="detail-close" onclick="closeDecisionDetail()">Close</button>
+                <div class="detail-header-actions">
+                  <button class="detail-expand-btn" onclick="expandDetailToModal(this)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                    Expand
+                  </button>
+                  <button class="detail-close" onclick="closeDecisionDetail()">Close</button>
+                </div>
               </div>
 
               <div class="detail-grid">
@@ -3520,36 +3881,52 @@
 
               <div class="detail-section">
                 <div class="detail-section-title">/ Context</div>
-                <div class="detail-content">${escapeHtml(decision.context)}</div>
+                <div class="copyable-block">
+                  <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                  <div class="detail-content">${escapeHtml(decision.context)}</div>
+                </div>
               </div>
 
               <div class="detail-section">
                 <div class="detail-section-title">/ Choice</div>
-                <div class="detail-content">${escapeHtml(decision.choice)}</div>
+                <div class="copyable-block">
+                  <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                  <div class="detail-content">${escapeHtml(decision.choice)}</div>
+                </div>
               </div>
 
               ${decision.options ? `
               <div class="detail-section">
                 <div class="detail-section-title">/ Options Considered</div>
-                <div class="detail-content">${escapeHtml(decision.options)}</div>
+                <div class="copyable-block">
+                  <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                  <div class="detail-content">${escapeHtml(decision.options)}</div>
+                </div>
               </div>
               ` : ''}
 
               ${decision.tradeoffs ? `
               <div class="detail-section">
                 <div class="detail-section-title">/ Tradeoffs</div>
-                <div class="detail-content">${escapeHtml(decision.tradeoffs)}</div>
+                <div class="copyable-block">
+                  <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                  <div class="detail-content">${escapeHtml(decision.tradeoffs)}</div>
+                </div>
               </div>
               ` : ''}
 
               ${decision.affects ? `
               <div class="detail-section">
                 <div class="detail-section-title">/ Affects</div>
-                <div class="detail-content">${escapeHtml(decision.affects)}</div>
+                <div class="copyable-block">
+                  <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                  <div class="detail-content">${escapeHtml(decision.affects)}</div>
+                </div>
               </div>
               ` : ''}
             </div>
           `;
+          initExpandableBlocks(detailContainer);
         }
       } catch (err) {
         console.error('Failed to load decision:', err);
@@ -3669,7 +4046,13 @@
             <div class="detail-panel inline">
               <div class="detail-header">
                 <span class="detail-title">${escapeHtml(learning.title)}</span>
-                <button class="detail-close" onclick="closeLearningDetail()">Close</button>
+                <div class="detail-header-actions">
+                  <button class="detail-expand-btn" onclick="expandDetailToModal(this)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                    Expand
+                  </button>
+                  <button class="detail-close" onclick="closeLearningDetail()">Close</button>
+                </div>
               </div>
 
               <div class="detail-grid">
@@ -3695,20 +4078,29 @@
 
               <div class="detail-section">
                 <div class="field-label">Insight</div>
-                <div class="field-value-block">${escapeHtml(learning.insight)}</div>
+                <div class="copyable-block">
+                  <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                  <div class="field-value-block">${escapeHtml(learning.insight)}</div>
+                </div>
               </div>
 
               ${learning.applies_when ? `
                 <div class="detail-section">
                   <div class="field-label">Applies When</div>
-                  <div class="field-value-block">${escapeHtml(learning.applies_when)}</div>
+                  <div class="copyable-block">
+                    <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                    <div class="field-value-block">${escapeHtml(learning.applies_when)}</div>
+                  </div>
                 </div>
               ` : ''}
 
               ${learning.suggested_approach ? `
                 <div class="detail-section">
                   <div class="field-label">Suggested Approach</div>
-                  <div class="field-value-block">${escapeHtml(learning.suggested_approach)}</div>
+                  <div class="copyable-block">
+                    <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                    <div class="field-value-block">${escapeHtml(learning.suggested_approach)}</div>
+                  </div>
                 </div>
               ` : ''}
 
@@ -3736,6 +4128,7 @@
               </div>
             </div>
           `;
+          initExpandableBlocks(detailContainer);
         }
       } catch (err) {
         console.error('Failed to load learning:', err);
@@ -3770,33 +4163,59 @@
 
       content.innerHTML = `
         <div class="filters-bar">
-          <select class="filter-select" id="project-filter">
-            <option value="">All projects</option>
-            ${state.projects.map(p => `<option value="${p}">${p}</option>`).join('')}
-          </select>
-          <div class="filter-chips" id="source-chips">
-            <span class="filter-chip ${state.filters.source === 'claude' ? 'active' : ''}" data-source="claude">Claude</span>
-            <span class="filter-chip ${state.filters.source === 'codex' ? 'active' : ''}" data-source="codex">Codex</span>
+          <div class="filters-row">
+            <div class="filter-group">
+              <span class="filter-group-label">Project</span>
+              <select class="filter-select" id="project-filter">
+                <option value="">All projects</option>
+                ${state.projects.map(p => `<option value="${p}">${p}</option>`).join('')}
+              </select>
+            </div>
+            <div class="filter-divider"></div>
+            <div class="filter-group">
+              <span class="filter-group-label">Source</span>
+              <div class="filter-chips" id="source-chips">
+                <span class="filter-chip ${state.filters.source === 'claude' ? 'active' : ''}" data-source="claude">Claude</span>
+                <span class="filter-chip ${state.filters.source === 'codex' ? 'active' : ''}" data-source="codex">Codex</span>
+              </div>
+            </div>
+            <div class="filter-divider"></div>
+            <div class="filter-group">
+              <span class="filter-group-label">Tag</span>
+              <select class="filter-select" id="tag-filter">
+                <option value="">All tags</option>
+                ${tagOptions}
+              </select>
+            </div>
+            <div class="filter-divider"></div>
+            <div class="filter-group">
+              <span class="filter-group-label">Score</span>
+              <select class="filter-select" id="score-filter">
+                <option value="">Any score</option>
+                <option value="unscored">Unscored</option>
+                <option value="1-3">Low (1-3)</option>
+                <option value="4-6">Medium (4-6)</option>
+                <option value="7-10">High (7-10)</option>
+              </select>
+            </div>
           </div>
-          <select class="filter-select" id="tag-filter">
-            <option value="">All tags</option>
-            ${tagOptions}
-          </select>
-          <select class="filter-select" id="score-filter">
-            <option value="">Any score</option>
-            <option value="unscored">Unscored</option>
-            <option value="1-3">Low (1-3)</option>
-            <option value="4-6">Medium (4-6)</option>
-            <option value="7-10">High (7-10)</option>
-          </select>
-          <div class="filter-chips" id="lifecycle-chips">
-            <span class="filter-chip ${state.filters.lifecycleActive ? 'active' : ''}" data-filter="lifecycleActive">Active</span>
-            <span class="filter-chip ${state.filters.lifecycleDeleted ? 'active' : ''}" data-filter="lifecycleDeleted">Deleted</span>
-          </div>
-          <div class="filter-chips" id="type-chips">
-            <span class="filter-chip ${state.filters.typeSubstantive ? 'active' : ''}" data-filter="typeSubstantive">Substantive</span>
-            <span class="filter-chip ${state.filters.typeTrivial ? 'active' : ''}" data-filter="typeTrivial">Trivial</span>
-            <span class="filter-chip ${state.filters.typePastes ? 'active' : ''}" data-filter="typePastes">Pastes</span>
+          <div class="filters-row">
+            <div class="filter-group">
+              <span class="filter-group-label">Lifecycle</span>
+              <div class="filter-chips" id="lifecycle-chips">
+                <span class="filter-chip ${state.filters.lifecycleActive ? 'active' : ''}" data-filter="lifecycleActive">Active</span>
+                <span class="filter-chip ${state.filters.lifecycleDeleted ? 'active' : ''}" data-filter="lifecycleDeleted">Deleted</span>
+              </div>
+            </div>
+            <div class="filter-divider"></div>
+            <div class="filter-group">
+              <span class="filter-group-label">Type</span>
+              <div class="filter-chips" id="type-chips">
+                <span class="filter-chip ${state.filters.typeSubstantive ? 'active' : ''}" data-filter="typeSubstantive">Substantive</span>
+                <span class="filter-chip ${state.filters.typeTrivial ? 'active' : ''}" data-filter="typeTrivial">Trivial</span>
+                <span class="filter-chip ${state.filters.typePastes ? 'active' : ''}" data-filter="typePastes">Pastes</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -3806,22 +4225,30 @@
             <button class="btn-secondary btn-sm" onclick="clearPromptSelection()">Clear</button>
             <div class="selection-presets">
               <span class="selection-presets-label">Quick:</span>
-              <button class="btn-preset" onclick="selectLast(10)">Last 10</button>
-              <button class="btn-preset" onclick="selectLast(50)">Last 50</button>
-              <button class="btn-preset" onclick="selectLast(100)">Last 100</button>
+              <button class="btn-preset" onclick="selectLast(10)">10</button>
+              <button class="btn-preset" onclick="selectLast(50)">50</button>
+              <button class="btn-preset" onclick="selectLast(100)">100</button>
             </div>
             <span class="selection-count" id="selection-count">${state.selectedPrompts.size} selected</span>
           </div>
           <div class="selection-actions">
-            <button class="btn-secondary btn-sm" id="process-all-btn" onclick="processAllPrompts()">
-              Process All
-            </button>
-            <button class="btn-secondary btn-sm" onclick="syncCodexPrompts()">
-              Sync Codex
-            </button>
-            <button class="btn-secondary btn-sm" onclick="cleanupCodexProjects()">
-              Clean Codex Projects
-            </button>
+            <div class="actions-overflow">
+              <button class="overflow-trigger" onclick="toggleOverflowMenu(event)">More &#9662;</button>
+              <div class="overflow-menu" id="overflow-menu">
+                <button class="overflow-menu-item" id="process-all-btn" onclick="processAllPrompts(); closeOverflowMenu();">
+                  <div class="overflow-menu-item-label">Process All</div>
+                  <div class="overflow-menu-desc">Score, prune low, tag survivors</div>
+                </button>
+                <button class="overflow-menu-item" onclick="syncCodexPrompts(); closeOverflowMenu();">
+                  <div class="overflow-menu-item-label">Sync Codex</div>
+                  <div class="overflow-menu-desc">Import Codex prompts</div>
+                </button>
+                <button class="overflow-menu-item" onclick="cleanupCodexProjects(); closeOverflowMenu();">
+                  <div class="overflow-menu-item-label">Clean Codex Projects</div>
+                  <div class="overflow-menu-desc">Fix missing project names</div>
+                </button>
+              </div>
+            </div>
             <button class="btn-primary" id="review-btn" onclick="openReviewPrompts()" ${state.selectedPrompts.size === 0 ? 'disabled' : ''}>
               Review${state.selectedPrompts.size > 0 ? ` (${state.selectedPrompts.size})` : ''}
             </button>
@@ -3941,6 +4368,24 @@
       }
     }
 
+    function toggleOverflowMenu(e) {
+      e.stopPropagation();
+      const menu = document.getElementById('overflow-menu');
+      if (menu) menu.classList.toggle('open');
+    }
+
+    function closeOverflowMenu() {
+      const menu = document.getElementById('overflow-menu');
+      if (menu) menu.classList.remove('open');
+    }
+
+    // Close overflow menu on click outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.actions-overflow')) {
+        closeOverflowMenu();
+      }
+    });
+
     function renderPromptsList() {
       if (state.prompts.length === 0) {
         return `
@@ -3954,32 +4399,35 @@
 
       return state.prompts.map(p => {
         const tagsHtml = (p.tags && p.tags.length > 0)
-          ? `<div class="item-tags-right">${p.tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join('')}</div>`
+          ? `<div class="item-tags-below">${p.tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join('')}</div>`
           : '';
         const isSelected = state.selectedPrompts.has(p.id);
+        const srcClass = normalizeSource(p.source);
 
         return `
         <div class="list-item-wrapper" data-id="${p.id}">
           <div class="list-item ${state.selectedItem?.id === p.id ? 'selected' : ''}"
                onclick="selectPrompt(${p.id})">
             <div class="item-row">
-              <input type="checkbox" class="prompt-checkbox"
-                     ${isSelected ? 'checked' : ''}
-                     onclick="event.stopPropagation(); togglePromptSelection(${p.id})">
+              <label class="prompt-checkbox-zone" onclick="event.stopPropagation();">
+                <input type="checkbox"
+                       ${isSelected ? 'checked' : ''}
+                       onchange="togglePromptSelection(${p.id})">
+              </label>
               <div class="item-content">
                 <div class="item-title">
-                  ${escapeHtml(truncate(p.preview, 60))}
+                  ${escapeHtml(truncate(p.preview, 80))}
                   ${p.deleted_at ? '<span class="status-badge unresolved">Deleted</span>' : ''}
-                  ${p.importance_score !== null ? `<span class="status-badge resolved">Score: ${p.importance_score}</span>` : ''}
+                  ${p.importance_score !== null ? `<span class="status-badge resolved">${p.importance_score}</span>` : ''}
                 </div>
                 <div class="item-meta">
-                  <span class="status-badge source ${normalizeSource(p.source)}">${formatSource(p.source)}</span>
+                  <span class="status-badge source ${srcClass}">${formatSource(p.source)}</span>
                   <span>${escapeHtml(p.project || 'No project')}</span>
                   <span>${formatDate(p.timestamp)}</span>
                   <span>${p.char_count || 0} chars</span>
                 </div>
+                ${tagsHtml}
               </div>
-              ${tagsHtml}
               ${!p.deleted_at ? `<button class="btn-delete-inline" onclick="event.stopPropagation(); quickDeletePrompt(${p.id})" title="Delete">×</button>` : ''}
             </div>
           </div>
@@ -4021,7 +4469,13 @@
             <div class="detail-panel inline">
               <div class="detail-header">
                 <span class="detail-title">Prompt Details</span>
-                <button class="detail-close" onclick="closePromptDetail()">Close</button>
+                <div class="detail-header-actions">
+                  <button class="detail-expand-btn" onclick="expandDetailToModal(this)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                    Expand
+                  </button>
+                  <button class="detail-close" onclick="closePromptDetail()">Close</button>
+                </div>
               </div>
 
               <div class="detail-grid">
@@ -4065,7 +4519,10 @@
 
               <div class="detail-section">
                 <div class="detail-section-title">/ Content</div>
-                <div class="field-value mono">${escapeHtml(prompt.prompt)}</div>
+                <div class="copyable-block">
+                  <button class="copy-block-btn" onclick="copyBlockText(event)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                  <div class="field-value mono text-collapsible" data-expandable>${escapeHtml(prompt.prompt)}</div>
+                </div>
               </div>
 
               <div class="actions-bar">
@@ -4074,6 +4531,7 @@
               </div>
             </div>
           `;
+          initExpandableBlocks(detailContainer);
         }
       } catch (err) {
         console.error('Failed to load prompt:', err);
@@ -4106,23 +4564,6 @@
       } catch (err) {
         console.error('Failed to delete prompt:', err);
       }
-    }
-
-    function showToast(message) {
-      // Simple toast notification
-      const toast = document.createElement('div');
-      toast.className = 'toast';
-      toast.textContent = message;
-      document.body.appendChild(toast);
-
-      // Trigger animation
-      setTimeout(() => toast.classList.add('show'), 10);
-
-      // Remove after 3 seconds
-      setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
     }
 
     // ===========================================
@@ -5215,6 +5656,115 @@
         console.error('Failed to copy path:', err);
       }
     }
+
+    // ===========================================
+    // COPY, EXPAND & COLLAPSIBLE UTILITIES
+    // ===========================================
+
+    async function copyBlockText(event) {
+      event.stopPropagation();
+      const btn = event.currentTarget;
+      const block = btn.closest('.copyable-block');
+      // Get the text content from the content element (skip the button itself)
+      const contentEl = block.querySelector('.field-value.mono, .detail-content, .field-value-block');
+      if (!contentEl) return;
+
+      try {
+        await navigator.clipboard.writeText(contentEl.textContent.trim());
+        btn.classList.add('copied');
+        btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg>`;
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+        }, 1500);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+    }
+
+    function expandDetailToModal(btn) {
+      const panel = btn.closest('.detail-panel');
+      if (!panel) return;
+
+      // Clone the panel for the modal
+      const clone = panel.cloneNode(true);
+      clone.classList.remove('inline');
+      clone.classList.add('modal-expanded');
+
+      // Remove action bars (score/delete buttons) — read-only in modal
+      clone.querySelectorAll('.actions-bar').forEach(el => el.remove());
+
+      // Replace header actions with just a Close button
+      const headerActions = clone.querySelector('.detail-header-actions');
+      if (headerActions) {
+        headerActions.innerHTML = `<button class="detail-close" onclick="closeDetailModal()">Close</button>`;
+      }
+
+      // Re-attach copy button listeners (cloned nodes lose them)
+      clone.querySelectorAll('.copy-block-btn').forEach(copyBtn => {
+        copyBtn.addEventListener('click', copyBlockText);
+      });
+
+      // Create overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'detail-modal-overlay';
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeDetailModal();
+      });
+      overlay.appendChild(clone);
+      document.body.appendChild(overlay);
+
+      // Escape key handler
+      const escHandler = (e) => {
+        if (e.key === 'Escape') {
+          closeDetailModal();
+          document.removeEventListener('keydown', escHandler);
+        }
+      };
+      document.addEventListener('keydown', escHandler);
+    }
+
+    function closeDetailModal() {
+      const overlay = document.querySelector('.detail-modal-overlay');
+      if (overlay) overlay.remove();
+    }
+
+    function initExpandableBlocks(container) {
+      if (!container) return;
+      container.querySelectorAll('[data-expandable]').forEach(el => {
+        // Check if content overflows the collapsed height
+        if (el.scrollHeight > el.clientHeight + 4) {
+          // Needs a toggle
+          const toggle = document.createElement('button');
+          toggle.className = 'text-expand-toggle';
+          toggle.textContent = 'Show more';
+          toggle.addEventListener('click', () => {
+            const isExpanded = el.classList.toggle('expanded');
+            toggle.textContent = isExpanded ? 'Show less' : 'Show more';
+          });
+          el.parentNode.insertBefore(toggle, el.nextSibling);
+        } else {
+          // Content fits — remove the collapsible constraint
+          el.classList.remove('text-collapsible');
+        }
+      });
+    }
+
+    // Click-to-select on mono blocks
+    document.addEventListener('click', (e) => {
+      const mono = e.target.closest('.copyable-block .field-value.mono, .copyable-block .detail-content, .copyable-block .field-value-block');
+      if (!mono) return;
+      // Don't interfere with copy button clicks
+      if (e.target.closest('.copy-block-btn')) return;
+      // Don't interfere if user already has a selection
+      const sel = window.getSelection();
+      if (sel && sel.toString().length > 0) return;
+      // Select the block text
+      const range = document.createRange();
+      range.selectNodeContents(mono);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
 
     async function openDocInEditor(docId) {
       try {
