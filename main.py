@@ -2574,7 +2574,7 @@ async def get_document(doc_id: int):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT id, path, category, project, title, content, file_type, checksum, indexed_at
+        SELECT id, path, category, project, title, content, file_type, checksum, indexed_at, modified_at
         FROM documents
         WHERE id = ?
     """, (doc_id,))
