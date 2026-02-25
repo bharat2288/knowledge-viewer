@@ -472,6 +472,15 @@
       gap: 4px;
     }
 
+    .item-meta .project-name {
+      color: var(--accent-camel);
+      background: var(--accent-camel-subtle);
+      padding: 1px 7px;
+      border-radius: 3px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
     .item-preview {
       font-size: 13px;
       color: var(--text-secondary);
@@ -3656,7 +3665,7 @@
               ${e.resolution_id ? '<span class="status-badge resolved">Resolved</span>' : '<span class="status-badge unresolved">Open</span>'}
             </div>
             <div class="item-meta">
-              <span>${escapeHtml(e.project || 'No project')}</span>
+              <span class="project-name">${escapeHtml(e.project || 'No project')}</span>
               <span>${formatDate(e.logged_at)}</span>
               ${e.module ? `<span>${escapeHtml(e.module)}</span>` : ''}
             </div>
@@ -3844,7 +3853,7 @@
                onclick="selectDecision(${d.id})">
             <div class="item-title">${escapeHtml(d.title)}</div>
             <div class="item-meta">
-              <span>${escapeHtml(d.project || 'No project')}</span>
+              <span class="project-name">${escapeHtml(d.project || 'No project')}</span>
               <span>${formatDate(d.date)}</span>
             </div>
             <div class="item-preview">${escapeHtml(d.choice)}</div>
@@ -4024,7 +4033,7 @@
                  onclick="selectLearning(${l.id})">
               <div class="item-title">${escapeHtml(l.title)}</div>
               <div class="item-meta">
-                <span>${l.project ? escapeHtml(l.project) : 'Universal'}</span>
+                <span class="project-name">${l.project ? escapeHtml(l.project) : 'Universal'}</span>
                 <span>${formatDate(l.date)}</span>
                 ${l.session_id ? `<span>Session #${l.session_id}</span>` : ''}
               </div>
