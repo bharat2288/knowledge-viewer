@@ -232,6 +232,7 @@ WORKFLOW_SYSTEM = DEV_ROOT / "claude-workflow-system"
 DOCUMENT_SOURCES = [
     # Global docs (constitution + design system)
     {"pattern": DEV_ROOT / "CLAUDE.md", "category": "global", "project": None},
+    {"pattern": DEV_ROOT / "system-map.md", "category": "global", "project": None},
     {"pattern": DEV_ROOT / "design" / "*.md", "category": "global", "project": None},
     # Claude Code config
     {"pattern": CLAUDE_CONFIG / "skills" / "*" / "SKILL.md", "category": "skill", "project": None},
@@ -241,10 +242,9 @@ DOCUMENT_SOURCES = [
     # Workflow system (hooks + MCP server + docs)
     {"pattern": WORKFLOW_SYSTEM / "hooks" / "*.py", "category": "workflow", "project": "claude-workflow-system"},
     {"pattern": WORKFLOW_SYSTEM / "mcp-server" / "*.py", "category": "workflow", "project": "claude-workflow-system"},
-    {"pattern": WORKFLOW_SYSTEM / "docs" / "architecture.md", "category": "workflow", "project": "claude-workflow-system"},
     {"pattern": WORKFLOW_SYSTEM / "docs" / "roadmap.md", "category": "workflow", "project": "claude-workflow-system"},
     {"pattern": WORKFLOW_SYSTEM / "docs" / "best-practices.md", "category": "workflow", "project": "claude-workflow-system"},
-    {"pattern": WORKFLOW_SYSTEM / "docs" / "mcp-tools-reference.md", "category": "workflow", "project": "claude-workflow-system"},
+    {"pattern": WORKFLOW_SYSTEM / "docs" / "workflow-diagrams.md", "category": "workflow", "project": "claude-workflow-system"},
     {"pattern": WORKFLOW_SYSTEM / "docs" / "*-codemap.md", "category": "workflow", "project": "claude-workflow-system"},
     # Workflow system manifest
     {"pattern": WORKFLOW_SYSTEM / "manifest.json", "category": "config", "project": "claude-workflow-system"},
