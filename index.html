@@ -3412,7 +3412,7 @@
             <div class="activity-content">
               <div class="activity-desc">${escapeHtml(truncate(item.description, 80))}</div>
               <div class="activity-meta">
-                ${item.project || 'No project'} &bull; ${formatDate(item.timestamp)}
+                ${item.project || 'universal'} &bull; ${formatDate(item.timestamp)}
               </div>
             </div>
           </div>
@@ -3614,6 +3614,7 @@
         <div class="filters-bar">
           <select class="filter-select" id="project-filter">
             <option value="">All projects</option>
+            <option value="universal">universal</option>
             ${state.projects.map(p => `<option value="${p}">${p}</option>`).join('')}
           </select>
           <select class="filter-select" id="resolved-filter">
@@ -3665,7 +3666,7 @@
               ${e.resolution_id ? '<span class="status-badge resolved">Resolved</span>' : '<span class="status-badge unresolved">Open</span>'}
             </div>
             <div class="item-meta">
-              <span class="project-name">${escapeHtml(e.project || 'No project')}</span>
+              <span class="project-name">${escapeHtml(e.project || 'universal')}</span>
               <span>${formatDate(e.logged_at)}</span>
               ${e.module ? `<span>${escapeHtml(e.module)}</span>` : ''}
             </div>
@@ -3751,7 +3752,7 @@
               <div class="detail-grid">
                 <div class="detail-field">
                   <span class="field-label">Project</span>
-                  <span class="field-value">${escapeHtml(error.project || 'N/A')}</span>
+                  <span class="field-value">${escapeHtml(error.project || 'universal')}</span>
                 </div>
                 <div class="detail-field">
                   <span class="field-label">Module</span>
@@ -3815,6 +3816,7 @@
         <div class="filters-bar">
           <select class="filter-select" id="project-filter">
             <option value="">All projects</option>
+            <option value="universal">universal</option>
             ${state.projects.map(p => `<option value="${p}">${p}</option>`).join('')}
           </select>
         </div>
@@ -3853,7 +3855,7 @@
                onclick="selectDecision(${d.id})">
             <div class="item-title">${escapeHtml(d.title)}</div>
             <div class="item-meta">
-              <span class="project-name">${escapeHtml(d.project || 'No project')}</span>
+              <span class="project-name">${escapeHtml(d.project || 'universal')}</span>
               <span>${formatDate(d.date)}</span>
             </div>
             <div class="item-preview">${escapeHtml(d.choice)}</div>
@@ -3903,7 +3905,7 @@
               <div class="detail-grid">
                 <div class="detail-field">
                   <span class="field-label">Project</span>
-                  <span class="field-value">${escapeHtml(decision.project || 'N/A')}</span>
+                  <span class="field-value">${escapeHtml(decision.project || 'universal')}</span>
                 </div>
                 <div class="detail-field">
                   <span class="field-label">Created</span>
@@ -3983,6 +3985,7 @@
         <div class="filters-bar">
           <select class="filter-select" id="project-filter">
             <option value="">All projects</option>
+            <option value="universal">universal</option>
             ${state.projects.map(p => `<option value="${p}">${p}</option>`).join('')}
           </select>
           <input type="text" class="search-input" id="search-input"
@@ -4033,7 +4036,7 @@
                  onclick="selectLearning(${l.id})">
               <div class="item-title">${escapeHtml(l.title)}</div>
               <div class="item-meta">
-                <span class="project-name">${l.project ? escapeHtml(l.project) : 'Universal'}</span>
+                <span class="project-name">${l.project ? escapeHtml(l.project) : 'universal'}</span>
                 <span>${formatDate(l.date)}</span>
                 ${l.session_id ? `<span>Session #${l.session_id}</span>` : ''}
               </div>
@@ -4090,7 +4093,7 @@
               <div class="detail-grid">
                 <div class="detail-field">
                   <span class="field-label">Scope</span>
-                  <span class="field-value">${learning.project ? escapeHtml(learning.project) : 'Universal'}</span>
+                  <span class="field-value">${learning.project ? escapeHtml(learning.project) : 'universal'}</span>
                 </div>
                 <div class="detail-field">
                   <span class="field-label">Date</span>
@@ -4454,7 +4457,7 @@
                 </div>
                 <div class="item-meta">
                   <span class="status-badge source ${srcClass}">${formatSource(p.source)}</span>
-                  <span>${escapeHtml(p.project || 'No project')}</span>
+                  <span>${escapeHtml(p.project || 'universal')}</span>
                   <span>${formatDate(p.timestamp)}</span>
                   <span>${p.char_count || 0} chars</span>
                 </div>
@@ -6196,7 +6199,7 @@
               <div class="review-section-title">/ Prompt Content</div>
               <div class="review-prompt-content">${escapeHtml(prompt.preview || '')}</div>
               <div class="review-prompt-meta">
-                <span>${escapeHtml(prompt.project || 'No project')}</span>
+                <span>${escapeHtml(prompt.project || 'universal')}</span>
                 <span class="status-badge source ${normalizeSource(prompt.source)}">${formatSource(prompt.source)}</span>
                 <span>${formatDate(prompt.timestamp)}</span>
                 <span>${prompt.char_count || 0} chars</span>

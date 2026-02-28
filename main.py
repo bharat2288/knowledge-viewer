@@ -1057,7 +1057,9 @@ async def list_errors(
     conditions = []
     params = []
 
-    if project:
+    if project == "universal":
+        conditions.append("e.project IS NULL")
+    elif project:
         conditions.append("e.project = ?")
         params.append(project)
 
@@ -1142,48 +1144,37 @@ async def list_decisions(
     conn = get_knowledge_db()
     cursor = conn.cursor()
 
+    # Build project condition
+    project_condition = ""
+    project_params = []
+    if project == "universal":
+        project_condition = "d.project IS NULL"
+    elif project:
+        project_condition = "d.project = ?"
+        project_params = [project]
+
     if search:
-        # Use FTS search
-        if project:
-            cursor.execute("""
-                SELECT d.*, s.claude_session_id, s.start_time as session_start
-                FROM global_decisions d
-                LEFT JOIN sessions s ON d.session_id = s.id
-                WHERE d.id IN (
-                    SELECT rowid FROM decisions_fts WHERE decisions_fts MATCH ?
-                ) AND d.project = ?
-                ORDER BY d.date DESC
-                LIMIT ? OFFSET ?
-            """, (search, project, limit, offset))
-        else:
-            cursor.execute("""
-                SELECT d.*, s.claude_session_id, s.start_time as session_start
-                FROM global_decisions d
-                LEFT JOIN sessions s ON d.session_id = s.id
-                WHERE d.id IN (
-                    SELECT rowid FROM decisions_fts WHERE decisions_fts MATCH ?
-                )
-                ORDER BY d.date DESC
-                LIMIT ? OFFSET ?
-            """, (search, limit, offset))
+        fts_where = "WHERE d.id IN (SELECT rowid FROM decisions_fts WHERE decisions_fts MATCH ?)"
+        if project_condition:
+            fts_where += f" AND {project_condition}"
+        cursor.execute(f"""
+            SELECT d.*, s.claude_session_id, s.start_time as session_start
+            FROM global_decisions d
+            LEFT JOIN sessions s ON d.session_id = s.id
+            {fts_where}
+            ORDER BY d.date DESC
+            LIMIT ? OFFSET ?
+        """, [search] + project_params + [limit, offset])
     else:
-        if project:
-            cursor.execute("""
-                SELECT d.*, s.claude_session_id, s.start_time as session_start
-                FROM global_decisions d
-                LEFT JOIN sessions s ON d.session_id = s.id
-                WHERE d.project = ?
-                ORDER BY d.date DESC
-                LIMIT ? OFFSET ?
-            """, (project, limit, offset))
-        else:
-            cursor.execute("""
-                SELECT d.*, s.claude_session_id, s.start_time as session_start
-                FROM global_decisions d
-                LEFT JOIN sessions s ON d.session_id = s.id
-                ORDER BY d.date DESC
-                LIMIT ? OFFSET ?
-            """, (limit, offset))
+        where_clause = f"WHERE {project_condition}" if project_condition else ""
+        cursor.execute(f"""
+            SELECT d.*, s.claude_session_id, s.start_time as session_start
+            FROM global_decisions d
+            LEFT JOIN sessions s ON d.session_id = s.id
+            {where_clause}
+            ORDER BY d.date DESC
+            LIMIT ? OFFSET ?
+        """, project_params + [limit, offset])
 
     decisions = rows_to_list(cursor.fetchall())
     conn.close()
@@ -1228,8 +1219,19 @@ async def list_learnings(
     conn = get_knowledge_db()
     cursor = conn.cursor()
 
+    # Build project condition
+    project_condition = ""
+    project_params = []
+    if project == "universal":
+        project_condition = "l.project IS NULL"
+    elif project:
+        if include_universal:
+            project_condition = "(l.project = ? OR l.project IS NULL)"
+        else:
+            project_condition = "l.project = ?"
+        project_params = [project]
+
     if search:
-        # Use FTS search
         base_query = """
             SELECT l.*, s.claude_session_id, s.start_time as session_start
             FROM global_learnings l
@@ -1240,28 +1242,15 @@ async def list_learnings(
         """
         params = [search]
 
-        if project:
-            if include_universal:
-                base_query += " AND (l.project = ? OR l.project IS NULL)"
-            else:
-                base_query += " AND l.project = ?"
-            params.append(project)
+        if project_condition:
+            base_query += f" AND {project_condition}"
+            params.extend(project_params)
 
         base_query += " ORDER BY l.date DESC LIMIT ? OFFSET ?"
         params.extend([limit, offset])
         cursor.execute(base_query, params)
     else:
-        conditions = []
-        params = []
-
-        if project:
-            if include_universal:
-                conditions.append("(l.project = ? OR l.project IS NULL)")
-            else:
-                conditions.append("l.project = ?")
-            params.append(project)
-
-        where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+        where_clause = f"WHERE {project_condition}" if project_condition else ""
 
         cursor.execute(f"""
             SELECT l.*, s.claude_session_id, s.start_time as session_start
@@ -1270,7 +1259,7 @@ async def list_learnings(
             {where_clause}
             ORDER BY l.date DESC
             LIMIT ? OFFSET ?
-        """, params + [limit, offset])
+        """, project_params + [limit, offset])
 
     learnings = rows_to_list(cursor.fetchall())
     conn.close()
