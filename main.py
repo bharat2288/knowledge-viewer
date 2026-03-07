@@ -916,6 +916,20 @@ async def get_stats():
         except Exception:
             pass
 
+        # Projects count
+        try:
+            cursor.execute("SELECT COUNT(*) FROM projects")
+            stats["projects"] = cursor.fetchone()[0]
+        except Exception:
+            stats["projects"] = 0
+
+        # Conversations count (sessions with transcripts)
+        try:
+            cursor.execute("SELECT COUNT(*) FROM sessions WHERE claude_session_id IS NOT NULL")
+            stats["conversations"] = cursor.fetchone()[0]
+        except Exception:
+            stats["conversations"] = 0
+
         conn.close()
     except Exception as e:
         # Return partial stats if knowledge db fails
@@ -989,6 +1003,48 @@ async def get_recent_activity(limit: int = Query(default=10, le=50)):
 
 
 # =============================================================================
+# PROJECTS
+# =============================================================================
+
+@app.get("/api/projects")
+async def list_projects(category: Optional[str] = None):
+    """List all projects from the registry with aggregated stats."""
+    conn = get_knowledge_db()
+    cursor = conn.cursor()
+
+    try:
+        if category:
+            cursor.execute(
+                "SELECT * FROM projects WHERE category = ? ORDER BY name",
+                (category,),
+            )
+        else:
+            cursor.execute("SELECT * FROM projects ORDER BY name")
+        projects = rows_to_list(cursor.fetchall())
+    except Exception:
+        conn.close()
+        return []
+
+    # Enrich each project with stats
+    for proj in projects:
+        name = proj["name"]
+        for key, sql in [
+            ("session_count", "SELECT COUNT(*) FROM sessions WHERE project = ?"),
+            ("error_count", "SELECT COUNT(*) FROM global_errors WHERE project = ?"),
+            ("decision_count", "SELECT COUNT(*) FROM global_decisions WHERE project = ?"),
+            ("learning_count", "SELECT COUNT(*) FROM global_learnings WHERE project = ?"),
+        ]:
+            try:
+                cursor.execute(sql, (name,))
+                proj[key] = cursor.fetchone()[0]
+            except Exception:
+                proj[key] = 0
+
+    conn.close()
+    return projects
+
+
+# =============================================================================
 # SESSIONS
 # =============================================================================
 
@@ -1034,7 +1090,183 @@ async def get_session(session_id: int):
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
 
+    # Check transcript availability
+    claude_sid = session.get("claude_session_id", "")
+    proj = session.get("project", "global") or "global"
+    if claude_sid:
+        md_path = SESSIONS_DIR / proj / f"{claude_sid}.md"
+        session["has_transcript"] = md_path.exists()
+    else:
+        session["has_transcript"] = False
+
     return session
+
+
+# =============================================================================
+# CONVERSATIONS (parsed session transcripts)
+# =============================================================================
+
+SESSIONS_DIR = DEV_ROOT / "knowledge" / "sessions"
+
+
+@app.get("/api/conversations")
+async def list_conversations(
+    project: Optional[str] = None,
+    search: Optional[str] = None,
+    has_transcript_only: bool = True,
+    limit: int = Query(default=100, le=1000),
+    offset: int = 0,
+):
+    """List sessions that have parsed transcripts.
+
+    Joins sessions table metadata with parsed markdown files on disk.
+    """
+    conn = get_knowledge_db()
+    cursor = conn.cursor()
+
+    # Build query dynamically
+    conditions = []
+    params: list = []
+
+    if project:
+        conditions.append("project = ?")
+        params.append(project)
+    if search:
+        conditions.append("current_task LIKE ?")
+        params.append(f"%{search}%")
+
+    where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+
+    cursor.execute(f"""
+        SELECT id, claude_session_id, project, start_time, end_time,
+               current_task, files_modified
+        FROM sessions
+        {where}
+        ORDER BY start_time DESC
+        LIMIT ? OFFSET ?
+    """, (*params, limit, offset))
+
+    rows = rows_to_list(cursor.fetchall())
+    conn.close()
+
+    # Enrich with transcript availability and size
+    results = []
+    for row in rows:
+        claude_sid = row.get("claude_session_id", "")
+        proj = row.get("project", "global") or "global"
+        has_transcript = False
+        transcript_size = 0
+        if claude_sid:
+            md_path = SESSIONS_DIR / proj / f"{claude_sid}.md"
+            has_transcript = md_path.exists()
+            if has_transcript:
+                transcript_size = md_path.stat().st_size
+        row["has_transcript"] = has_transcript
+        row["transcript_size"] = transcript_size
+
+        if has_transcript_only and not has_transcript:
+            continue
+        results.append(row)
+
+    return results
+
+
+@app.get("/api/conversations/{session_id}")
+async def get_conversation(session_id: str):
+    """Get a parsed session transcript by claude_session_id.
+
+    Returns session metadata + full markdown transcript content.
+    """
+    # Find the markdown file across all project subdirs
+    transcript_path = None
+    project_name = None
+    for proj_dir in SESSIONS_DIR.iterdir():
+        if not proj_dir.is_dir():
+            continue
+        candidate = proj_dir / f"{session_id}.md"
+        if candidate.exists():
+            transcript_path = candidate
+            project_name = proj_dir.name
+            break
+
+    if not transcript_path:
+        raise HTTPException(status_code=404, detail="Transcript not found")
+
+    content = transcript_path.read_text(encoding="utf-8")
+
+    # Try to get DB metadata too
+    metadata = {}
+    conn = get_knowledge_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT * FROM sessions WHERE claude_session_id = ?",
+        (session_id,),
+    )
+    row = cursor.fetchone()
+    if row:
+        metadata = dict(row)
+    conn.close()
+
+    return {
+        "session_id": session_id,
+        "project": project_name,
+        "content": content,
+        "metadata": metadata,
+    }
+
+
+# =============================================================================
+# QMD SEARCH PROXY
+# =============================================================================
+
+@app.get("/api/search/qmd")
+async def qmd_search_proxy(
+    q: str = Query(..., min_length=1),
+    collection: Optional[str] = None,
+    limit: int = Query(default=10, le=50),
+):
+    """Proxy search requests to QMD CLI.
+
+    Shells out to `qmd search --json` and returns parsed JSON results.
+    """
+    # Find qmd binary — check PATH first, then known fnm location
+    import shutil
+    qmd_bin = shutil.which("qmd")
+    if not qmd_bin:
+        # Windows fnm installs global packages here
+        candidate = Path(os.getenv("APPDATA", "")) / "fnm" / "node-versions" / "v22.15.1" / "installation" / "qmd.cmd"
+        if candidate.exists():
+            qmd_bin = str(candidate)
+
+    if not qmd_bin:
+        raise HTTPException(status_code=503, detail="QMD not installed")
+
+    cmd = [qmd_bin, "search", q, "-n", str(limit), "--json"]
+    if collection:
+        cmd.extend(["--collection", collection])
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            shell=True,
+        )
+    except FileNotFoundError:
+        raise HTTPException(status_code=503, detail="QMD not installed")
+    except subprocess.TimeoutExpired:
+        raise HTTPException(status_code=504, detail="QMD search timed out")
+
+    if result.returncode != 0:
+        return {"results": [], "error": result.stderr.strip()}
+
+    try:
+        results = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        results = []
+
+    return {"results": results, "query": q, "collection": collection}
 
 
 # =============================================================================
@@ -2211,44 +2443,8 @@ Only return the JSON array, no explanation. Example:
 
 
 # =============================================================================
-# PROJECTS LIST
+# PROJECTS LIST (legacy endpoint removed — now served by /api/projects above)
 # =============================================================================
-
-@app.get("/api/projects")
-async def list_projects():
-    """Get list of unique projects across all tables."""
-    projects = set()
-
-    try:
-        conn = get_knowledge_db()
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT DISTINCT project FROM sessions WHERE project IS NOT NULL")
-        projects.update(row[0] for row in cursor.fetchall())
-
-        cursor.execute("SELECT DISTINCT project FROM global_errors WHERE project IS NOT NULL")
-        projects.update(row[0] for row in cursor.fetchall())
-
-        cursor.execute("SELECT DISTINCT project FROM global_decisions WHERE project IS NOT NULL")
-        projects.update(row[0] for row in cursor.fetchall())
-
-        cursor.execute("SELECT DISTINCT project FROM global_learnings WHERE project IS NOT NULL")
-        projects.update(row[0] for row in cursor.fetchall())
-
-        conn.close()
-    except Exception:
-        pass
-
-    try:
-        conn = get_prompts_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT DISTINCT project FROM prompts WHERE project IS NOT NULL")
-        projects.update(row[0] for row in cursor.fetchall())
-        conn.close()
-    except Exception:
-        pass
-
-    return sorted(list(projects))
 
 
 # =============================================================================

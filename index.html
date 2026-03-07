@@ -238,6 +238,124 @@
       outline: none;
     }
 
+    /* QMD Search Results Panel */
+    .qmd-results-panel {
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      width: 500px;
+      max-height: 70vh;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      z-index: 100;
+      overflow: hidden;
+    }
+    .qmd-results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .qmd-results-content {
+      overflow-y: auto;
+      max-height: calc(70vh - 50px);
+      padding: 8px;
+    }
+    .qmd-result-item {
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 4px;
+    }
+    .qmd-result-item:hover {
+      background: var(--bg-hover);
+    }
+    .qmd-result-path {
+      font-size: 11px;
+      color: var(--accent-camel);
+      margin-bottom: 4px;
+      font-family: var(--font-mono);
+    }
+    .qmd-result-score {
+      font-size: 11px;
+      color: var(--text-muted);
+      float: right;
+    }
+    .qmd-result-snippet {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-height: 60px;
+      overflow: hidden;
+    }
+
+    /* Conversations view */
+    .conversation-card {
+      padding: 14px 16px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .conversation-card:hover,
+    .conversation-card.selected {
+      border-color: var(--accent-camel);
+      background: var(--bg-raised);
+    }
+    .conversation-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .conversation-topic {
+      font-size: 13px;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+    .conversation-detail {
+      display: flex;
+      gap: 20px;
+      height: calc(100vh - 120px);
+    }
+    .conversation-sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      overflow-y: auto;
+      border-right: 1px solid var(--border-subtle);
+      padding-right: 12px;
+    }
+    .conversation-transcript {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 20px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .conversation-transcript h2 {
+      font-size: 14px;
+      color: var(--accent-camel);
+      margin-top: 24px;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .transcript-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      background: var(--accent-camel-subtle);
+      color: var(--accent-camel);
+    }
+
     .search-input::placeholder {
       color: var(--text-muted);
     }
@@ -3059,6 +3177,14 @@
         Tags
         <span class="nav-badge" id="tags-count">0</span>
       </div>
+      <div class="nav-item" data-view="conversations">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          <path d="M8 9h8M8 13h4"/>
+        </svg>
+        Conversations
+        <span class="nav-badge" id="conversations-count">0</span>
+      </div>
       <div class="nav-item" data-view="docs">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
@@ -3084,7 +3210,23 @@
         </svg>
         <input type="text" class="search-input" id="search-input" placeholder="Search...">
       </div>
+      <div class="search-box" id="qmd-search-container">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" class="search-input" id="qmd-search-input" placeholder="QMD Search across all knowledge...">
+      </div>
     </header>
+
+    <!-- QMD Search Results Overlay -->
+    <div id="qmd-results-panel" style="display:none;" class="qmd-results-panel">
+      <div class="qmd-results-header">
+        <span id="qmd-results-title">QMD Search Results</span>
+        <button onclick="closeQmdResults()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text-secondary)">&times;</button>
+      </div>
+      <div id="qmd-results-content" class="qmd-results-content"></div>
+    </div>
 
     <div class="content" id="content">
       <!-- Content injected by JS -->
@@ -3104,6 +3246,9 @@
       learnings: [],
       prompts: [],
       projects: [],
+      projectsData: [],  // rich project objects from /api/projects
+      conversations: [],
+      selectedConversation: null,
       tags: [],  // tag vocabulary
       docs: [],  // indexed documents
       docsTree: {},  // documents organized by category
@@ -3210,6 +3355,20 @@
         min_score_to_keep: minScore,
         dry_run: dryRun
       }),
+
+      // Conversations
+      getConversations: (params = {}) => {
+        const qs = new URLSearchParams(params).toString();
+        return API.fetch(`/conversations${qs ? '?' + qs : ''}`);
+      },
+      getConversation: (id) => API.fetch(`/conversations/${id}`),
+
+      // QMD Search
+      searchQmd: (q, collection = null, limit = 10) => {
+        const params = new URLSearchParams({ q, limit });
+        if (collection) params.append('collection', collection);
+        return API.fetch(`/search/qmd?${params.toString()}`);
+      },
 
       // Tags
       getTags: () => API.fetch('/tags'),
@@ -3353,6 +3512,14 @@
           <div class="stat-card" data-view="docs" onclick="switchView('docs')">
             <div class="stat-label">Docs</div>
             <div class="stat-value">${state.stats.docs || 0}</div>
+          </div>
+          <div class="stat-card" data-view="conversations" onclick="switchView('conversations')">
+            <div class="stat-label">Conversations</div>
+            <div class="stat-value">${state.stats.conversations || 0}</div>
+          </div>
+          <div class="stat-card" onclick="switchView('conversations')">
+            <div class="stat-label">Projects</div>
+            <div class="stat-value">${state.stats.projects || 0}</div>
           </div>
         </div>
 
@@ -3513,6 +3680,10 @@
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
                     Expand
                   </button>
+                  ${session.has_transcript ? `<button class="detail-expand-btn" onclick="switchView('conversations').then(() => selectConversation('${escapeHtml(session.claude_session_id)}'))">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Transcript
+                  </button>` : ''}
                   <button class="detail-close" onclick="closeSessionDetail()">Close</button>
                 </div>
               </div>
@@ -6556,6 +6727,9 @@
         document.getElementById('learnings-count').textContent = state.stats.learnings;
         document.getElementById('prompts-count').textContent = state.stats.prompts;
         document.getElementById('tags-count').textContent = state.stats.tags;
+        if (state.stats.conversations !== undefined) {
+          document.getElementById('conversations-count').textContent = state.stats.conversations;
+        }
       } catch (err) {
         console.error('Failed to load stats:', err);
       }
@@ -6563,7 +6737,16 @@
 
     async function loadProjects() {
       try {
-        state.projects = await API.getProjects();
+        const data = await API.getProjects();
+        // API now returns rich objects; extract names for filter dropdowns
+        if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object') {
+          state.projectsData = data;
+          state.projects = data.map(p => p.name).sort();
+        } else {
+          // Fallback for legacy string array format
+          state.projects = data;
+          state.projectsData = [];
+        }
       } catch (err) {
         console.error('Failed to load projects:', err);
       }
@@ -6662,6 +6845,243 @@
     }
 
     // ===========================================
+    // CONVERSATIONS VIEW
+    // ===========================================
+    let conversationSearchTimeout = null;
+
+    async function loadConversations() {
+      try {
+        const params = { has_transcript_only: true };
+        if (state.filters.project) params.project = state.filters.project;
+        if (state.searchQuery) params.search = state.searchQuery;
+        state.conversations = await API.getConversations(params);
+      } catch (err) {
+        console.error('Failed to load conversations:', err);
+        state.conversations = [];
+      }
+    }
+
+    function renderConversations() {
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <div class="conversation-detail">
+          <div class="conversation-sidebar">
+            <div style="padding: 0 0 12px 0; display: flex; flex-direction: column; gap: 8px;">
+              <input type="text" class="search-input" id="conv-search"
+                placeholder="Search by topic..." value="${state.searchQuery || ''}"
+                style="width: 100%; padding: 8px 12px; background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: 6px; color: var(--text-primary); font-size: 13px;">
+              <select id="conv-project-filter"
+                style="width: 100%; padding: 8px 12px; background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: 6px; color: var(--text-primary); font-size: 13px;">
+                <option value="">All projects</option>
+                ${state.projects.map(p => `<option value="${p}" ${state.filters.project === p ? 'selected' : ''}>${p}</option>`).join('')}
+              </select>
+              <span style="font-size: 11px; color: var(--text-muted);">${state.conversations.length} conversations</span>
+            </div>
+            <div id="conv-list">
+              ${renderConversationsList()}
+            </div>
+          </div>
+          <div class="conversation-transcript" id="conv-transcript">
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted);">
+              Select a conversation to view transcript
+            </div>
+          </div>
+        </div>
+      `;
+      setupConversationEvents();
+    }
+
+    function renderConversationsList() {
+      if (state.conversations.length === 0) {
+        return '<div style="color: var(--text-muted); padding: 20px; text-align: center;">No conversations found</div>';
+      }
+
+      return state.conversations.map(c => {
+        const date = c.start_time ? new Date(c.start_time).toLocaleDateString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric'
+        }) : '';
+        const topic = c.current_task || 'No topic recorded';
+        const sizeKb = c.transcript_size ? Math.round(c.transcript_size / 1024) : 0;
+        const isSelected = state.selectedConversation?.claude_session_id === c.claude_session_id;
+
+        return `
+          <div class="conversation-card ${isSelected ? 'selected' : ''}"
+               onclick="selectConversation('${c.claude_session_id}')"
+               style="${isSelected ? 'border-color: var(--accent-camel); background: var(--bg-raised);' : ''}">
+            <div class="conversation-meta">
+              <span class="transcript-badge">${c.project || 'global'}</span>
+              <span>${date}</span>
+              ${sizeKb ? `<span>${sizeKb} KB</span>` : ''}
+            </div>
+            <div class="conversation-topic">${escapeHtml(topic)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function selectConversation(sessionId) {
+      try {
+        const data = await API.getConversation(sessionId);
+        state.selectedConversation = data;
+
+        // Update list selection styling
+        document.getElementById('conv-list').innerHTML = renderConversationsList();
+
+        // Render transcript
+        const panel = document.getElementById('conv-transcript');
+        panel.innerHTML = renderConversationContent(data);
+      } catch (err) {
+        console.error('Failed to load conversation:', err);
+        document.getElementById('conv-transcript').innerHTML =
+          `<div style="color: var(--semantic-error); padding: 20px;">Failed to load transcript</div>`;
+      }
+    }
+
+    function renderConversationContent(data) {
+      const meta = data.metadata || {};
+      const date = meta.start_time ? new Date(meta.start_time).toLocaleString() : '';
+      const filesModified = meta.files_modified ? JSON.parse(meta.files_modified || '[]') : [];
+
+      let header = `
+        <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-subtle);">
+          <h2 style="margin: 0 0 8px 0; font-size: 16px; color: var(--text-primary);">
+            ${escapeHtml(meta.current_task || data.project || 'Conversation')}
+          </h2>
+          <div style="display: flex; gap: 16px; font-size: 12px; color: var(--text-muted);">
+            <span class="transcript-badge">${data.project || 'global'}</span>
+            <span>${date}</span>
+            ${filesModified.length ? `<span>${filesModified.length} files modified</span>` : ''}
+          </div>
+        </div>
+      `;
+
+      // Render markdown content with basic formatting
+      const rendered = renderMarkdownBasic(data.content || '');
+      return header + `<div class="transcript-content">${rendered}</div>`;
+    }
+
+    function renderMarkdownBasic(md) {
+      // Simple markdown to HTML for transcript display
+      return md
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^### (.+)$/gm, '<h3 style="font-size: 13px; color: var(--accent-terra); margin-top: 16px;">$1</h3>')
+        .replace(/^---$/gm, '<hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 16px 0;">')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code style="background: var(--bg-raised); padding: 1px 4px; border-radius: 3px; font-size: 12px;">$1</code>')
+        .replace(/\n/g, '<br>');
+    }
+
+    function setupConversationEvents() {
+      const searchInput = document.getElementById('conv-search');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          clearTimeout(conversationSearchTimeout);
+          conversationSearchTimeout = setTimeout(async () => {
+            state.searchQuery = e.target.value;
+            await loadConversations();
+            document.getElementById('conv-list').innerHTML = renderConversationsList();
+          }, 400);
+        });
+      }
+
+      const projectFilter = document.getElementById('conv-project-filter');
+      if (projectFilter) {
+        projectFilter.addEventListener('change', async (e) => {
+          state.filters.project = e.target.value;
+          await loadConversations();
+          document.getElementById('conv-list').innerHTML = renderConversationsList();
+        });
+      }
+    }
+
+    // ===========================================
+    // QMD GLOBAL SEARCH
+    // ===========================================
+    let qmdSearchTimeout = null;
+
+    function setupQmdSearch() {
+      const input = document.getElementById('qmd-search-input');
+      if (!input) return;
+
+      input.addEventListener('input', (e) => {
+        clearTimeout(qmdSearchTimeout);
+        const q = e.target.value.trim();
+        if (q.length < 2) {
+          closeQmdResults();
+          return;
+        }
+        qmdSearchTimeout = setTimeout(async () => {
+          try {
+            const data = await API.searchQmd(q, null, 10);
+            renderQmdResults(data.results || [], q);
+          } catch (err) {
+            console.error('QMD search failed:', err);
+          }
+        }, 400);
+      });
+
+      // Click outside to dismiss
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#qmd-search-container') && !e.target.closest('#qmd-results-panel')) {
+          closeQmdResults();
+        }
+      });
+    }
+
+    function renderQmdResults(results, query) {
+      const panel = document.getElementById('qmd-results-panel');
+      const content = document.getElementById('qmd-results-content');
+      const title = document.getElementById('qmd-results-title');
+
+      title.textContent = `Results for "${query}" (${results.length})`;
+
+      if (results.length === 0) {
+        content.innerHTML = '<div style="padding: 16px; color: var(--text-muted); text-align: center;">No results found</div>';
+        panel.style.display = 'block';
+        return;
+      }
+
+      content.innerHTML = results.map(r => {
+        const file = r.file || r.path || '';
+        const resultTitle = r.title || file.split('/').pop();
+        const score = r.score !== undefined ? `${Math.round(r.score * 100)}%` : '';
+        const snippet = (r.snippet || '').substring(0, 200).replace(/^@@.*\n?/, '');
+        const collection = file.replace(/^qmd:\/\//, '').split('/')[0] || '';
+
+        return `
+          <div class="qmd-result-item" onclick="handleQmdResultClick('${escapeHtml(file)}')">
+            <div class="qmd-result-path">
+              <span class="transcript-badge">${collection}</span>
+              ${escapeHtml(file.replace(/^qmd:\/\//, ''))}
+              ${score ? `<span class="qmd-result-score">${score}</span>` : ''}
+            </div>
+            <div style="font-size: 13px; color: var(--text-primary); margin-bottom: 4px;">${escapeHtml(resultTitle)}</div>
+            ${snippet ? `<div class="qmd-result-snippet">${escapeHtml(snippet)}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+
+      panel.style.display = 'block';
+    }
+
+    function closeQmdResults() {
+      const panel = document.getElementById('qmd-results-panel');
+      if (panel) panel.style.display = 'none';
+    }
+
+    function handleQmdResultClick(file) {
+      closeQmdResults();
+      // If it's a session file, navigate to conversations view
+      if (file.includes('qmd://sessions/')) {
+        const sessionId = file.split('/').pop().replace('.md', '');
+        switchView('conversations').then(() => selectConversation(sessionId));
+      }
+    }
+
+    // ===========================================
     // NAVIGATION
     // ===========================================
     async function switchView(view) {
@@ -6692,6 +7112,7 @@
         learnings: 'Learnings',
         prompts: 'Prompts',
         tags: 'Tags',
+        conversations: 'Conversations',
         docs: 'Docs'
       };
       document.title = `${titles[view] || view} — Knowledge Viewer`;
@@ -6734,6 +7155,10 @@
           await loadTags();
           renderTagsView();
           break;
+        case 'conversations':
+          await loadConversations();
+          renderConversations();
+          break;
         case 'docs':
           await loadDocs();
           renderDocs();
@@ -6765,6 +7190,7 @@
     async function init() {
       await loadStats();
       await loadProjects();
+      setupQmdSearch();
       renderDashboard();
     }
 
