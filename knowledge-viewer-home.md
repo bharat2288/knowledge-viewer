@@ -6,7 +6,7 @@ cssclasses:
   - project-home
 ---
 # Knowledge Viewer
-*[[dev-hub|Hub]]*
+*[[dev-hub|Hub]] · [[README|GitHub]]*
 
 Local web UI for browsing knowledge DB, sessions, prompts, and workflow docs. Transitioning to Obsidian-native views.
 
@@ -84,7 +84,3 @@ SORT type ASC
 > > FROM "knowledge/sessions/knowledge-viewer"
 > > SORT file.mtime DESC
 > > ```
-
-## GitHub
-
-- [[README]]
