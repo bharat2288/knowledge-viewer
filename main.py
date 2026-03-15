@@ -1251,7 +1251,6 @@ async def qmd_search_proxy(
             capture_output=True,
             text=True,
             timeout=30,
-            shell=True,
         )
     except FileNotFoundError:
         raise HTTPException(status_code=503, detail="QMD not installed")
@@ -2245,7 +2244,8 @@ Only return the JSON array, no explanation. Example:
         return {"suggestions": suggestions}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"AI suggestion failed: {str(e)}")
+        logger.exception("AI suggestion failed")
+        raise HTTPException(status_code=500, detail="AI suggestion failed")
 
 
 class ProcessAllRequest(BaseModel):
@@ -2831,10 +2831,11 @@ async def open_document_in_editor(doc_id: int):
 
     try:
         # Open in VS Code
-        subprocess.Popen(["code", file_path], shell=True)
+        subprocess.Popen(["code", file_path])
         return {"opened": True, "path": file_path}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to open file: {str(e)}")
+        logger.exception("Failed to open file: %s", file_path)
+        raise HTTPException(status_code=500, detail="Failed to open file")
 
 
 # Run initial indexing on startup (async)
