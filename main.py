@@ -48,7 +48,13 @@ KNOWLEDGE_DB = Path(os.getenv("KV_KNOWLEDGE_DB", DEV_ROOT / "knowledge" / "knowl
 PROMPTS_DB = Path(os.getenv("KV_PROMPTS_DB", DEV_ROOT / "knowledge" / "prompts.db"))
 CODEX_PROMPT_WATCHER = DEV_ROOT / "claude-workflow-system" / "codex" / "prompt_watcher.py"
 
-app = FastAPI(title="Knowledge Viewer", version="1.0.0")
+_debug = os.getenv("DEBUG", "").lower() in ("1", "true", "yes")
+app = FastAPI(
+    title="Knowledge Viewer", version="1.0.0",
+    docs_url="/docs" if _debug else None,
+    redoc_url="/redoc" if _debug else None,
+    openapi_url="/openapi.json" if _debug else None,
+)
 
 
 def ensure_prompts_schema():
