@@ -1769,7 +1769,7 @@ def resolve_project_from_text(text: str) -> str:
     """Extract project dir under DEV_ROOT from text if present and valid."""
     if not text:
         return ""
-    marker = r"C:\Users\bhara\dev\\"
+    marker = str(DEV_ROOT).replace("/", "\\") + "\\"
     idx = text.find(marker)
     if idx == -1:
         return ""
