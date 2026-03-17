@@ -1666,9 +1666,10 @@ async def score_prompts(data: PromptScores):
 
     updated = 0
     for item in data.scores:
+        scored_by = item.get("scored_by", "manual")
         cursor.execute("""
-            UPDATE prompts SET importance_score = ? WHERE id = ?
-        """, (item["score"], item["id"]))
+            UPDATE prompts SET importance_score = ?, scored_by = ? WHERE id = ?
+        """, (item["score"], scored_by, item["id"]))
         updated += cursor.rowcount
 
     conn.commit()
@@ -2317,7 +2318,7 @@ async def process_all_prompts(data: ProcessAllRequest = ProcessAllRequest()):
                 for suggestion in batch_suggestions:
                     if suggestion.get("score") is not None:
                         cursor.execute(
-                            "UPDATE prompts SET importance_score = ? WHERE id = ?",
+                            "UPDATE prompts SET importance_score = ?, scored_by = 'gpt' WHERE id = ?",
                             (suggestion["score"], suggestion["id"])
                         )
                         results["scored"] += 1

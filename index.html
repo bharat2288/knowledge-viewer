@@ -6552,7 +6552,7 @@
           }
           // Apply score
           if (changes.score !== null && changes.score !== prompt.importance_score) {
-            await API.scorePrompts([{ id: prompt.id, score: changes.score }]);
+            await API.scorePrompts([{ id: prompt.id, score: changes.score, scored_by: 'manual' }]);
           }
         } catch (err) {
           console.error('Failed to apply changes:', err);
@@ -6596,7 +6596,7 @@
 
           // Apply suggested score
           if (suggestion.score && prompt.importance_score === null) {
-            await API.scorePrompts([{ id: prompt.id, score: suggestion.score }]);
+            await API.scorePrompts([{ id: prompt.id, score: suggestion.score, scored_by: 'gpt' }]);
           }
 
           applied++;
@@ -6703,7 +6703,7 @@
       }
 
       try {
-        await API.scorePrompts([{ id, score }]);
+        await API.scorePrompts([{ id, score, scored_by: 'manual' }]);
         await loadStats();  // Refresh sidebar stats
         // Refresh the list
         await loadPrompts();
