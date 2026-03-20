@@ -3702,7 +3702,8 @@
       qaFindings: null,
       qaExpandedEvent: null,
       qaExpandedNode: null,
-      qaMonitorInterval: null
+      qaMonitorInterval: null,
+      qaCoverageGroupBy: 'category'
     };
 
     // ===========================================
@@ -7809,37 +7810,85 @@
         </div>
       ` : '';
 
-      // Category groups
-      const categoryOrder = ['movement', 'lifecycle', 'crud', 'config', 'import'];
-      let categories = '';
-      for (const cat of categoryOrder) {
-        const group = cov.categories[cat];
-        if (!group) continue;
-        const events = group.events || [];
-        const covered = group.covered || 0;
+      // Grouping toggle
+      const groupBy = state.qaCoverageGroupBy || 'category';
+      const groupToggle = `
+        <div style="display:flex;gap:4px;margin-bottom:16px">
+          <button class="qa-sub-tab ${groupBy === 'category' ? 'active' : ''}" onclick="state.qaCoverageGroupBy='category';renderQa()" style="font-size:11px;padding:4px 10px">By Category</button>
+          <button class="qa-sub-tab ${groupBy === 'domain' ? 'active' : ''}" onclick="state.qaCoverageGroupBy='domain';renderQa()" style="font-size:11px;padding:4px 10px">By Domain</button>
+        </div>
+      `;
 
-        let rows = events.map(ev => {
-          const dotClass = ev.status === 'pass' ? 'pass' : ev.status === 'fail' ? 'fail' : 'untested';
-          const statusLabel = ev.status === 'untested' ? '—' : ev.status.toUpperCase();
-          const scenarios = ev.scenarios ? `${ev.scenarios.passed || 0}/${ev.scenarios.total || 0}` : '—';
-          const lastRun = ev.last_run ? new Date(ev.last_run).toLocaleDateString('en-GB', {day:'numeric',month:'short'}) : '—';
-          const video = ev.video ? `<a href="#" onclick="event.preventDefault()" title="Video evidence" style="color:var(--accent-camel)">▶</a>` : '—';
-          return `
-            <tr class="qa-event-row" onclick="openEventOverlay('${ev.id}')" style="cursor:pointer">
-              <td><span class="qa-status-dot ${dotClass}"></span> ${statusLabel}</td>
-              <td>${ev.name}</td>
-              <td style="text-align:center">${scenarios}</td>
-              <td style="text-align:center">${lastRun}</td>
-              <td style="text-align:center">${video}</td>
-            </tr>
-          `;
-        }).join('');
+      // Collect all events flat from categories
+      const allEvents = [];
+      for (const cat of Object.keys(cov.categories || {})) {
+        for (const ev of (cov.categories[cat]?.events || [])) {
+          allEvents.push({ ...ev, category: cat });
+        }
+      }
 
-        categories += `
+      // Domain grouping: derive from event ID prefix
+      const DOMAIN_MAP = {
+        'Purchase Orders': id => /^e_po_|^e_auto_pack$/.test(id),
+        'Transfers': id => /^e_transfer_/.test(id),
+        'Sales': id => /^e_(d2c_sale|channel_sale|sale_return)$/.test(id),
+        'Movements': id => /^e_(mc_|void$)/.test(id),
+        'Packaging': id => /^e_pack_/.test(id),
+        'Masters': id => /^e_(vendor_|channel_save|warehouse_save)/.test(id),
+        'Forecast': id => /^e_catalyst_/.test(id),
+        'Imports': id => /^e_(batch_import|shopify_sync|anomaly_rerun)$/.test(id),
+      };
+
+      // Build groups based on selected mode
+      let groups;
+      if (groupBy === 'domain') {
+        groups = [];
+        const placed = new Set();
+        for (const [label, matcher] of Object.entries(DOMAIN_MAP)) {
+          const matched = allEvents.filter(ev => matcher(ev.id));
+          if (matched.length) {
+            matched.forEach(ev => placed.add(ev.id));
+            groups.push({ label, events: matched });
+          }
+        }
+        const unmatched = allEvents.filter(ev => !placed.has(ev.id));
+        if (unmatched.length) groups.push({ label: 'Other', events: unmatched });
+      } else {
+        const categoryOrder = ['movement', 'lifecycle', 'crud', 'config', 'import'];
+        groups = categoryOrder
+          .filter(cat => cov.categories[cat])
+          .map(cat => ({
+            label: cat.toUpperCase(),
+            events: cov.categories[cat].events || [],
+          }));
+      }
+
+      // Render groups
+      const renderEventRow = (ev) => {
+        const dotClass = ev.status === 'pass' ? 'pass' : ev.status === 'fail' ? 'fail' : 'untested';
+        const statusLabel = ev.status === 'untested' ? '—' : ev.status.toUpperCase();
+        const scenarios = ev.scenarios ? `${ev.scenarios.passed || 0}/${ev.scenarios.total || 0}` : '—';
+        const lastRun = ev.last_run ? new Date(ev.last_run).toLocaleDateString('en-GB', {day:'numeric',month:'short'}) : '—';
+        const video = ev.video ? `<a href="#" onclick="event.preventDefault()" title="Video evidence" style="color:var(--accent-camel)">▶</a>` : '—';
+        return `
+          <tr class="qa-event-row" onclick="openEventOverlay('${ev.id}')" style="cursor:pointer">
+            <td><span class="qa-status-dot ${dotClass}"></span> ${statusLabel}</td>
+            <td>${ev.name}</td>
+            <td style="text-align:center">${scenarios}</td>
+            <td style="text-align:center">${lastRun}</td>
+            <td style="text-align:center">${video}</td>
+          </tr>
+        `;
+      };
+
+      let categoriesHtml = '';
+      for (const g of groups) {
+        const covered = g.events.filter(ev => ev.status !== 'untested').length;
+        categoriesHtml += `
           <div class="qa-category-group">
             <div class="qa-category-header">
-              <span>${cat.toUpperCase()} (${events.length})</span>
-              <span style="color:var(--text-tertiary)">${covered}/${events.length} covered</span>
+              <span>${g.label} (${g.events.length})</span>
+              <span style="color:var(--text-tertiary)">${covered}/${g.events.length} covered</span>
             </div>
             <table class="qa-event-table">
               <thead>
@@ -7851,13 +7900,13 @@
                   <th style="width:60px;text-align:center">Video</th>
                 </tr>
               </thead>
-              <tbody>${rows}</tbody>
+              <tbody>${g.events.map(renderEventRow).join('')}</tbody>
             </table>
           </div>
         `;
       }
 
-      return statCards + metaBar + categories;
+      return statCards + metaBar + groupToggle + categoriesHtml;
     }
 
     async function openEventOverlay(eventId) {
@@ -7975,10 +8024,58 @@
           </div>`;
         }
 
-        // Scenarios
+        // Test Matrix (from plan.matrix)
+        if (plan?.matrix) {
+          const mx = plan.matrix;
+          const cc = mx.coverage_check || {};
+          const scenarios = mx.scenarios || [];
+          const positive = scenarios.filter(s => !s.tag);
+          const negative = scenarios.filter(s => s.tag === 'expected_fail' || s.tag === 'api_only');
+          const uiChecks = scenarios.filter(s => s.tag === 'ui_check');
+
+          // Coverage summary
+          const tested = scenarios.filter(s => s.status === 'pass' || s.status === 'fail').length;
+          const passed = scenarios.filter(s => s.status === 'pass').length;
+          const failed = scenarios.filter(s => s.status === 'fail').length;
+          const summaryColor = failed > 0 ? 'var(--semantic-error)' : tested > 0 ? 'var(--semantic-success)' : 'var(--text-tertiary)';
+          const summaryText = tested > 0
+            ? `${passed}/${tested} passed${failed ? `, ${failed} failed` : ''}`
+            : `${cc.scenarios_planned || scenarios.length} planned`;
+
+          // Render scenario groups
+          const renderGroup = (label, items, tagColor) => {
+            if (!items.length) return '';
+            return `<div style="margin-bottom:8px">
+              <div style="font-size:11px;font-weight:600;color:${tagColor};margin-bottom:4px">${label} (${items.length})</div>
+              ${items.map(s => {
+                const statusIcon = s.status === 'pass' ? '✓' : s.status === 'fail' ? '✗' : '○';
+                const statusColor = s.status === 'pass' ? 'var(--semantic-success)' : s.status === 'fail' ? 'var(--semantic-error)' : 'var(--text-muted)';
+                const checksHtml = Object.entries(s.assertions || {}).map(([viewer, a]) =>
+                  `<div style="margin-left:20px;font-size:11px;color:var(--text-tertiary)">${viewer}: ${(a.checks || []).join(', ')}${a.expanded ? ' [expand]' : ''}</div>`
+                ).join('');
+                const notesHtml = s.notes ? `<div style="margin-left:20px;font-size:11px;color:var(--text-tertiary);font-style:italic">${s.notes}</div>` : '';
+                return `<details style="margin-bottom:2px">
+                  <summary style="cursor:pointer;color:${statusColor};font-size:12px;padding:2px 0">
+                    ${statusIcon} <strong>${s.id}</strong> ${s.name}
+                  </summary>
+                  ${checksHtml}${notesHtml}
+                </details>`;
+              }).join('')}
+            </div>`;
+          };
+
+          html += `<div class="activity-section" style="padding:12px;margin-bottom:12px">
+            <div class="section-header">Test Matrix <span style="color:${summaryColor};font-weight:400">${summaryText}</span></div>
+            ${renderGroup('Positive', positive, 'var(--text-secondary)')}
+            ${renderGroup('Negative (expected_fail / api_only)', negative, 'var(--accent-terra)')}
+            ${renderGroup('UI Checks', uiChecks, 'var(--accent-camel)')}
+          </div>`;
+        }
+
+        // Run Results (from plan.results.scenarios — actual pass/fail after execution)
         if (results) {
           html += `<div class="activity-section" style="padding:12px;margin-bottom:12px">
-            <div class="section-header">Scenarios</div>
+            <div class="section-header">Run Results</div>
             <div style="font-family:var(--font-mono);font-size:12px">${results}</div>
           </div>`;
         }
