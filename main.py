@@ -2845,6 +2845,650 @@ async def open_document_in_editor(doc_id: int):
         raise HTTPException(status_code=500, detail="Failed to open file")
 
 
+# =============================================================================
+# QA — Verification Control Panel
+# =============================================================================
+
+# Project discovery: scan DEV_ROOT for projects that have a graph.json in specs/
+def _discover_qa_projects():
+    """Find projects with graph.json files."""
+    projects = []
+    for child in DEV_ROOT.iterdir():
+        if not child.is_dir():
+            continue
+        # Look for graph.json files in specs/
+        specs_dir = child / "specs"
+        if not specs_dir.exists():
+            continue
+        for f in specs_dir.iterdir():
+            if f.name.endswith("-graph.json") or f.name == "graph.json":
+                projects.append({
+                    "name": child.name,
+                    "path": str(child),
+                    "graph_file": str(f),
+                    "has_coverage": (child / "tests" / "e2e" / "coverage.json").exists(),
+                    "has_screenshots": (child / "demos" / "images").is_dir(),
+                    "has_findings": (child / "specs" / "qa-findings.json").exists(),
+                })
+                break  # one graph per project is enough
+    return projects
+
+
+def _resolve_project(project: str):
+    """Resolve project name to paths, raise 404 if not found."""
+    project_dir = DEV_ROOT / project
+    if not project_dir.is_dir():
+        raise HTTPException(status_code=404, detail=f"Project not found: {project}")
+
+    # Find graph file
+    specs_dir = project_dir / "specs"
+    graph_file = None
+    if specs_dir.exists():
+        for f in specs_dir.iterdir():
+            if f.name.endswith("-graph.json") or f.name == "graph.json":
+                graph_file = f
+                break
+
+    return {
+        "dir": project_dir,
+        "specs": specs_dir,
+        "graph_file": graph_file,
+        "coverage_file": project_dir / "tests" / "e2e" / "coverage.json",
+        "findings_file": specs_dir / "qa-findings.json" if specs_dir.exists() else None,
+        "verify_plan_file": project_dir / "tests" / "e2e" / "verify-plan.json",
+        "progress_file": project_dir / "tests" / "e2e" / "verify-progress.json",
+        "demos_dir": project_dir / "demos" / "images",
+        "prev_dir": project_dir / "demos" / "images" / "_previous",
+    }
+
+
+def _load_json(path: Path):
+    """Load a JSON file, return None if not found."""
+    if path and path.exists():
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return None
+
+
+@app.get("/api/qa/projects")
+async def qa_list_projects():
+    """List projects that have graph.json files."""
+    return {"projects": _discover_qa_projects()}
+
+
+@app.get("/api/qa/coverage")
+async def qa_coverage(project: str = Query(..., description="Project directory name")):
+    """Get event coverage: merge graph.json events with coverage.json results."""
+    paths = _resolve_project(project)
+
+    graph = _load_json(paths["graph_file"])
+    if not graph:
+        raise HTTPException(status_code=404, detail="No graph.json found")
+
+    raw_coverage = _load_json(paths["coverage_file"]) or {}
+
+    # Normalize coverage format: support both event-keyed and spec-keyed schemas
+    if "events" in raw_coverage and isinstance(raw_coverage["events"], dict):
+        # Event-keyed format (brief spec): { "events": { "e_po_create": { ... } } }
+        coverage_by_event = raw_coverage["events"]
+    elif "specs" in raw_coverage:
+        # Spec-keyed format (verify output): { "specs": { "file.spec.ts": { "events": [...], ... } } }
+        coverage_by_event = {}
+        for spec_name, spec_data in raw_coverage["specs"].items():
+            spec_events = spec_data.get("events", [])
+            for eid in spec_events:
+                coverage_by_event[eid] = {
+                    "status": spec_data.get("status", "unknown"),
+                    "scenarios": {"total": spec_data.get("tests", 0),
+                                  "passed": spec_data.get("pass", 0),
+                                  "failed": spec_data.get("fail", 0),
+                                  "skipped": spec_data.get("skip", 0)},
+                    "last_run": spec_data.get("last_run"),
+                    "spec_file": f"tests/e2e/{spec_name}",
+                    "notes": spec_data.get("notes", ""),
+                }
+    else:
+        coverage_by_event = {}
+
+    # Extract events from graph nodes
+    events = [n for n in graph.get("nodes", []) if n.get("type") == "event"]
+
+    # Group by category
+    categories = {}
+    stats = {"total": 0, "passed": 0, "failed": 0, "untested": 0}
+
+    for event in events:
+        cat = event.get("category", "uncategorized")
+        if cat not in categories:
+            categories[cat] = {"events": [], "covered": 0, "total": 0}
+
+        event_id = event["id"]
+        cov = coverage_by_event.get(event_id)
+
+        entry = {
+            "id": event_id,
+            "name": event["name"],
+            "category": cat,
+            "description": event.get("description", ""),
+        }
+
+        if cov:
+            entry["status"] = cov.get("status", "unknown")
+            entry["scenarios"] = cov.get("scenarios", {})
+            entry["last_run"] = cov.get("last_run")
+            entry["duration_ms"] = cov.get("duration_ms")
+            entry["spec_file"] = cov.get("spec_file")
+            entry["video"] = cov.get("video")
+            entry["findings_count"] = len(cov.get("findings", []))
+            categories[cat]["covered"] += 1
+            if entry["status"] == "pass":
+                stats["passed"] += 1
+            else:
+                stats["failed"] += 1
+        else:
+            entry["status"] = "untested"
+            stats["untested"] += 1
+
+        stats["total"] += 1
+        categories[cat]["total"] += 1
+        categories[cat]["events"].append(entry)
+
+    # Coverage percentage
+    tested = stats["passed"] + stats["failed"]
+    stats["coverage_pct"] = round(tested / stats["total"] * 100) if stats["total"] > 0 else 0
+
+    # Run metadata from coverage.json
+    run_meta = {
+        "generated": raw_coverage.get("generated"),
+        "run_duration_ms": raw_coverage.get("run_duration_ms"),
+        "spec_count": len(raw_coverage.get("specs", {})) or len(set(
+            v.get("spec_file", "") for v in coverage_by_event.values() if v.get("spec_file")
+        )),
+    }
+
+    return {"stats": stats, "categories": categories, "run": run_meta}
+
+
+@app.get("/api/qa/coverage/{event_id}")
+async def qa_coverage_detail(event_id: str, project: str = Query(...)):
+    """Get detailed coverage for a single event (scenarios, findings)."""
+    paths = _resolve_project(project)
+
+    graph = _load_json(paths["graph_file"])
+    coverage = _load_json(paths["coverage_file"]) or {"events": {}}
+
+    # Find event in graph — events are top-level events[] array, NOT in nodes[]
+    event_node = None
+    if graph:
+        for ev in graph.get("events", []):
+            if ev.get("id") == event_id:
+                event_node = ev
+                break
+        # Fallback: check nodes[] for legacy graphs
+        if not event_node:
+            for n in graph.get("nodes", []):
+                if n.get("id") == event_id:
+                    event_node = n
+                    break
+
+    if not event_node:
+        # Return a stub instead of 404 — event may exist in coverage but not graph
+        event_node = {"id": event_id, "name": event_id}
+
+    cov = coverage.get("events", {}).get(event_id, {})
+
+    # Find edges involving this event
+    edges_out = []
+    edges_in = []
+    for edge in graph.get("edges", []):
+        if edge.get("source") == event_id:
+            edges_out.append(edge)
+        if edge.get("target") == event_id:
+            edges_in.append(edge)
+
+    # Load verify-plan data for this event (if exists)
+    plan = None
+    verify_plan = _load_json(paths["verify_plan_file"])
+    if verify_plan and "plans" in verify_plan:
+        plan = verify_plan["plans"].get(event_id)
+
+    return {
+        "event": event_node,
+        "coverage": cov,
+        "results": cov.get("results", []),
+        "findings": cov.get("findings", []),
+        "read_assertions": cov.get("read_assertions", {}),
+        "edges_in": edges_in,
+        "edges_out": edges_out,
+        "plan": plan,
+    }
+
+
+@app.get("/api/qa/gallery")
+async def qa_gallery(
+    project: str = Query(...),
+    node_type: Optional[str] = Query(None, alias="type"),
+):
+    """Get screenshot gallery grouped by viewer hierarchy."""
+    paths = _resolve_project(project)
+
+    graph = _load_json(paths["graph_file"])
+    if not graph:
+        raise HTTPException(status_code=404, detail="No graph.json found")
+
+    nodes = graph.get("nodes", [])
+    demos_dir = paths["demos_dir"]
+    prev_dir = paths["prev_dir"]
+
+    # Filter to nodes that have screenshots
+    visual_types = {"viewer", "sub-viewer", "modal"}
+    if node_type:
+        visual_types = {node_type}
+
+    # Build viewer groups (parent → children)
+    viewers = {}  # id → node info
+    children = {}  # parent_id → [child nodes]
+
+    # Collect all node IDs to distinguish variants from other nodes' base screenshots
+    all_node_ids = {n["id"] for n in nodes}
+
+    for n in nodes:
+        ntype = n.get("type")
+        if ntype not in visual_types and ntype not in ("viewer",):
+            continue
+
+        nid = n["id"]
+        screenshot_name = f"{nid}.png"
+        has_current = (demos_dir / screenshot_name).exists() if demos_dir.exists() else False
+        has_previous = (prev_dir / screenshot_name).exists() if prev_dir and prev_dir.exists() else False
+
+        entry = {
+            "id": nid,
+            "name": n["name"],
+            "type": ntype,
+            "parent": n.get("parent"),
+            "group": n.get("group", ""),
+            "description": n.get("description", ""),
+            "source_file": n.get("source_file", ""),
+            "has_screenshot": has_current,
+            "has_previous": has_previous,
+            "screenshot_url": f"/api/qa/screenshots/{project}/current/{screenshot_name}" if has_current else None,
+            "previous_url": f"/api/qa/screenshots/{project}/previous/{screenshot_name}" if has_previous else None,
+        }
+
+        # Detect variants (files matching {id}_{suffix}.png but NOT other node IDs)
+        variants = []
+        if demos_dir.exists():
+            prefix = f"{nid}_"
+            for img_file in demos_dir.iterdir():
+                if img_file.name.startswith(prefix) and img_file.suffix == ".png":
+                    # Skip if this file is actually another node's base screenshot
+                    file_stem = img_file.stem  # e.g. "v_inv_skus" or "v_inv_skus_expanded"
+                    if file_stem in all_node_ids:
+                        continue
+                    suffix = file_stem[len(prefix):]
+                    # Skip if suffix contains underscore — means it belongs to a child node
+                    # (e.g. v_inv_skus_expanded belongs to v_inv_skus, not v_inv)
+                    if "_" in suffix:
+                        continue
+                    prev_exists = (prev_dir / img_file.name).exists() if prev_dir and prev_dir.exists() else False
+                    variants.append({
+                        "suffix": suffix,
+                        "screenshot_url": f"/api/qa/screenshots/{project}/current/{img_file.name}",
+                        "previous_url": f"/api/qa/screenshots/{project}/previous/{img_file.name}" if prev_exists else None,
+                    })
+        entry["variants"] = variants
+
+        if ntype == "viewer":
+            viewers[nid] = entry
+            if nid not in children:
+                children[nid] = []
+        elif ntype in ("sub-viewer", "modal"):
+            parent = n.get("parent")
+            if parent:
+                if parent not in children:
+                    children[parent] = []
+                children[parent].append(entry)
+                # Ensure parent viewer exists in viewers dict
+                if parent not in viewers:
+                    parent_node = next((x for x in nodes if x["id"] == parent), None)
+                    if parent_node:
+                        p_name = f"{parent}.png"
+                        # Detect variants for parent viewer
+                        p_variants = []
+                        if demos_dir.exists():
+                            p_prefix = f"{parent}_"
+                            for img_file in demos_dir.iterdir():
+                                if img_file.name.startswith(p_prefix) and img_file.suffix == ".png":
+                                    p_suffix = img_file.stem[len(p_prefix):]
+                                    p_prev_exists = (prev_dir / img_file.name).exists() if prev_dir and prev_dir.exists() else False
+                                    p_variants.append({
+                                        "suffix": p_suffix,
+                                        "screenshot_url": f"/api/qa/screenshots/{project}/current/{img_file.name}",
+                                        "previous_url": f"/api/qa/screenshots/{project}/previous/{img_file.name}" if p_prev_exists else None,
+                                    })
+                        viewers[parent] = {
+                            "id": parent,
+                            "name": parent_node["name"],
+                            "type": "viewer",
+                            "parent": None,
+                            "group": parent_node.get("group", ""),
+                            "description": parent_node.get("description", ""),
+                            "source_file": parent_node.get("source_file", ""),
+                            "has_screenshot": (demos_dir / p_name).exists() if demos_dir.exists() else False,
+                            "has_previous": (prev_dir / p_name).exists() if prev_dir and prev_dir.exists() else False,
+                            "screenshot_url": f"/api/qa/screenshots/{project}/current/{p_name}" if (demos_dir / p_name).exists() else None,
+                            "previous_url": f"/api/qa/screenshots/{project}/previous/{p_name}" if prev_dir and (prev_dir / p_name).exists() else None,
+                            "variants": p_variants,
+                        }
+
+    # Build grouped output
+    groups = []
+    for vid, viewer in viewers.items():
+        group = {
+            "viewer": viewer,
+            "children": children.get(vid, []),
+        }
+        groups.append(group)
+
+    # Sort by group field
+    groups.sort(key=lambda g: g["viewer"].get("group", ""))
+
+    # Stats — count base screenshots + variants
+    total_nodes = sum(1 for n in nodes if n.get("type") in visual_types)
+    captured = sum(1 for g in groups if g["viewer"]["has_screenshot"])
+    captured += sum(1 for g in groups for c in g["children"] if c["has_screenshot"])
+    variant_count = sum(len(g["viewer"].get("variants", [])) for g in groups)
+    variant_count += sum(len(c.get("variants", [])) for g in groups for c in g["children"])
+
+    return {"groups": groups, "stats": {"total": total_nodes, "captured": captured, "variants": variant_count}}
+
+
+@app.get("/api/qa/gallery/{node_id}")
+async def qa_gallery_node(node_id: str, project: str = Query(...)):
+    """Get detailed node info with edges for expanded screenshot view."""
+    paths = _resolve_project(project)
+
+    graph = _load_json(paths["graph_file"])
+    if not graph:
+        raise HTTPException(status_code=404, detail="No graph.json found")
+
+    node = None
+    for n in graph.get("nodes", []):
+        if n.get("id") == node_id:
+            node = n
+            break
+
+    if not node:
+        raise HTTPException(status_code=404, detail=f"Node not found: {node_id}")
+
+    # Find edges
+    edges_in = [e for e in graph.get("edges", []) if e.get("target") == node_id]
+    edges_out = [e for e in graph.get("edges", []) if e.get("source") == node_id]
+
+    # Resolve edge node names
+    node_names = {n["id"]: n["name"] for n in graph.get("nodes", [])}
+    for e in edges_in:
+        e["source_name"] = node_names.get(e.get("source"), e.get("source"))
+    for e in edges_out:
+        e["target_name"] = node_names.get(e.get("target"), e.get("target"))
+
+    capture = node.get("capture", {})
+    declared_variants = capture.get("variants", [])
+
+    return {
+        "node": node,
+        "edges_in": edges_in,
+        "edges_out": edges_out,
+        "edge_count": {"in": len(edges_in), "out": len(edges_out)},
+        "declared_variants": declared_variants,
+    }
+
+
+@app.get("/api/qa/screenshots/{project}/{version}/{filename}")
+async def qa_serve_screenshot(project: str, version: str, filename: str):
+    """Serve screenshot files from demos/images/ or demos/images/_previous/."""
+    project_dir = DEV_ROOT / project
+    if not project_dir.is_dir():
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    if version == "current":
+        file_path = project_dir / "demos" / "images" / filename
+    elif version == "previous":
+        file_path = project_dir / "demos" / "images" / "_previous" / filename
+    else:
+        raise HTTPException(status_code=400, detail="Version must be 'current' or 'previous'")
+
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Screenshot not found")
+
+    # Security: ensure path is within project
+    try:
+        file_path.resolve().relative_to(project_dir.resolve())
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    return FileResponse(file_path, media_type="image/png")
+
+
+@app.get("/api/qa/monitor")
+async def qa_monitor(project: str = Query(...)):
+    """Get live verify progress (from verify-plan.json) and run history."""
+    paths = _resolve_project(project)
+
+    # Check for active run via verify-plan.json active_event
+    verify_plan = _load_json(paths["verify_plan_file"])
+    running = False
+    active_event = None
+    active_plan = None
+    phases_done = []
+
+    if verify_plan:
+        active_event = verify_plan.get("active_event")
+        if active_event:
+            active_plan = verify_plan.get("plans", {}).get(active_event, {})
+            current_phase = active_plan.get("current_phase", "")
+            running = current_phase not in ("complete", "")
+
+            # Determine which phases are done based on which sections exist
+            phase_order = ["scope", "matrix", "helpers", "spec", "results"]
+            for phase in phase_order:
+                if phase in active_plan:
+                    phases_done.append(phase)
+
+            # Check if stale (>1 hour)
+            started = active_plan.get("started", "")
+            if started and running:
+                try:
+                    started_dt = datetime.fromisoformat(started)
+                    age_seconds = (datetime.now() - started_dt).total_seconds()
+                    if age_seconds > 3600:
+                        running = False
+                        active_plan["stale"] = True
+                except (ValueError, TypeError):
+                    pass
+
+    # All completed plans for history
+    all_plans = verify_plan.get("plans", {}) if verify_plan else {}
+    completed_plans = [
+        {"event": eid, **p}
+        for eid, p in all_plans.items()
+        if p.get("current_phase") == "complete"
+    ]
+
+    # Run history from coverage.json
+    cov_raw = _load_json(paths["coverage_file"])
+    history = []
+    if cov_raw:
+        if "specs" in cov_raw:
+            specs = cov_raw["specs"]
+            passed = sum(1 for s in specs.values() if s.get("status") == "pass")
+            failed = sum(1 for s in specs.values() if s.get("status") in ("fail", "error", "fixing"))
+            total_events = sum(len(s.get("events", [])) for s in specs.values())
+            history.append({
+                "date": cov_raw.get("generated"),
+                "events_tested": total_events,
+                "passed": passed,
+                "failed": failed,
+                "duration_ms": cov_raw.get("run_duration_ms"),
+            })
+        elif "events" in cov_raw and isinstance(cov_raw["events"], dict):
+            events = cov_raw["events"]
+            passed = sum(1 for v in events.values() if v.get("status") == "pass")
+            failed = sum(1 for v in events.values() if v.get("status") in ("fail", "error"))
+            history.append({
+                "date": cov_raw.get("generated"),
+                "events_tested": len(events),
+                "passed": passed,
+                "failed": failed,
+                "duration_ms": cov_raw.get("run_duration_ms"),
+            })
+
+    return {
+        "running": running,
+        "active_event": active_event,
+        "active_plan": active_plan,
+        "phases_done": phases_done,
+        "completed_plans": completed_plans,
+        "history": history,
+    }
+
+
+@app.get("/api/qa/matrix")
+async def qa_matrix(project: str = Query(...)):
+    """Build test matrix: events × viewers with read/write markers."""
+    paths = _resolve_project(project)
+
+    graph = _load_json(paths["graph_file"])
+    coverage = _load_json(paths["coverage_file"]) or {"events": {}}
+
+    if not graph:
+        raise HTTPException(status_code=404, detail="No graph.json found")
+
+    nodes = graph.get("nodes", [])
+    edges = graph.get("edges", [])
+
+    events = [n for n in nodes if n.get("type") == "event"]
+    # Viewers that appear as read targets in coverage
+    viewer_types = {"viewer", "sub-viewer"}
+    visual_nodes = [n for n in nodes if n.get("type") in viewer_types]
+
+    # Build matrix from coverage read_assertions and graph edges
+    matrix = {}
+    viewer_ids = set()
+
+    for event in events:
+        eid = event["id"]
+        cov = coverage["events"].get(eid, {})
+        read_assertions = cov.get("read_assertions", {})
+
+        row = {}
+
+        # Read assertions from coverage
+        for vid, assertions in read_assertions.items():
+            row[vid] = {"type": "R", "assertions": assertions}
+            viewer_ids.add(vid)
+
+        # Write targets from graph edges
+        for edge in edges:
+            if edge.get("source") == eid:
+                target = edge.get("target", "")
+                target_node = next((n for n in nodes if n["id"] == target), None)
+                if target_node and target_node.get("type") in viewer_types:
+                    if target not in row:
+                        row[target] = {"type": "W", "assertions": []}
+                    else:
+                        row[target]["type"] = "W"  # write supersedes read
+                    viewer_ids.add(target)
+
+        matrix[eid] = row
+
+    # Build ordered viewer list (only those that appear in matrix)
+    viewer_list = [
+        {"id": n["id"], "name": n["name"], "short": n["id"].replace("v_", "").replace("_", " ")}
+        for n in visual_nodes if n["id"] in viewer_ids
+    ]
+
+    event_list = [
+        {"id": e["id"], "name": e["name"], "short": e["name"][:12], "category": e.get("category", "")}
+        for e in events
+    ]
+
+    return {
+        "events": event_list,
+        "viewers": viewer_list,
+        "matrix": matrix,
+    }
+
+
+@app.get("/api/qa/findings")
+async def qa_findings(project: str = Query(...)):
+    """Get QA findings from verify-plan.json (canonical) with qa-findings.json fallback."""
+    paths = _resolve_project(project)
+
+    items = []
+
+    # Primary: read from verify-plan.json (canonical source)
+    verify_plan = _load_json(paths["verify_plan_file"])
+    if verify_plan and "plans" in verify_plan:
+        for event_id, plan in verify_plan["plans"].items():
+            plan_findings = plan.get("results", {}).get("findings", [])
+            for f in plan_findings:
+                f.setdefault("event", event_id)
+                items.append(f)
+
+    # Fallback: if no plan findings, try qa-findings.json
+    if not items:
+        findings_data = _load_json(paths["findings_file"]) if paths["findings_file"] else None
+        if findings_data:
+            items = findings_data.get("findings", [])
+
+    # Stats
+    stats = {"total": len(items), "high": 0, "medium": 0, "low": 0, "open": 0, "fixed": 0, "verified": 0}
+    for item in items:
+        sev = item.get("severity", "medium").lower()
+        if sev in stats:
+            stats[sev] += 1
+        status = item.get("status", "open").lower()
+        if status in stats:
+            stats[status] += 1
+
+    return {"stats": stats, "findings": items}
+
+
+@app.post("/api/qa/findings/{finding_id}/status")
+async def qa_update_finding_status(finding_id: str, project: str = Query(...), status: str = Query(...)):
+    """Update a finding's status (open → fixed → verified)."""
+    VALID_STATUSES = {"open", "fixed", "verified"}
+    if status not in VALID_STATUSES:
+        raise HTTPException(status_code=400, detail=f"Status must be one of: {VALID_STATUSES}")
+
+    paths = _resolve_project(project)
+    findings_file = paths["findings_file"]
+    if not findings_file:
+        raise HTTPException(status_code=404, detail="No findings file path")
+
+    findings_data = _load_json(findings_file) or {"findings": []}
+
+    # Find and update
+    found = False
+    for item in findings_data.get("findings", []):
+        if item.get("id") == finding_id:
+            item["status"] = status
+            item["updated_at"] = datetime.now().isoformat()
+            found = True
+            break
+
+    if not found:
+        raise HTTPException(status_code=404, detail=f"Finding not found: {finding_id}")
+
+    # Write back
+    with open(findings_file, "w", encoding="utf-8") as f:
+        json.dump(findings_data, f, indent=2)
+
+    return {"updated": True, "id": finding_id, "status": status}
+
+
 # Run initial indexing on startup (async)
 @app.on_event("startup")
 async def startup_index():
