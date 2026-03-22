@@ -7,7 +7,7 @@ cssclasses:
 ---
 # Knowledge Viewer
 *[[dev-hub|Hub]] · [[README|GitHub]]*
-<span class="hub-status">&mdash;</span>
+<span class="hub-status">QA tab redesigned — design system (Dark Cool + Neutral Vivid), manual QA layer, split-pane overlay, screenshot capture</span>
 
 Local web UI for browsing knowledge DB, sessions, prompts, and workflow docs. Transitioning to Obsidian-native views.
 
