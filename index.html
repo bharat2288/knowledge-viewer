@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark-cool">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +9,10 @@
   <link href="https://fonts.cdnfonts.com/css/geist" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
+  <!-- Design system fonts (dark-cool + neutral-vivid) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&display=swap" rel="stylesheet">
 
   <!-- Syntax highlighting -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
@@ -56,6 +60,98 @@
       --shadow-lg: 0 12px 28px rgba(0,0,0,0.45), 0 8px 12px rgba(0,0,0,0.35);
       --shadow-glow-camel: 0 0 24px rgba(212, 165, 116, 0.2);
       --shadow-glow-success: 0 0 10px rgba(122, 176, 122, 0.5);
+
+      /* Compatibility aliases — old vars → design system tokens */
+      --accent-primary: var(--accent-camel);
+      --accent-primary-hover: var(--accent-camel-hover);
+      --accent-primary-subtle: var(--accent-camel-subtle);
+      --accent-secondary: var(--accent-terra);
+      --accent-secondary-hover: var(--accent-terra-hover);
+      --accent-secondary-subtle: var(--accent-terra-subtle);
+      --bg-secondary: var(--bg-raised);
+    }
+
+    /* =============================================
+       DESIGN SYSTEM MODES (Dark Cool + Neutral Vivid)
+       ============================================= */
+    [data-theme="dark-cool"] {
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-base: 'Inter', sans-serif;
+      --bg-base: #0a0d14;
+      --bg-surface: #141821;
+      --bg-raised: #1e2330;
+      --bg-elevated: #282e3c;
+      --border-subtle: #1e2433;
+      --border-default: #2e3444;
+      --border-emphasis: #3e4454;
+      --text-primary: #e8eaf0;
+      --text-secondary: #9ca3b4;
+      --text-tertiary: #6b7280;
+      --text-muted: #4b5260;
+      --accent-primary: #5b9bd5;
+      --accent-primary-hover: #4a8ac4;
+      --accent-primary-subtle: #121e2e;
+      --accent-secondary: #9484b0;
+      --accent-secondary-hover: #8474a0;
+      --accent-secondary-subtle: #1c1828;
+      --accent-pop: #f0a040;
+      --accent-pop-hover: #d89030;
+      --accent-pop-subtle: #2a2210;
+      --semantic-success: #6baa8e;
+      --semantic-warning: #d4a85c;
+      --semantic-error: #d06464;
+      --accent-camel: var(--accent-primary);
+      --accent-camel-hover: var(--accent-primary-hover);
+      --accent-camel-subtle: var(--accent-primary-subtle);
+      --accent-terra: var(--accent-secondary);
+      --accent-terra-hover: var(--accent-secondary-hover);
+      --accent-terra-subtle: var(--accent-secondary-subtle);
+      --bg-secondary: var(--bg-raised);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.25);
+      --shadow-md: 0 4px 8px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
+      --shadow-lg: 0 12px 28px rgba(0,0,0,0.5), 0 8px 12px rgba(0,0,0,0.4);
+      --shadow-glow-camel: 0 0 24px rgba(91,155,213,0.25);
+      --shadow-glow-success: 0 0 10px rgba(107,170,142,0.5);
+    }
+
+    [data-theme="neutral-vivid"] {
+      --font-display: 'Bricolage Grotesque', sans-serif;
+      --font-base: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --bg-base: #524e4a;
+      --bg-surface: #625e58;
+      --bg-raised: #746e68;
+      --bg-elevated: #847e78;
+      --border-subtle: #6a6660;
+      --border-default: #8a8680;
+      --border-emphasis: #aca6a0;
+      --text-primary: #ffffff;
+      --text-secondary: #e4e0dc;
+      --text-tertiary: #b4b0a8;
+      --text-muted: #7e7a74;
+      --accent-primary: #2dd4bf;
+      --accent-primary-hover: #20b8a6;
+      --accent-primary-subtle: #4e5b56;
+      --accent-secondary: #ffb020;
+      --accent-secondary-hover: #e09818;
+      --accent-secondary-subtle: #302414;
+      --accent-pop: #f43f5e;
+      --accent-pop-hover: #dc3050;
+      --accent-pop-subtle: #2a1418;
+      --semantic-success: #34d058;
+      --semantic-warning: #ffb020;
+      --semantic-error: #f44336;
+      --accent-camel: var(--accent-primary);
+      --accent-camel-hover: var(--accent-primary-hover);
+      --accent-camel-subtle: var(--accent-primary-subtle);
+      --accent-terra: var(--accent-secondary);
+      --accent-terra-hover: var(--accent-secondary-hover);
+      --accent-terra-subtle: var(--accent-secondary-subtle);
+      --bg-secondary: var(--bg-raised);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.30), 0 1px 4px rgba(0,0,0,0.22);
+      --shadow-md: 0 4px 10px rgba(0,0,0,0.38), 0 2px 6px rgba(0,0,0,0.26);
+      --shadow-lg: 0 14px 32px rgba(0,0,0,0.48), 0 8px 14px rgba(0,0,0,0.32);
+      --shadow-glow-camel: 0 0 36px rgba(45,212,191,0.55);
+      --shadow-glow-success: 0 0 20px rgba(52,208,88,0.60);
     }
 
     *, *::before, *::after {
@@ -3108,82 +3204,329 @@
     }
 
     /* ===========================================
-       QA TAB
+       QA TAB — Design System (Hybrid Mockup)
        =========================================== */
 
+    /* QA Header */
     .qa-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 24px;
     }
 
+    .qa-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .qa-project-selector select {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      padding: 6px 28px 6px 12px;
+      font-family: var(--font-base);
+      font-size: 12px;
+      color: var(--text-primary);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23b4b0a8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    /* Sub-tabs */
     .qa-sub-tabs {
       display: flex;
-      gap: 4px;
+      gap: 0;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 24px;
     }
 
     .qa-sub-tab {
-      background: none;
-      border: none;
-      color: var(--text-tertiary);
-      padding: 8px 16px;
-      font-size: 13px;
+      padding: 12px 20px;
+      font-size: 14px;
       font-weight: 500;
+      color: var(--text-tertiary);
       cursor: pointer;
+      border: none;
+      background: none;
       border-bottom: 2px solid transparent;
       transition: all 0.15s;
       font-family: var(--font-base);
     }
 
-    .qa-sub-tab:hover {
-      color: var(--text-secondary);
-    }
+    .qa-sub-tab:hover { color: var(--text-secondary); }
 
     .qa-sub-tab.active {
-      color: var(--accent-camel);
-      border-bottom-color: var(--accent-camel);
+      color: var(--accent-primary);
+      border-bottom-color: var(--accent-primary);
     }
 
-    .qa-project-selector select {
-      background: var(--bg-raised);
-      color: var(--text-primary);
-      border: 1px solid var(--border-default);
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 13px;
-      font-family: var(--font-base);
-      cursor: pointer;
-    }
-
-    .qa-project-selector select:hover {
-      border-color: var(--accent-camel);
-    }
-
-    .qa-meta-bar {
-      font-size: 12px;
-      color: var(--text-tertiary);
-      padding: 8px 0;
+    /* Stat cards — 5 across */
+    .qa-stats-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
       margin-bottom: 16px;
     }
 
-    .qa-category-group {
+    .qa-stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 16px;
+      transition: all 0.15s;
+    }
+
+    .qa-stat-card:hover {
+      border-color: var(--border-default);
+      background: var(--bg-raised);
+    }
+
+    .qa-stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+
+    .qa-stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Manual progress bar */
+    .qa-manual-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .qa-manual-bar .progress {
+      flex: 1;
+      max-width: 200px;
+      height: 6px;
+      background: var(--bg-elevated);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .qa-manual-bar .progress-fill {
+      height: 100%;
+      background: var(--accent-secondary);
+      border-radius: 3px;
+    }
+
+    /* Meta bar */
+    .qa-meta-bar {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    /* Toggle row: Grouping + Chain Style */
+    .qa-toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
       margin-bottom: 20px;
     }
 
-    .qa-category-header {
+    .qa-group-toggle {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      gap: 2px;
+      background: var(--bg-surface);
+      border-radius: 6px;
+      padding: 2px;
+      width: fit-content;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .qa-group-btn, .qa-chain-style-btn {
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      border: none;
+      background: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.1s;
+      font-family: var(--font-base);
+    }
+
+    .qa-group-btn:hover, .qa-chain-style-btn:hover { color: var(--text-secondary); }
+
+    .qa-group-btn.active, .qa-chain-style-btn.active {
+      background: var(--bg-raised);
+      color: var(--text-primary);
+    }
+
+    .qa-toggle-separator {
+      width: 1px;
+      height: 24px;
+      background: var(--border-subtle);
+    }
+
+    /* Shared dots + manual status tokens */
+    .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
+    .dot-pass { background: var(--semantic-success); box-shadow: 0 0 6px rgba(52,208,88,0.4); }
+    .dot-fail { background: var(--semantic-error); box-shadow: 0 0 6px rgba(244,67,54,0.4); }
+    .dot-untested { background: var(--text-muted); }
+    .dot-partial { background: var(--accent-secondary); }
+
+    .ms { font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
+    .ms-pass { color: var(--semantic-success); }
+    .ms-fail { color: var(--semantic-error); }
+    .ms-finding { color: var(--accent-secondary); }
+    .ms-untested { color: var(--text-muted); }
+
+    /* Legacy compat — keep for old classes still referenced */
+    .qa-ms { font-size: 12px; font-weight: 600; font-family: var(--font-mono); }
+    .qa-ms-pass { color: var(--semantic-success); }
+    .qa-ms-fail { color: var(--semantic-error); }
+    .qa-ms-finding { color: var(--accent-secondary); }
+    .qa-ms-skip { color: var(--text-muted); }
+    .qa-ms-na { color: var(--text-muted); font-weight: 400; }
+    .qa-ms-untested { color: var(--text-muted); }
+
+    /* Chain groups (shared) */
+    .qa-chain-group { margin-bottom: 20px; }
+
+    .qa-chain-label {
       font-size: 12px;
       font-weight: 600;
+      text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: var(--accent-camel);
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border-subtle);
+      color: var(--accent-primary);
       margin-bottom: 8px;
+    }
+
+    /* Compact chain pills (horizontal) */
+    .qa-chain-pills {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      padding: 8px 0;
+    }
+
+    .qa-chain-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .qa-chain-pill:hover {
+      border-color: var(--accent-primary);
+      background: var(--bg-raised);
+    }
+
+    .qa-chain-pill-name { font-weight: 500; color: var(--text-primary); }
+    .qa-chain-pill-stat { color: var(--text-tertiary); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .qa-chain-arrow { color: var(--text-muted); font-size: 12px; }
+
+    /* Stacked chain chips (vertical) */
+    .qa-chain-stacked {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      align-items: flex-start;
+      padding: 4px 0;
+    }
+
+    .qa-chain-stacked-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.1s;
+      min-width: 220px;
+    }
+
+    .qa-chain-stacked-chip:hover {
+      border-color: var(--accent-primary);
+      background: var(--bg-raised);
+    }
+
+    .qa-chain-stacked-chip-name { font-weight: 500; color: var(--text-primary); flex: 1; }
+
+    .qa-chain-stacked-chip-stats {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .qa-chain-stacked-arrow {
+      color: var(--text-muted);
+      font-size: 14px;
+      padding-left: 24px;
+      line-height: 1;
+    }
+
+    .qa-chains-stacked-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    /* Standalone table zone */
+    .qa-table-zone {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .qa-table-zone-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .qa-table-zone-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-primary);
+    }
+
+    .qa-table-zone-count {
+      font-size: 12px;
+      color: var(--text-muted);
     }
 
     .qa-event-table {
@@ -3192,21 +3535,23 @@
     }
 
     .qa-event-table th {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: var(--text-tertiary);
-      padding: 6px 12px;
       text-align: left;
+      padding: 8px 16px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-tertiary);
       border-bottom: 1px solid var(--border-subtle);
     }
 
     .qa-event-table td {
-      padding: 8px 12px;
-      font-size: 13px;
+      padding: 8px 16px;
+      font-size: 14px;
       border-bottom: 1px solid var(--border-subtle);
     }
+
+    .qa-event-table tr:last-child td { border-bottom: none; }
 
     .qa-event-row {
       cursor: pointer;
@@ -3217,301 +3562,587 @@
       background: var(--bg-raised);
     }
 
-    .qa-status-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 6px;
-    }
-
-    .qa-status-dot.pass { background: var(--semantic-success); box-shadow: 0 0 6px rgba(122,176,122,0.5); }
-    .qa-status-dot.fail { background: var(--semantic-error); box-shadow: 0 0 6px rgba(205,100,100,0.5); }
-    .qa-status-dot.untested { background: var(--text-muted); }
-
-    .qa-event-row:hover { background: var(--bg-elevated); }
-
-    /* Event detail overlay */
+    /* =============================================
+       OVERLAY — Split-pane (from hybrid V3)
+       ============================================= */
     .qa-overlay {
+      display: none;
       position: fixed;
       inset: 0;
       background: var(--bg-base);
       z-index: 500;
-      overflow-y: auto;
-      animation: qa-overlay-in 0.15s ease-out;
+      overflow: hidden;
     }
+
+    .qa-overlay.open { display: flex; flex-direction: column; }
 
     @keyframes qa-overlay-in {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
-    .qa-overlay-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px 32px;
+    .qa-overlay.open { animation: qa-overlay-in 0.15s ease-out; }
+
+    .qa-overlay-top {
+      flex-shrink: 0;
+      padding: 20px 24px 0;
     }
 
     .qa-overlay-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 16px;
-      margin-bottom: 20px;
+      padding-bottom: 12px;
       border-bottom: 1px solid var(--border-subtle);
-      font-size: 18px;
+      margin-bottom: 0;
+    }
+
+    .qa-overlay-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .qa-overlay-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .qa-zoom-btn {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 2px 8px;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      transition: all 0.1s;
+    }
+
+    .qa-zoom-btn:hover, .qa-zoom-btn.active {
+      color: var(--accent-primary);
+      border-color: var(--accent-primary);
     }
 
     .qa-overlay-close {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-default);
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
       border-radius: 6px;
       padding: 6px 14px;
       color: var(--text-secondary);
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-left: 12px;
       transition: all 0.1s;
     }
 
-    .qa-overlay-close:hover {
-      background: var(--bg-elevated);
+    .qa-overlay-close:hover { background: var(--bg-elevated); color: var(--text-primary); }
+
+    /* Overlay tabs */
+    .qa-overlay-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 0;
+      padding: 0 24px;
+    }
+
+    .qa-overlay-tab {
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .qa-overlay-tab:hover { color: var(--text-secondary); }
+    .qa-overlay-tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+
+    /* Summary bar */
+    .qa-overlay-summary {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 24px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 14px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .qa-overlay-summary strong { color: var(--text-primary); }
+
+    .qa-overlay-summary .edit-btn {
+      margin-left: auto;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      padding: 5px 16px;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .qa-overlay-summary .edit-btn:hover {
+      background: var(--accent-primary);
+      color: var(--bg-base);
+      border-color: var(--accent-primary);
+    }
+
+    /* Split pane */
+    .qa-split-pane {
+      display: grid;
+      grid-template-columns: 35% 65%;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* Scenario list (left) */
+    .qa-scenario-list {
+      border-right: 1px solid var(--border-subtle);
+      overflow-y: auto;
+      padding: 12px 0;
+    }
+
+    .qa-list-group-header {
+      padding: 8px 16px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-primary);
+      margin-top: 8px;
+    }
+
+    .qa-list-group-header:first-child { margin-top: 0; }
+    .qa-list-group-header.negative { color: var(--accent-secondary); }
+    .qa-list-group-header.ui-checks { color: var(--text-tertiary); }
+
+    .qa-scenario-list-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.1s;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .qa-scenario-list-item:hover {
+      background: var(--bg-raised);
       color: var(--text-primary);
     }
 
-    .qa-overlay-body { }
-
-    .qa-expand-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
+    .qa-scenario-list-item.selected {
+      background: var(--accent-primary-subtle);
+      border-left-color: var(--accent-primary);
+      color: var(--text-primary);
+      font-weight: 500;
     }
 
-    .qa-expand-col { min-width: 0; }
+    .qa-scenario-list-item.na { color: var(--text-muted); }
+    .qa-scenario-list-item.na:hover { color: var(--text-tertiary); }
 
-    .qa-viewer-thumb {
-      height: 60px;
-      border-radius: 4px;
-      border: 1px solid var(--border-subtle);
-      object-fit: cover;
-      object-position: top;
-      cursor: pointer;
-      transition: all 0.15s;
+    .qa-list-item-icons {
+      display: flex;
+      gap: 3px;
+      flex-shrink: 0;
+      min-width: 38px;
     }
 
-    .qa-viewer-thumb:hover {
-      border-color: var(--accent-camel);
-      transform: scale(1.05);
-    }
-
-    .qa-propagation-pre {
+    .qa-list-item-id {
+      font-family: var(--font-mono);
+      font-weight: 600;
       font-size: 10px;
-      color: var(--text-secondary);
-      margin: 4px 0;
-      overflow-x: auto;
-      max-height: 300px;
+      flex-shrink: 0;
+      min-width: 22px;
+    }
+
+    .qa-list-item-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Detail panel (right) */
+    .qa-detail-area {
       overflow-y: auto;
-      background: var(--bg-base);
-      padding: 8px;
-      border-radius: 4px;
+      padding: 20px 24px;
     }
 
-    /* Gallery */
-    .qa-gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    .qa-detail-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+
+    .qa-detail-meta {
+      display: flex;
+      align-items: center;
       gap: 12px;
-      padding: 8px 0;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: var(--text-tertiary);
     }
 
-    .qa-thumb {
+    .qa-detail-meta .tag {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tag-pass { background: rgba(13,148,72,0.1); color: var(--semantic-success); }
+    .tag-fail { background: rgba(224,36,36,0.1); color: var(--semantic-error); }
+    .tag-untested { background: var(--bg-raised); color: var(--text-muted); }
+
+    .qa-detail-section { margin-bottom: 20px; }
+
+    .qa-detail-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+      margin-bottom: 8px;
+    }
+
+    .qa-detail-assertions {
+      background: var(--bg-raised);
+      border-radius: 6px;
+      padding: 12px 16px;
+      border-left: 3px solid var(--accent-primary);
+    }
+
+    .qa-detail-assertion-row {
+      display: flex;
+      gap: 12px;
+      padding: 4px 0;
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .qa-detail-assertion-row + .qa-detail-assertion-row {
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .qa-detail-assertion-row .viewer {
+      color: var(--accent-primary);
+      font-weight: 500;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      flex-shrink: 0;
+      min-width: 120px;
+      padding-top: 2px;
+    }
+
+    .qa-detail-manual {
+      padding: 12px 16px;
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: all 0.15s;
+      border-left: 3px solid var(--accent-secondary);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-style: italic;
+      line-height: 1.6;
     }
 
-    .qa-thumb:hover {
-      border-color: var(--accent-camel);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+    .qa-detail-manual-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-style: normal;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
-    .qa-thumb.expanded {
-      border-color: var(--accent-camel);
-      box-shadow: var(--shadow-glow-camel);
+    .qa-detail-finding {
+      padding: 12px 16px;
+      background: var(--accent-secondary-subtle);
+      border: 1px solid var(--accent-secondary);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--accent-secondary);
+      font-weight: 500;
     }
 
-    .qa-thumb img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      object-position: top;
+    .qa-detail-finding-severity {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: var(--accent-secondary);
+      color: var(--bg-base);
+      margin-right: 8px;
     }
 
-    .qa-thumb-variant {
-      border-color: var(--border-default);
-      border-style: dashed;
+    .qa-detail-notes {
+      padding: 12px 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      font-style: italic;
     }
 
-    .qa-thumb-placeholder {
-      width: 100%;
-      height: 120px;
+    .qa-detail-empty {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--bg-raised);
-      color: var(--text-muted);
-      font-size: 12px;
-    }
-
-    .qa-thumb-label {
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      font-size: 12px;
-    }
-
-    .qa-expanded-node {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-default);
-      border-radius: 10px;
-      padding: 20px;
-      margin-top: 16px;
-    }
-
-    .qa-diff-container {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
-    .qa-diff-container.has-diff {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .qa-node-detail {
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    /* Progress bar */
-    .qa-progress-bar {
-      height: 6px;
-      background: var(--bg-elevated);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .qa-progress-fill {
       height: 100%;
-      background: var(--accent-camel);
-      border-radius: 3px;
-      transition: width 0.3s ease;
+      color: var(--text-muted);
+      font-size: 14px;
     }
 
-    .qa-progress-animated {
-      background: linear-gradient(90deg, var(--accent-camel), var(--accent-terra), var(--accent-camel));
-      background-size: 200% 100%;
-      animation: progressPulse 2s ease infinite;
-    }
+    /* Text zoom — scales everything in detail area uniformly */
+    .qa-overlay[data-zoom="1"] .qa-detail-area { zoom: 1; }
+    .qa-overlay[data-zoom="2"] .qa-detail-area { zoom: 1.15; }
+    .qa-overlay[data-zoom="3"] .qa-detail-area { zoom: 1.3; }
 
-    @keyframes progressPulse {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    /* Scope/Results tab content (reuses detail-area) */
+    .qa-scope-section {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border-subtle);
     }
-
-    /* Test Matrix */
-    .qa-matrix {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11px;
-      font-family: var(--font-mono);
-    }
-
-    .qa-matrix th {
-      padding: 4px 8px;
-      text-align: center;
+    .qa-scope-section:last-child { border-bottom: none; }
+    .qa-scope-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       color: var(--text-tertiary);
+      margin-bottom: 8px;
+    }
+    .qa-scope-text { font-size: 14px; color: var(--text-primary); line-height: 1.5; }
+    .qa-scope-table { width: 100%; font-size: 13px; border-collapse: collapse; }
+    .qa-scope-table td { padding: 5px 10px 5px 0; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+    .qa-scope-table .col-module { color: var(--accent-primary); white-space: nowrap; font-weight: 500; }
+    .qa-scope-table .col-arrow { color: var(--text-muted); width: 20px; text-align: center; }
+    .qa-scope-table .col-target { color: var(--text-secondary); }
+    .qa-scope-table .col-op { color: var(--text-tertiary); font-size: 12px; font-family: var(--font-mono); }
+
+    .qa-read-viewer { padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+    .qa-read-viewer:last-child { border-bottom: none; }
+    .qa-read-viewer-name { font-size: 14px; color: var(--accent-primary); font-weight: 500; margin-bottom: 2px; }
+    .qa-read-viewer-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.5; }
+    .qa-viewer-thumb { height: 60px; border-radius: 4px; border: 1px solid var(--border-subtle); object-fit: cover; object-position: top; cursor: pointer; transition: all 0.15s; }
+    .qa-viewer-thumb:hover { border-color: var(--accent-primary); transform: scale(1.05); }
+
+    .qa-collapsible summary { cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-secondary); padding: 8px 0; }
+    .qa-collapsible summary:hover { color: var(--text-primary); }
+    .qa-propagation-pre { font-size: 12px; color: var(--text-secondary); margin: 4px 0; overflow-x: auto; max-height: 400px; overflow-y: auto; background: var(--bg-raised); padding: 12px; border-radius: 6px; line-height: 1.4; }
+
+    /* Typography fix — force design system font on all QA interactive elements */
+    .qa-overlay button, .qa-overlay input, .qa-overlay select,
+    .qa-edit-btn, .qa-snip-btn, .qa-group-btn, .qa-chain-style-btn,
+    .qa-sub-tab, .qa-overlay-tab {
+      font-family: var(--font-base);
+    }
+
+    /* Edit mode controls */
+    .qa-edit-buttons { display: flex; gap: 6px; margin: 6px 0; }
+    .qa-edit-btn {
+      padding: 4px 12px; font-size: 12px; border-radius: 4px;
+      border: 1px solid var(--border-default); cursor: pointer;
+      background: var(--bg-surface); color: var(--text-secondary);
+      transition: all 0.1s; font-weight: 500;
+    }
+    .qa-edit-btn.active-pass { background: var(--semantic-success); color: #fff; border-color: var(--semantic-success); }
+    .qa-edit-btn.active-fail { background: var(--semantic-error); color: #fff; border-color: var(--semantic-error); }
+    .qa-edit-btn.active-finding { background: var(--accent-secondary); color: #fff; border-color: var(--accent-secondary); }
+    .qa-edit-btn.active-skip { background: var(--text-muted); color: #fff; border-color: var(--text-muted); }
+    .qa-edit-btn:hover:not([class*="active-"]) { background: var(--bg-elevated); color: var(--text-primary); }
+    .qa-edit-notes {
+      width: 100%; padding: 6px 10px; background: var(--bg-surface);
+      border: 1px solid var(--border-default); border-radius: 4px;
+      color: var(--text-primary); font-size: 13px; box-sizing: border-box; margin-top: 4px;
+      font-family: var(--font-base);
+    }
+    .qa-edit-notes:focus { border-color: var(--accent-primary); outline: none; }
+
+    /* Screenshot capture controls */
+    .qa-screenshot-strip {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      overflow-x: auto;
+      padding: 4px 0;
+    }
+    .qa-screenshot-strip img {
+      height: 48px;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      object-fit: cover;
+      object-position: top;
+      transition: all 0.1s;
+    }
+    .qa-screenshot-strip img:hover {
+      border-color: var(--accent-primary);
+      transform: scale(1.05);
+    }
+    .qa-snip-btn {
+      padding: 4px 10px;
+      font-size: 11px;
+      border-radius: 4px;
+      border: 1px solid var(--accent-primary);
+      cursor: pointer;
+      color: var(--accent-primary);
+      background: none;
+      font-family: var(--font-base);
       font-weight: 500;
-      border-bottom: 1px solid var(--border-subtle);
+      transition: all 0.1s;
       white-space: nowrap;
     }
-
-    .qa-matrix-header {
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      transform: rotate(180deg);
-      height: 80px;
-      vertical-align: bottom;
+    .qa-snip-btn:hover {
+      background: var(--accent-primary-subtle);
     }
-
-    .qa-matrix td {
-      padding: 4px 8px;
-      text-align: center;
-      border-bottom: 1px solid var(--border-subtle);
+    .qa-finding-form {
+      margin-top: 8px; padding: 10px 12px;
+      border: 1px solid var(--accent-secondary); border-radius: 6px;
+      background: var(--accent-secondary-subtle);
     }
-
-    .qa-matrix-event {
-      text-align: left !important;
-      font-weight: 500;
-      color: var(--text-secondary);
-      white-space: nowrap;
+    .qa-finding-form input, .qa-finding-form select {
+      padding: 5px 8px; background: var(--bg-surface);
+      border: 1px solid var(--border-default); border-radius: 4px;
+      color: var(--text-primary); font-size: 12px;
+      font-family: var(--font-base);
     }
+    .qa-finding-form input:focus { border-color: var(--accent-secondary); outline: none; }
 
-    .qa-matrix .marker-W {
-      color: var(--accent-camel);
-      font-weight: 600;
-    }
-
-    .qa-matrix .marker-R {
-      color: var(--semantic-success);
-      font-weight: 600;
-    }
+    /* Results */
+    .qa-result-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px; line-height: 1.4; }
+    .qa-result-icon { font-weight: 600; width: 16px; text-align: center; }
+    .qa-result-pass { color: var(--semantic-success); }
+    .qa-result-fail { color: var(--semantic-error); }
+    .qa-result-name { color: var(--text-primary); }
+    .qa-result-duration { color: var(--text-muted); font-size: 12px; }
 
     /* Findings */
-    .qa-finding-row {
+    .qa-finding-card {
+      padding: 10px 12px; margin-bottom: 8px;
+      border-left: 3px solid var(--accent-secondary);
+      background: var(--bg-raised); border-radius: 0 6px 6px 0;
+    }
+    .qa-finding-card-title { font-size: 14px; color: var(--text-primary); font-weight: 500; margin-bottom: 4px; }
+    .qa-finding-card-detail { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+    .qa-finding-source-tag { font-size: 11px; padding: 1px 6px; border-radius: 3px; font-weight: 500; margin-left: 6px; }
+    .qa-finding-source-auto { background: rgba(122,176,122,0.15); color: var(--semantic-success); }
+    .qa-finding-source-manual { background: rgba(148,132,176,0.15); color: var(--accent-secondary); }
+
+    /* Progress bar */
+    .qa-progress-bar { height: 6px; background: var(--bg-elevated); border-radius: 3px; overflow: hidden; }
+    .qa-progress-fill { height: 100%; background: var(--accent-primary); border-radius: 3px; transition: width 0.3s ease; }
+    .qa-progress-animated {
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-primary));
+      background-size: 200% 100%; animation: progressPulse 2s ease infinite;
+    }
+    @keyframes progressPulse { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+    /* Gallery */
+    .qa-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; padding: 8px 0; }
+    .qa-thumb { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; overflow: hidden; cursor: pointer; transition: all 0.15s; }
+    .qa-thumb:hover { border-color: var(--accent-primary); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .qa-thumb.expanded { border-color: var(--accent-primary); box-shadow: var(--shadow-glow-camel); }
+    .qa-thumb img { width: 100%; height: 120px; object-fit: cover; object-position: top; }
+    .qa-thumb-variant { border-color: var(--border-default); border-style: dashed; }
+    .qa-thumb-placeholder { width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; background: var(--bg-raised); color: var(--text-muted); font-size: 12px; }
+    .qa-thumb-label { padding: 8px; display: flex; flex-direction: column; gap: 2px; font-size: 12px; }
+    .qa-expanded-node { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 10px; padding: 20px; margin-top: 16px; }
+    .qa-diff-container { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
+    .qa-diff-container.has-diff { grid-template-columns: 1fr 1fr; }
+    .qa-node-detail { font-size: 13px; line-height: 1.6; }
+
+    /* Test Matrix */
+    .qa-matrix { width: 100%; border-collapse: collapse; font-size: 11px; font-family: var(--font-mono); }
+    .qa-matrix th { padding: 4px 8px; text-align: center; color: var(--text-tertiary); font-weight: 500; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+    .qa-matrix-header { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); height: 80px; vertical-align: bottom; }
+    .qa-matrix td { padding: 4px 8px; text-align: center; border-bottom: 1px solid var(--border-subtle); }
+    .qa-matrix-event { text-align: left !important; font-weight: 500; color: var(--text-secondary); white-space: nowrap; }
+    .qa-matrix .marker-W { color: var(--accent-primary); font-weight: 600; }
+    .qa-matrix .marker-R { color: var(--semantic-success); font-weight: 600; }
+
+    /* Findings sub-tab */
+    .qa-finding-row { cursor: pointer; transition: background 0.1s; }
+    .qa-finding-row:hover { background: var(--bg-raised); }
+    .qa-severity { font-size: 10px; font-weight: 700; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+    .qa-severity.high { color: var(--semantic-error); background: rgba(205,100,100,0.15); }
+    .qa-severity.medium { color: var(--accent-secondary); background: rgba(148,132,176,0.15); }
+    .qa-severity.low { color: var(--text-tertiary); background: rgba(120,120,120,0.15); }
+    .qa-finding-detail { padding: 16px 24px; background: var(--bg-raised); font-size: 13px; line-height: 1.6; }
+
+    /* Scenario cards (legacy — used in edit mode / scope-results tab) */
+    .qa-scenario-card { padding: 12px 0; border-bottom: 1px solid var(--border-subtle); }
+    .qa-scenario-card:last-child { border-bottom: none; }
+    .qa-scenario-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .qa-scenario-name { font-size: 14px; color: var(--text-primary); font-weight: 500; line-height: 1.4; }
+    .qa-scenario-name strong { font-weight: 700; margin-right: 4px; }
+    .qa-scenario-auto { font-size: 12px; color: var(--text-muted); white-space: nowrap; margin-left: 12px; }
+    .qa-scenario-assertions { padding: 6px 10px; margin: 4px 0 6px 0; background: var(--bg-raised); border-radius: 4px; font-size: 13px; line-height: 1.5; }
+    .qa-scenario-assertions .viewer-name { color: var(--accent-primary); font-weight: 500; }
+    .qa-scenario-assertions .checks { color: var(--text-secondary); }
+    .qa-scenario-manual-note { font-size: 13px; color: var(--text-secondary); font-style: italic; border-left: 2px solid var(--accent-primary); padding: 2px 0 2px 8px; margin: 4px 0; }
+    .qa-scenario-manual-finding { font-size: 13px; color: var(--accent-secondary); margin: 3px 0; }
+    .qa-scenario-group-header { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent-primary); margin: 24px 0 8px 0; padding-bottom: 4px; border-bottom: 1px solid var(--border-subtle); }
+    .qa-summary-bar { display: flex; align-items: center; gap: 16px; padding: 10px 14px; background: var(--bg-raised); border-radius: 6px; margin-bottom: 16px; font-size: 13px; color: var(--text-secondary); }
+    .qa-summary-bar .stat { font-weight: 600; color: var(--text-primary); }
+
+    /* Mode toggle (fixed bottom-right) */
+    .mode-toggle-group {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 600;
+      display: flex;
+      gap: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      padding: 6px 10px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .mode-toggle-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-default);
       cursor: pointer;
-      transition: background 0.1s;
+      font-size: 12px;
+      font-family: var(--font-base);
+      transition: all 0.15s;
     }
 
-    .qa-finding-row:hover {
-      background: var(--bg-raised);
-    }
-
-    .qa-severity {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      padding: 2px 8px;
-      border-radius: 4px;
-      display: inline-block;
-    }
-
-    .qa-severity.high {
-      color: var(--semantic-error);
-      background: rgba(205, 100, 100, 0.15);
-    }
-
-    .qa-severity.medium {
-      color: var(--accent-terra);
-      background: rgba(205, 130, 100, 0.15);
-    }
-
-    .qa-severity.low {
-      color: var(--text-tertiary);
-      background: rgba(120, 120, 120, 0.15);
-    }
-
-    .qa-finding-detail {
-      padding: 16px 24px;
-      background: var(--bg-raised);
-      font-size: 13px;
-      line-height: 1.6;
+    .mode-toggle-btn.active {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 8px rgba(91,155,213,0.3);
     }
   </style>
 </head>
@@ -3703,7 +4334,8 @@
       qaExpandedEvent: null,
       qaExpandedNode: null,
       qaMonitorInterval: null,
-      qaCoverageGroupBy: 'category'
+      qaCoverageGroupBy: 'chain',
+      qaChainStyle: 'stacked'
     };
 
     // ===========================================
@@ -7769,14 +8401,26 @@
 
       content.innerHTML = `
         <div class="qa-header">
-          <div class="qa-sub-tabs">${tabBar}</div>
+          <h1 class="qa-title">QA</h1>
           <div class="qa-project-selector">
-            <label style="color:var(--text-tertiary);font-size:12px;margin-right:8px;">Project:</label>
             <select onchange="switchQaProject(this.value)">${projectOptions}</select>
           </div>
         </div>
+        <div class="qa-sub-tabs">${tabBar}</div>
         <div class="qa-body">${body}</div>
       `;
+    }
+
+    // Helper: manual status icon for event-level summary
+    function _manualIcon(m) {
+      if (!m || !m.status) return '<span class="ms ms-untested" style="font-size:10px">&mdash;</span>';
+      const map = {
+        pass: '<span class="ms ms-pass" style="font-size:10px" title="All reviewed pass">&#10003;m</span>',
+        finding: '<span class="ms ms-finding" style="font-size:10px" title="Has findings">!m</span>',
+        fail: '<span class="ms ms-fail" style="font-size:10px" title="Has failures">&#10007;m</span>',
+        partial: '<span class="ms ms-untested" style="font-size:10px" title="Partially reviewed">&#9684;m</span>',
+      };
+      return map[m.status] || '<span class="ms ms-untested" style="font-size:10px">&mdash;</span>';
     }
 
     function renderQaCoverage() {
@@ -7785,49 +8429,73 @@
 
       const s = cov.stats;
 
-      // Stat cards
+      // Stat cards (5 across)
       const statCards = `
-        <div class="stats-grid" style="grid-template-columns: repeat(5, 1fr);">
-          <div class="stat-card"><div class="stat-label">Events</div><div class="stat-value">${s.total}</div></div>
-          <div class="stat-card"><div class="stat-label">Passed</div><div class="stat-value" style="color:var(--semantic-success)">${s.passed}</div></div>
-          <div class="stat-card"><div class="stat-label">Failed</div><div class="stat-value" style="color:var(--semantic-error)">${s.failed}</div></div>
-          <div class="stat-card"><div class="stat-label">Untested</div><div class="stat-value" style="color:var(--text-tertiary)">${s.untested}</div></div>
-          <div class="stat-card">
-            <div class="stat-label">Coverage</div>
-            <div class="stat-value">${s.coverage_pct}%</div>
+        <div class="qa-stats-row">
+          <div class="qa-stat-card"><div class="qa-stat-label">Events</div><div class="qa-stat-value">${s.total}</div></div>
+          <div class="qa-stat-card"><div class="qa-stat-label">Passed</div><div class="qa-stat-value" style="color:var(--semantic-success)">${s.passed}</div></div>
+          <div class="qa-stat-card"><div class="qa-stat-label">Failed</div><div class="qa-stat-value" style="color:var(--semantic-error)">${s.failed}</div></div>
+          <div class="qa-stat-card"><div class="qa-stat-label">Untested</div><div class="qa-stat-value" style="color:var(--text-tertiary)">${s.untested}</div></div>
+          <div class="qa-stat-card">
+            <div class="qa-stat-label">Auto Coverage</div>
+            <div class="qa-stat-value">${s.coverage_pct}%</div>
             <div class="qa-progress-bar" style="margin-top:8px"><div class="qa-progress-fill" style="width:${s.coverage_pct}%"></div></div>
           </div>
         </div>
       `;
 
+      // Manual progress bar
+      const manualBar = s.manual_total > 0 ? `
+        <div class="qa-manual-bar">
+          <span>Manual:</span>
+          <strong style="color:var(--text-primary)">${s.manual_reviewed}/${s.manual_total} reviewed (${s.manual_pct}%)</strong>
+          <div class="progress"><div class="progress-fill" style="width:${s.manual_pct}%"></div></div>
+        </div>
+      ` : '';
+
       // Meta bar
       const run = cov.run || {};
       const metaBar = run.generated ? `
         <div class="qa-meta-bar">
-          Last run: ${new Date(run.generated).toLocaleDateString()} ${new Date(run.generated).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
-          &nbsp;│&nbsp; Duration: ${run.run_duration_ms ? Math.round(run.run_duration_ms / 1000) + 's' : '—'}
-          &nbsp;│&nbsp; Spec files: ${run.spec_count || 0}
+          Last run: ${new Date(run.generated).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'2-digit'})}
+          ${new Date(run.generated).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
+          &nbsp;|&nbsp; Duration: ${run.run_duration_ms ? Math.round(run.run_duration_ms / 1000) + 's' : '—'}
+          &nbsp;|&nbsp; Spec files: ${run.spec_count || 0}
         </div>
       ` : '';
 
-      // Grouping toggle
+      // Grouping + chain style toggles
       const groupBy = state.qaCoverageGroupBy || 'category';
+      const chainStyle = state.qaChainStyle || 'compact';
+      const hasChains = (cov.chains || []).length > 0;
       const groupToggle = `
-        <div style="display:flex;gap:4px;margin-bottom:16px">
-          <button class="qa-sub-tab ${groupBy === 'category' ? 'active' : ''}" onclick="state.qaCoverageGroupBy='category';renderQa()" style="font-size:11px;padding:4px 10px">By Category</button>
-          <button class="qa-sub-tab ${groupBy === 'domain' ? 'active' : ''}" onclick="state.qaCoverageGroupBy='domain';renderQa()" style="font-size:11px;padding:4px 10px">By Domain</button>
+        <div class="qa-toggle-row">
+          <div class="qa-group-toggle">
+            <button class="qa-group-btn ${groupBy === 'category' ? 'active' : ''}" onclick="state.qaCoverageGroupBy='category';renderQa()">By Category</button>
+            <button class="qa-group-btn ${groupBy === 'domain' ? 'active' : ''}" onclick="state.qaCoverageGroupBy='domain';renderQa()">By Domain</button>
+            ${hasChains ? `<button class="qa-group-btn ${groupBy === 'chain' ? 'active' : ''}" onclick="state.qaCoverageGroupBy='chain';renderQa()">By Chain</button>` : ''}
+          </div>
+          ${groupBy === 'chain' ? `
+            <div class="qa-toggle-separator"></div>
+            <div class="qa-group-toggle">
+              <button class="qa-chain-style-btn ${chainStyle === 'compact' ? 'active' : ''}" onclick="state.qaChainStyle='compact';renderQa()">Compact</button>
+              <button class="qa-chain-style-btn ${chainStyle === 'stacked' ? 'active' : ''}" onclick="state.qaChainStyle='stacked';renderQa()">Stacked</button>
+            </div>
+          ` : ''}
         </div>
       `;
 
-      // Collect all events flat from categories
+      // Collect all events flat
       const allEvents = [];
       for (const cat of Object.keys(cov.categories || {})) {
         for (const ev of (cov.categories[cat]?.events || [])) {
           allEvents.push({ ...ev, category: cat });
         }
       }
+      const eventById = {};
+      allEvents.forEach(ev => { eventById[ev.id] = ev; });
 
-      // Domain grouping: derive from event ID prefix
+      // Domain grouping map
       const DOMAIN_MAP = {
         'Purchase Orders': id => /^e_po_|^e_auto_pack$/.test(id),
         'Transfers': id => /^e_transfer_/.test(id),
@@ -7839,9 +8507,122 @@
         'Imports': id => /^e_(batch_import|shopify_sync|anomaly_rerun)$/.test(id),
       };
 
-      // Build groups based on selected mode
       let groups;
-      if (groupBy === 'domain') {
+      let chainsHtml = '';
+
+      if (groupBy === 'chain') {
+        const chains = cov.chains || [];
+        const chainedIds = new Set();
+        chains.forEach(c => c.events.forEach(eid => chainedIds.add(eid)));
+
+        // Helper: dot class for an event
+        const dotFor = (ev) => ev.status === 'pass' ? 'dot-pass' : ev.status === 'fail' ? 'dot-fail' : ev.status === 'partial' ? 'dot-partial' : 'dot-untested';
+
+        // Helper: short name
+        const shortNameFor = (ev, chain) => {
+          const sn = ev.name.replace(/^.+?:\s*/, '').replace(chain.label + ' ', '');
+          return sn || ev.name;
+        };
+
+        if (chainStyle === 'compact') {
+          // Compact: horizontal pills with arrows
+          for (const chain of chains) {
+            const chainEvents = chain.events.map(eid => eventById[eid]).filter(Boolean);
+            if (!chainEvents.length) continue;
+            let pills = '';
+            chainEvents.forEach((ev, i) => {
+              const m = ev.manual || {};
+              const autoScen = ev.scenarios ? `${ev.scenarios.passed || 0}/${ev.scenarios.total || 0}` : '—';
+              if (i > 0) pills += '<span class="qa-chain-arrow">&rarr;</span>';
+              pills += `
+                <div class="qa-chain-pill" onclick="openEventOverlay('${ev.id}')" title="${ev.name}">
+                  <span class="dot ${dotFor(ev)}"></span>
+                  <span class="qa-chain-pill-name">${shortNameFor(ev, chain)}</span>
+                  <span class="qa-chain-pill-stat">${autoScen}</span>
+                  ${_manualIcon(m)}
+                </div>`;
+            });
+            chainsHtml += `<div class="qa-chain-group"><div class="qa-chain-label">${chain.label}</div><div class="qa-chain-pills">${pills}</div></div>`;
+          }
+        } else {
+          // Stacked: vertical chips with down-arrows, 2-col grid
+          chainsHtml += '<div class="qa-chains-stacked-grid">';
+          for (const chain of chains) {
+            const chainEvents = chain.events.map(eid => eventById[eid]).filter(Boolean);
+            if (!chainEvents.length) continue;
+            let chips = '';
+            chainEvents.forEach((ev, i) => {
+              const m = ev.manual || {};
+              const autoScen = ev.scenarios ? `${ev.scenarios.passed || 0}/${ev.scenarios.total || 0}` : '—';
+              const manualScen = m.total > 0 ? `${m.reviewed}/${m.total}` : '';
+              if (i > 0) chips += '<div class="qa-chain-stacked-arrow">&#8595;</div>';
+              chips += `
+                <div class="qa-chain-stacked-chip" onclick="openEventOverlay('${ev.id}')" title="${ev.name}">
+                  <span class="dot ${dotFor(ev)}"></span>
+                  <span class="qa-chain-stacked-chip-name">${shortNameFor(ev, chain)}</span>
+                  <span class="qa-chain-stacked-chip-stats">
+                    <span>${autoScen}</span>
+                    ${_manualIcon(m)}
+                    ${manualScen ? `<span>${manualScen}</span>` : ''}
+                  </span>
+                </div>`;
+            });
+            chainsHtml += `<div class="qa-chain-group"><div class="qa-chain-label">${chain.label}</div><div class="qa-chain-stacked">${chips}</div></div>`;
+          }
+          chainsHtml += '</div>';
+        }
+
+        // Standalone events — same chip style as chains, no arrows
+        const standalone = allEvents.filter(ev => !chainedIds.has(ev.id));
+        if (standalone.length) {
+          const covered = standalone.filter(ev => ev.status !== 'untested').length;
+          let standaloneContent = '';
+          if (chainStyle === 'compact') {
+            let pills = '';
+            standalone.forEach(ev => {
+              const m = ev.manual || {};
+              const autoScen = ev.scenarios ? `${ev.scenarios.passed || 0}/${ev.scenarios.total || 0}` : '—';
+              pills += `
+                <div class="qa-chain-pill" onclick="openEventOverlay('${ev.id}')" title="${ev.name}">
+                  <span class="dot ${dotFor(ev)}"></span>
+                  <span class="qa-chain-pill-name">${ev.name.replace(/^.+?:\s*/, '')}</span>
+                  <span class="qa-chain-pill-stat">${autoScen}</span>
+                  ${_manualIcon(ev.manual)}
+                </div>`;
+            });
+            standaloneContent = `<div class="qa-chain-pills" style="gap:6px">${pills}</div>`;
+          } else {
+            let chips = '';
+            standalone.forEach(ev => {
+              const m = ev.manual || {};
+              const autoScen = ev.scenarios ? `${ev.scenarios.passed || 0}/${ev.scenarios.total || 0}` : '—';
+              const manualScen = m.total > 0 ? `${m.reviewed}/${m.total}` : '';
+              chips += `
+                <div class="qa-chain-stacked-chip" onclick="openEventOverlay('${ev.id}')" title="${ev.name}">
+                  <span class="dot ${dotFor(ev)}"></span>
+                  <span class="qa-chain-stacked-chip-name">${ev.name.replace(/^.+?:\s*/, '')}</span>
+                  <span class="qa-chain-stacked-chip-stats">
+                    <span>${autoScen}</span>
+                    ${_manualIcon(ev.manual)}
+                    ${manualScen ? `<span>${manualScen}</span>` : ''}
+                  </span>
+                </div>`;
+            });
+            standaloneContent = `<div class="qa-chain-stacked">${chips}</div>`;
+          }
+          chainsHtml += `
+            <div class="qa-chain-group">
+              <div class="qa-chain-label" style="display:flex;justify-content:space-between;align-items:baseline">
+                <span>Standalone</span>
+                <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:10px">${standalone.length} events &middot; ${covered}/${standalone.length} covered</span>
+              </div>
+              ${standaloneContent}
+            </div>`;
+          groups = [];
+        } else {
+          groups = [];
+        }
+      } else if (groupBy === 'domain') {
         groups = [];
         const placed = new Set();
         for (const [label, matcher] of Object.entries(DOMAIN_MAP)) {
@@ -7863,20 +8644,23 @@
           }));
       }
 
-      // Render groups
+      // Render table groups (for category/domain, or no standalone in chain view)
       const renderEventRow = (ev) => {
-        const dotClass = ev.status === 'pass' ? 'pass' : ev.status === 'fail' ? 'fail' : 'untested';
+        const dotClass = ev.status === 'pass' ? 'dot-pass' : ev.status === 'fail' ? 'dot-fail' : 'dot-untested';
         const statusLabel = ev.status === 'untested' ? '—' : ev.status.toUpperCase();
         const scenarios = ev.scenarios ? `${ev.scenarios.passed || 0}/${ev.scenarios.total || 0}` : '—';
+        const m = ev.manual || {};
+        const manualCol = m.total > 0
+          ? `${_manualIcon(m)} ${m.reviewed}/${m.total}`
+          : '<span style="color:var(--text-muted)">—</span>';
         const lastRun = ev.last_run ? new Date(ev.last_run).toLocaleDateString('en-GB', {day:'numeric',month:'short'}) : '—';
-        const video = ev.video ? `<a href="#" onclick="event.preventDefault()" title="Video evidence" style="color:var(--accent-camel)">▶</a>` : '—';
         return `
-          <tr class="qa-event-row" onclick="openEventOverlay('${ev.id}')" style="cursor:pointer">
-            <td><span class="qa-status-dot ${dotClass}"></span> ${statusLabel}</td>
+          <tr class="qa-event-row" onclick="openEventOverlay('${ev.id}')">
+            <td><span class="dot ${dotClass}"></span> ${statusLabel}</td>
             <td>${ev.name}</td>
             <td style="text-align:center">${scenarios}</td>
+            <td style="text-align:center">${manualCol}</td>
             <td style="text-align:center">${lastRun}</td>
-            <td style="text-align:center">${video}</td>
           </tr>
         `;
       };
@@ -7885,19 +8669,19 @@
       for (const g of groups) {
         const covered = g.events.filter(ev => ev.status !== 'untested').length;
         categoriesHtml += `
-          <div class="qa-category-group">
-            <div class="qa-category-header">
-              <span>${g.label} (${g.events.length})</span>
-              <span style="color:var(--text-tertiary)">${covered}/${g.events.length} covered</span>
+          <div class="qa-table-zone">
+            <div class="qa-table-zone-header">
+              <span class="qa-table-zone-title">${g.label} (${g.events.length})</span>
+              <span class="qa-table-zone-count">${covered}/${g.events.length} covered</span>
             </div>
             <table class="qa-event-table">
               <thead>
                 <tr>
-                  <th style="width:100px">Status</th>
+                  <th style="width:100px">Auto</th>
                   <th>Event</th>
                   <th style="width:80px;text-align:center">Scen.</th>
-                  <th style="width:90px;text-align:center">Last Run</th>
-                  <th style="width:60px;text-align:center">Video</th>
+                  <th style="width:90px;text-align:center">Manual</th>
+                  <th style="width:80px;text-align:center">Last Run</th>
                 </tr>
               </thead>
               <tbody>${g.events.map(renderEventRow).join('')}</tbody>
@@ -7906,218 +8690,837 @@
         `;
       }
 
-      return statCards + metaBar + groupToggle + categoriesHtml;
+      return statCards + manualBar + metaBar + groupToggle + chainsHtml + categoriesHtml;
     }
 
-    async function openEventOverlay(eventId) {
-      // Remove existing overlay
+    // ========================================================================
+    // EVENT OVERLAY — Split-pane: Scenario list | Detail panel
+    // ========================================================================
+
+    function setQaZoom(level) {
+      const overlay = document.getElementById('qa-event-overlay');
+      if (overlay) {
+        overlay.setAttribute('data-zoom', String(level));
+        localStorage.setItem('qa-zoom', String(level));
+        overlay.querySelectorAll('.qa-zoom-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-zoom') === String(level));
+        });
+      }
+    }
+
+    async function openEventOverlay(eventId, initialTab) {
       const existing = document.getElementById('qa-event-overlay');
       if (existing) existing.remove();
 
-      // Create overlay shell immediately with loading state
+      const savedZoom = localStorage.getItem('qa-zoom') || '1';
+
+      // Create overlay shell
       const overlay = document.createElement('div');
       overlay.id = 'qa-event-overlay';
-      overlay.className = 'qa-overlay';
+      overlay.className = 'qa-overlay open';
+      overlay.setAttribute('data-zoom', savedZoom);
       overlay.innerHTML = `
-        <div class="qa-overlay-content">
+        <div class="qa-overlay-top">
           <div class="qa-overlay-header">
-            <span style="color:var(--accent-camel);font-weight:600">${eventId}</span>
-            <button onclick="document.getElementById('qa-event-overlay').remove()" class="qa-overlay-close">✕ Close</button>
+            <div class="qa-overlay-title" id="qa-overlay-title-text">${eventId}</div>
+            <div class="qa-overlay-controls">
+              <span style="font-size:10px;color:var(--text-muted)">Zoom</span>
+              <button class="qa-zoom-btn ${savedZoom==='1'?'active':''}" data-zoom="1" onclick="setQaZoom(1)" style="font-size:12px">A</button>
+              <button class="qa-zoom-btn ${savedZoom==='2'?'active':''}" data-zoom="2" onclick="setQaZoom(2)" style="font-size:14px">A</button>
+              <button class="qa-zoom-btn ${savedZoom==='3'?'active':''}" data-zoom="3" onclick="setQaZoom(3)" style="font-size:16px">A</button>
+              <button class="qa-overlay-close" onclick="document.getElementById('qa-event-overlay').remove()">&#10005; Close</button>
+            </div>
           </div>
-          <div class="qa-overlay-body" style="text-align:center;padding:40px;color:var(--text-tertiary)">Loading...</div>
+        </div>
+        <div class="qa-overlay-tabs" id="qa-overlay-tabs"></div>
+        <div id="qa-overlay-summary"></div>
+        <div id="qa-overlay-body" style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column">
+          <div style="text-align:center;padding:40px;color:var(--text-tertiary)">Loading...</div>
         </div>
       `;
       document.body.appendChild(overlay);
 
+      // Close on Escape
+      const escHandler = (e) => {
+        if (e.key === 'Escape') {
+          const el = document.getElementById('qa-event-overlay');
+          if (el) el.remove();
+          document.removeEventListener('keydown', escHandler);
+        }
+      };
+      document.addEventListener('keydown', escHandler);
+
       try {
         const resp = await fetch(`/api/qa/coverage/${eventId}?project=${encodeURIComponent(state.qaProject)}`);
         const data = await resp.json();
-        const plan = data.plan;
 
-        // Scenario results
-        const scenarioResults = plan?.results?.scenarios || data.results || [];
-        const results = scenarioResults.map(r => {
-          const icon = r.status === 'pass' ? '✓' : r.status === 'fail' ? '✗' : '○';
-          const color = r.status === 'pass' ? 'var(--semantic-success)' : r.status === 'fail' ? 'var(--semantic-error)' : 'var(--text-tertiary)';
-          const duration = r.duration_ms ? ` (${(r.duration_ms / 1000).toFixed(1)}s)` : '';
-          const errMsg = r.error ? ` ← ${r.error}` : '';
-          return `<div style="color:${color};padding:1px 0">${icon} ${r.name || r.id}${duration}${errMsg}</div>`;
-        }).join('');
+        window._overlayData = data;
+        window._overlayEventId = eventId;
 
-        const findings = (plan?.results?.findings || data.findings || []).map(f =>
-          `<div style="color:var(--accent-terra);padding:1px 0">  ${f.id} (${f.severity}) — ${f.title}${f.scenario ? ` [${f.scenario}]` : ''}</div>`
-        ).join('');
-
-        // Build sections using design system classes
-        let html = '<div class="qa-expand-grid">';
-
-        // Left column: scope + chains + contract
-        html += '<div class="qa-expand-col">';
-
-        if (plan?.scope) {
-          const s = plan.scope;
-
-          // Trigger
-          html += `<div class="activity-section" style="padding:12px;margin-bottom:12px">
-            <div class="section-header">Trigger</div>
-            <div style="color:var(--text-primary)">${s.trigger}</div>
-          </div>`;
-
-          // Write chain
-          html += `<div class="activity-section" style="padding:12px;margin-bottom:12px">
-            <div class="section-header">Write Chain (${(s.write_chain || []).length})</div>
-            <table style="width:100%;font-size:12px;border-collapse:collapse">
-              ${(s.write_chain || []).map(w => `
-                <tr style="border-bottom:1px solid var(--border-subtle)">
-                  <td style="padding:4px 8px 4px 0;color:var(--accent-camel);white-space:nowrap">${w.module}</td>
-                  <td style="padding:4px 0;color:var(--text-tertiary)">→</td>
-                  <td style="padding:4px 8px;color:var(--text-secondary)">${w.table || 'API'}</td>
-                  <td style="padding:4px 0;color:var(--text-tertiary);font-size:11px">${w.operation}</td>
-                </tr>
-              `).join('')}
-            </table>
-          </div>`;
-
-          // Read chain with screengrab thumbnails
-          html += `<div class="activity-section" style="padding:12px;margin-bottom:12px">
-            <div class="section-header">Read Chain — Verified Viewers (${(s.read_chain || []).length})</div>`;
-          for (const r of (s.read_chain || [])) {
-            const imgBase = `/api/qa/screenshots/${encodeURIComponent(state.qaProject)}/current/${r.viewer}.png`;
-            const imgExpanded = r.has_expand ? `/api/qa/screenshots/${encodeURIComponent(state.qaProject)}/current/${r.viewer}_expanded.png` : null;
-            html += `<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border-subtle)">
-              <div style="display:flex;justify-content:space-between;align-items:center">
-                <span style="color:var(--accent-camel);font-weight:500">${r.viewer}</span>
-                ${r.has_expand ? '<span style="color:var(--text-tertiary);font-size:11px">expandable</span>' : ''}
-              </div>
-              <div style="color:var(--text-secondary);font-size:12px;margin:2px 0 6px 0">${r.description}</div>
-              <div style="display:flex;gap:8px">
-                <img src="${imgBase}" class="qa-viewer-thumb" onerror="this.style.display='none'" title="${r.viewer}" onclick="expandScreengrab(this.src, '${r.viewer}')">
-                ${imgExpanded ? `<img src="${imgExpanded}" class="qa-viewer-thumb" onerror="this.style.display='none'" title="${r.viewer} expanded" style="border-color:var(--accent-camel)" onclick="expandScreengrab(this.src, '${r.viewer} expanded')">` : ''}
-              </div>
-            </div>`;
-          }
-          html += '</div>';
-
-          // Contract gaps
-          if (s.api_contract?.gaps?.length) {
-            html += `<div class="activity-section" style="padding:12px;margin-bottom:12px;border-color:var(--accent-terra)">
-              <div class="section-header" style="color:var(--accent-terra)">Contract Gaps (${s.api_contract.gaps.length})</div>
-              ${s.api_contract.gaps.map(g => `<div style="color:var(--accent-terra);font-size:12px;padding:2px 0">• ${g}</div>`).join('')}
-            </div>`;
-          }
-        } else {
-          html += `<div class="activity-section" style="padding:16px"><div style="color:var(--text-tertiary)">No verify-plan data. Run <code>/verify ${eventId}</code> to populate.</div></div>`;
-        }
-        html += '</div>';
-
-        // Right column: self-check + scenarios + propagation + findings
-        html += '<div class="qa-expand-col">';
-
-        // Self-check
-        if (plan?.spec?.self_check) {
-          const sc = plan.spec.self_check;
-          const checkColor = sc.complete ? 'var(--semantic-success)' : 'var(--semantic-error)';
-          html += `<div class="activity-section" style="padding:12px;margin-bottom:12px;border-color:${checkColor}">
-            <div class="section-header" style="color:${checkColor}">Self-Check: ${sc.viewers_covered}/${sc.viewers_planned} viewers ${sc.complete ? '✓' : '✗'}</div>
-            ${sc.detail ? `<div style="color:var(--text-secondary);font-size:12px">${sc.detail}</div>` : ''}
-            ${sc.gaps?.length ? `<div style="color:var(--semantic-error);font-size:12px;margin-top:4px">Gaps: ${sc.gaps.join(', ')}</div>` : ''}
-          </div>`;
-        }
-
-        // Test Matrix (from plan.matrix)
-        if (plan?.matrix) {
-          const mx = plan.matrix;
-          const cc = mx.coverage_check || {};
-          const scenarios = mx.scenarios || [];
-          const positive = scenarios.filter(s => !s.tag);
-          const negative = scenarios.filter(s => s.tag === 'expected_fail' || s.tag === 'api_only');
-          const uiChecks = scenarios.filter(s => s.tag === 'ui_check');
-
-          // Coverage summary
-          const tested = scenarios.filter(s => s.status === 'pass' || s.status === 'fail').length;
-          const passed = scenarios.filter(s => s.status === 'pass').length;
-          const failed = scenarios.filter(s => s.status === 'fail').length;
-          const summaryColor = failed > 0 ? 'var(--semantic-error)' : tested > 0 ? 'var(--semantic-success)' : 'var(--text-tertiary)';
-          const summaryText = tested > 0
-            ? `${passed}/${tested} passed${failed ? `, ${failed} failed` : ''}`
-            : `${cc.scenarios_planned || scenarios.length} planned`;
-
-          // Render scenario groups
-          const renderGroup = (label, items, tagColor) => {
-            if (!items.length) return '';
-            return `<div style="margin-bottom:8px">
-              <div style="font-size:11px;font-weight:600;color:${tagColor};margin-bottom:4px">${label} (${items.length})</div>
-              ${items.map(s => {
-                const statusIcon = s.status === 'pass' ? '✓' : s.status === 'fail' ? '✗' : '○';
-                const statusColor = s.status === 'pass' ? 'var(--semantic-success)' : s.status === 'fail' ? 'var(--semantic-error)' : 'var(--text-muted)';
-                const checksHtml = Object.entries(s.assertions || {}).map(([viewer, a]) =>
-                  `<div style="margin-left:20px;font-size:11px;color:var(--text-tertiary)">${viewer}: ${(a.checks || []).join(', ')}${a.expanded ? ' [expand]' : ''}</div>`
-                ).join('');
-                const notesHtml = s.notes ? `<div style="margin-left:20px;font-size:11px;color:var(--text-tertiary);font-style:italic">${s.notes}</div>` : '';
-                return `<details style="margin-bottom:2px">
-                  <summary style="cursor:pointer;color:${statusColor};font-size:12px;padding:2px 0">
-                    ${statusIcon} <strong>${s.id}</strong> ${s.name}
-                  </summary>
-                  ${checksHtml}${notesHtml}
-                </details>`;
-              }).join('')}
-            </div>`;
-          };
-
-          html += `<div class="activity-section" style="padding:12px;margin-bottom:12px">
-            <div class="section-header">Test Matrix <span style="color:${summaryColor};font-weight:400">${summaryText}</span></div>
-            ${renderGroup('Positive', positive, 'var(--text-secondary)')}
-            ${renderGroup('Negative (expected_fail / api_only)', negative, 'var(--accent-terra)')}
-            ${renderGroup('UI Checks', uiChecks, 'var(--accent-camel)')}
-          </div>`;
-        }
-
-        // Run Results (from plan.results.scenarios — actual pass/fail after execution)
-        if (results) {
-          html += `<div class="activity-section" style="padding:12px;margin-bottom:12px">
-            <div class="section-header">Run Results</div>
-            <div style="font-family:var(--font-mono);font-size:12px">${results}</div>
-          </div>`;
-        }
-
-        // Findings
-        if (findings) {
-          html += `<div class="activity-section" style="padding:12px;margin-bottom:12px;border-color:var(--accent-terra)">
-            <div class="section-header" style="color:var(--accent-terra)">Findings</div>
-            ${findings}
-          </div>`;
-        }
-
-        // Propagation diagram — open by default in overlay (plenty of space)
-        if (plan?.scope?.propagation?.length) {
-          html += `<div class="activity-section" style="padding:12px;margin-bottom:12px">
-            <div class="section-header">Propagation Diagram</div>
-            <pre class="qa-propagation-pre">${plan.scope.propagation.join('\n')}</pre>
-          </div>`;
-        }
-
-        // Spec file reference
-        html += `<div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;font-family:var(--font-mono)">${plan?.spec?.file || data.coverage.spec_file || ''}</div>`;
-        html += '</div>';
-
-        html += '</div>';
-
-        // Update overlay header with event name + category
-        const overlayEl = document.getElementById('qa-event-overlay');
-        if (!overlayEl) return;
-        const header = overlayEl.querySelector('.qa-overlay-header span');
-        if (header) {
-          const cat = plan?.scope?.category ? ` [${plan.scope.category}]` : '';
+        // Update title
+        const titleEl = document.getElementById('qa-overlay-title-text');
+        if (titleEl) {
+          const plan = data.plan;
           const status = plan?.results?.status;
-          const statusIcon = status === 'pass' ? '<span style="color:var(--semantic-success)">✓</span>' : status === 'fail' ? '<span style="color:var(--semantic-error)">✗</span>' : '';
-          header.innerHTML = `${statusIcon} ${data.event.name || eventId}${cat}`;
+          const statusIcon = status === 'pass' ? '<span style="color:var(--semantic-success)">&#10003;</span> ' : status === 'fail' ? '<span style="color:var(--semantic-error)">&#10007;</span> ' : '';
+          const cat = plan?.scope?.category ? ` <span style="color:var(--text-muted);font-weight:400;font-size:14px">[${plan.scope.category}]</span>` : '';
+          titleEl.innerHTML = `${statusIcon}${data.event.name || eventId}${cat}`;
         }
-        overlayEl.querySelector('.qa-overlay-body').innerHTML = html;
+
+        renderOverlayTabs(initialTab || 'scenarios');
       } catch (e) {
-        const overlayEl = document.getElementById('qa-event-overlay');
-        if (overlayEl) {
-          overlayEl.querySelector('.qa-overlay-body').innerHTML = `<div style="color:var(--semantic-error);padding:24px">Failed to load: ${e.message}</div>`;
+        document.getElementById('qa-overlay-body').innerHTML = `<div style="color:var(--semantic-error);padding:24px">Failed to load: ${e.message}</div>`;
+      }
+    }
+
+    function renderOverlayTabs(activeTab) {
+      const data = window._overlayData;
+      const eventId = window._overlayEventId;
+      if (!data) return;
+
+      window._overlayActiveTab = activeTab;
+
+      // Render tab bar
+      const tabsEl = document.getElementById('qa-overlay-tabs');
+      const tabs = ['scenarios', 'scope', 'results'];
+      tabsEl.innerHTML = tabs.map(t =>
+        `<button class="qa-overlay-tab ${t === activeTab ? 'active' : ''}" onclick="renderOverlayTabs('${t}')">${t.charAt(0).toUpperCase() + t.slice(1)}</button>`
+      ).join('');
+
+      // Render summary bar
+      const summaryEl = document.getElementById('qa-overlay-summary');
+      const plan = data.plan;
+      const scenarios = plan?.matrix?.scenarios || [];
+      const tested = scenarios.filter(s => s.status === 'pass' || s.status === 'fail').length;
+      const passed = scenarios.filter(s => s.status === 'pass').length;
+      const ms = data.manual_summary;
+
+      summaryEl.innerHTML = `<div class="qa-overlay-summary">
+        <span>Auto: <strong>${tested > 0 ? `${passed}/${tested} passed` : `${scenarios.length} planned`}</strong></span>
+        ${ms ? `<span>Manual: <strong>${ms.reviewed}/${ms.total} reviewed</strong></span>` : ''}
+        ${ms?.findings_count ? `<span style="color:var(--accent-secondary)">${ms.findings_count} findings</span>` : ''}
+        <button class="edit-btn" onclick="openManualEditMode('${eventId}')">Edit</button>
+      </div>`;
+
+      // Render body
+      const bodyEl = document.getElementById('qa-overlay-body');
+      if (activeTab === 'scenarios') {
+        bodyEl.innerHTML = renderOverlaySplitPane(data, eventId);
+      } else if (activeTab === 'scope') {
+        bodyEl.innerHTML = `<div class="qa-detail-area" style="overflow-y:auto;flex:1">${renderOverlayScope(data, eventId)}</div>`;
+      } else {
+        bodyEl.innerHTML = `<div class="qa-detail-area" style="overflow-y:auto;flex:1">${renderOverlayResults(data, eventId)}</div>`;
+      }
+    }
+
+    // ---- SCENARIOS TAB: Split-pane ----
+
+    function _msIcon(ms) {
+      const map = {
+        pass: '<span class="ms ms-pass" title="Manual: pass">&#10003;m</span>',
+        fail: '<span class="ms ms-fail" title="Manual: fail">&#10007;m</span>',
+        finding: '<span class="ms ms-finding" title="Manual: finding">!m</span>',
+        skip: '<span class="ms ms-untested" title="Manual: skipped">&#8709;m</span>',
+        'n/a': '<span class="ms" style="color:var(--text-muted)">n/a</span>',
+      };
+      return map[ms] || '<span class="ms ms-untested">&mdash;</span>';
+    }
+
+    function renderOverlaySplitPane(data, eventId) {
+      const plan = data.plan;
+      if (!plan?.matrix?.scenarios) {
+        return '<div style="padding:24px;color:var(--text-tertiary)">No verify-plan data. Run <code>/verify</code> to populate.</div>';
+      }
+
+      const scenarios = plan.matrix.scenarios;
+      const positive = scenarios.filter(s => !s.tag);
+      const negative = scenarios.filter(s => s.tag === 'expected_fail' || s.tag === 'api_only');
+      const uiChecks = scenarios.filter(s => s.tag === 'ui_check');
+
+      // Store for detail rendering
+      window._overlayScenarios = {};
+      scenarios.forEach(s => { window._overlayScenarios[s.id] = s; });
+
+      // Build scenario list (left pane)
+      const renderListItem = (s) => {
+        const autoIcon = s.status === 'pass' ? '<span class="ms ms-pass">&#10003;</span>'
+          : s.status === 'fail' ? '<span class="ms ms-fail">&#10007;</span>'
+          : '<span class="ms ms-untested">&#9675;</span>';
+        const mIcon = _msIcon(s.manual_status);
+        const isNa = s.tag === 'api_only' || s.tag === 'expected_fail';
+        return `<div class="qa-scenario-list-item ${isNa ? 'na' : ''}" data-scenario="${s.id}" onclick="selectOverlayScenario('${s.id}')">
+          <div class="qa-list-item-icons">${autoIcon} ${mIcon}</div>
+          <span class="qa-list-item-id">${s.id}</span>
+          <span class="qa-list-item-name">${s.name}</span>
+        </div>`;
+      };
+
+      let listHtml = '';
+      if (positive.length) {
+        listHtml += `<div class="qa-list-group-header">Positive (${positive.length})</div>`;
+        listHtml += positive.map(renderListItem).join('');
+      }
+      if (negative.length) {
+        listHtml += `<div class="qa-list-group-header negative">Negative (${negative.length})</div>`;
+        listHtml += negative.map(renderListItem).join('');
+      }
+      if (uiChecks.length) {
+        listHtml += `<div class="qa-list-group-header ui-checks">UI Checks (${uiChecks.length})</div>`;
+        listHtml += uiChecks.map(renderListItem).join('');
+      }
+
+      // Default: select first scenario
+      const firstId = scenarios[0]?.id;
+
+      return `<div class="qa-split-pane">
+        <div class="qa-scenario-list">${listHtml}</div>
+        <div class="qa-detail-area" id="qa-detail-area">
+          <div class="qa-detail-empty">Select a scenario</div>
+        </div>
+      </div>`;
+    }
+
+    function selectOverlayScenario(id) {
+      // Highlight in list
+      document.querySelectorAll('.qa-scenario-list-item').forEach(el => {
+        el.classList.toggle('selected', el.getAttribute('data-scenario') === id);
+      });
+
+      const s = window._overlayScenarios?.[id];
+      if (!s) return;
+      const detailArea = document.getElementById('qa-detail-area');
+      if (!detailArea) return;
+
+      window._overlaySelectedScenario = id;
+
+      const autoIcon = s.status === 'pass' ? '<span class="ms ms-pass" style="font-size:18px">&#10003;</span>'
+        : s.status === 'fail' ? '<span class="ms ms-fail" style="font-size:18px">&#10007;</span>'
+        : '<span class="ms ms-untested" style="font-size:18px">&#9675;</span>';
+
+      const tagClass = s.status === 'pass' ? 'tag-pass' : s.status === 'fail' ? 'tag-fail' : 'tag-untested';
+      const tagLabel = s.status === 'pass' ? 'PASS' : s.status === 'fail' ? 'FAIL' : 'UNTESTED';
+
+      const isNa = s.tag === 'api_only' || s.tag === 'expected_fail';
+      const editing = window._overlayEditMode === true;
+
+      // Get current edit state for this scenario (if editing)
+      const es = editing ? (window._mqaEdit?.[id] || {}) : {};
+      const currentMs = editing ? (es.manual_status || 'untested') : (s.manual_status || 'untested');
+      const currentNotes = editing ? (es.notes || '') : (s.manual_notes || '');
+      const currentFindings = editing ? (es.findings || []) : (s.manual_findings || []);
+      const manualStatusText = isNa ? 'n/a' : currentMs === 'untested' ? 'not reviewed' : currentMs;
+
+      // Assertions
+      let assertionsHtml = '';
+      const assertionEntries = Object.entries(s.assertions || {});
+      if (assertionEntries.length) {
+        assertionsHtml = `<div class="qa-detail-section">
+          <div class="qa-detail-section-label">Assertions (${assertionEntries.length})</div>
+          <div class="qa-detail-assertions">
+            ${assertionEntries.map(([viewer, a]) =>
+              `<div class="qa-detail-assertion-row">
+                <span class="viewer">${viewer}</span>
+                <span>${(a.checks || []).join(', ')}${a.expanded ? ' [expand]' : ''}</span>
+              </div>`
+            ).join('')}
+          </div>
+        </div>`;
+      } else {
+        assertionsHtml = `<div class="qa-detail-section">
+          <div class="qa-detail-section-label">Assertions</div>
+          <div class="qa-detail-notes">${isNa ? `N/A — ${s.tag} scenario` : 'No automated assertions defined'}</div>
+        </div>`;
+      }
+
+      // Manual review section — view mode vs edit mode
+      let manualHtml = '';
+      if (isNa) {
+        manualHtml = `<div class="qa-detail-section">
+          <div class="qa-detail-section-label">Manual Review</div>
+          <div class="qa-detail-notes">N/A — ${s.tag} scenario</div>
+        </div>`;
+      } else if (editing) {
+        // EDIT MODE: inline status buttons + notes + findings
+        const esc = (str) => (str || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        const btnClass = (status) => `qa-edit-btn${currentMs === status ? ` active-${status}` : ''}`;
+
+        let findingsHtml = '';
+        if (currentMs === 'finding' || currentFindings.length > 0) {
+          findingsHtml = currentFindings.map((f, fi) => `
+            <div class="qa-finding-form" style="margin-bottom:6px">
+              <div style="display:flex;gap:6px;margin-bottom:4px;align-items:center">
+                <input type="text" placeholder="Finding title" value="${esc(f.title)}" oninput="window._mqaEdit['${id}'].findings[${fi}].title=this.value" onclick="event.stopPropagation()" style="flex:1">
+                <select onchange="window._mqaEdit['${id}'].findings[${fi}].severity=this.value" onclick="event.stopPropagation()">
+                  <option value="low" ${f.severity === 'low' ? 'selected' : ''}>Low</option>
+                  <option value="medium" ${f.severity === 'medium' ? 'selected' : ''}>Medium</option>
+                  <option value="high" ${f.severity === 'high' ? 'selected' : ''}>High</option>
+                </select>
+              </div>
+              <div style="display:flex;gap:6px;margin-bottom:4px">
+                <input type="text" placeholder="Expected behavior" value="${esc(f.expected)}" oninput="window._mqaEdit['${id}'].findings[${fi}].expected=this.value" onclick="event.stopPropagation()" style="flex:1">
+                <input type="text" placeholder="Actual behavior" value="${esc(f.actual)}" oninput="window._mqaEdit['${id}'].findings[${fi}].actual=this.value" onclick="event.stopPropagation()" style="flex:1">
+              </div>
+              <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                <input type="text" placeholder="Pipeline ref (#113c)" value="${esc(f.pipeline_ref)}" oninput="window._mqaEdit['${id}'].findings[${fi}].pipeline_ref=this.value" onclick="event.stopPropagation()" style="width:140px">
+                <label class="qa-snip-btn" title="Browse files" style="cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><input type="file" accept="image/*" style="display:none" onchange="uploadFindingScreenshot('${id}',${fi},this.files[0])"></label>
+                <button class="qa-snip-btn" title="Snip screen" onclick="launchSnipAndPaste('${id}',${fi})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></button>
+                <button class="qa-snip-btn" title="Paste from clipboard" onclick="pasteFromClipboard('${id}',${fi})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></button>
+                <button class="qa-snip-btn" title="Recent screenshots" onclick="loadRecentScreenshots('${id}',${fi})" style="border-color:var(--text-muted);color:var(--text-muted)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></button>
+                <button onclick="removeFinding('${id}',${fi})" class="qa-snip-btn" title="Remove finding" style="margin-left:auto;border-color:var(--semantic-error);color:var(--semantic-error)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+              </div>
+              ${(f.screenshots || []).length ? `<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">${(f.screenshots || []).map((ss, si) => `<div style="position:relative;display:inline-block"><img src="/api/qa/manual/screenshot/${encodeURIComponent(state.qaProject)}/${encodeURIComponent(ss)}" title="${ss}" style="height:48px;border-radius:4px;border:1px solid var(--border-subtle);object-fit:cover;object-position:top;cursor:pointer" onclick="expandScreengrab(this.src,'${ss.replace(/'/g,"\\'")}')"/><button onclick="removeScreenshot('${id}',${fi},${si})" style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--semantic-error);color:#fff;border:none;cursor:pointer;font-size:10px;line-height:16px;padding:0" title="Remove">&#10005;</button></div>`).join('')}</div>` : ''}
+              <div id="recent-strip-${id}-${fi}" class="qa-screenshot-strip" style="display:none"></div>
+            </div>
+          `).join('');
+          findingsHtml += `<button onclick="addFinding('${id}')" style="padding:4px 12px;font-size:12px;border-radius:4px;border:1px dashed var(--accent-secondary);cursor:pointer;color:var(--accent-secondary);background:none;margin-top:4px">+ Add Finding</button>`;
         }
+
+        manualHtml = `<div class="qa-detail-section">
+          <div class="qa-detail-section-label">Manual Review</div>
+          <div class="qa-edit-buttons" id="mqa-buttons-${id}">
+            <button class="${btnClass('pass')}" data-mqa-btn="${id}" data-status="pass" onclick="setManualStatus('${id}','pass')">&#10003; Pass</button>
+            <button class="${btnClass('fail')}" data-mqa-btn="${id}" data-status="fail" onclick="setManualStatus('${id}','fail')">&#10007; Fail</button>
+            <button class="${btnClass('finding')}" data-mqa-btn="${id}" data-status="finding" onclick="setManualStatus('${id}','finding')">! Finding</button>
+            <button class="${btnClass('skip')}" data-mqa-btn="${id}" data-status="skip" onclick="setManualStatus('${id}','skip')">&#8709; Skip</button>
+          </div>
+          <input type="text" class="qa-edit-notes" placeholder="Notes..." value="${esc(currentNotes)}" id="mqa-notes-${id}" oninput="window._mqaEdit['${id}'].notes=this.value" onclick="event.stopPropagation()">
+          ${findingsHtml}
+        </div>`;
+      } else {
+        // VIEW MODE
+        if (currentMs && currentMs !== 'untested') {
+          const msIcon = _msIcon(currentMs);
+          manualHtml = `<div class="qa-detail-section">
+            <div class="qa-detail-section-label">Manual Review</div>
+            <div class="qa-detail-manual">
+              <div class="qa-detail-manual-status">${msIcon} Reviewed — ${currentMs}</div>
+              ${currentNotes ? `"${currentNotes}"` : ''}
+            </div>
+          </div>`;
+        } else {
+          manualHtml = `<div class="qa-detail-section">
+            <div class="qa-detail-section-label">Manual Review</div>
+            <div class="qa-detail-notes">Not yet reviewed</div>
+          </div>`;
+        }
+      }
+
+      // Findings (view mode only — edit mode shows them inline above)
+      let findingsViewHtml = '';
+      if (!editing && currentFindings.length) {
+        findingsViewHtml = currentFindings.map(f => {
+          const hasDetail = f.expected || f.actual || f.pipeline_ref;
+          const hasImages = f.screenshots?.length > 0;
+          return `<div class="qa-detail-section">
+            <div class="qa-detail-section-label">Finding</div>
+            <div class="qa-detail-finding">
+              <span class="qa-detail-finding-severity">${(f.severity || 'med').toUpperCase()}</span>
+              ${f.title || f.id}
+              ${hasDetail ? `
+                <div style="margin-top:8px;font-weight:400;font-size:12px;color:var(--text-secondary)">
+                  ${f.expected ? `<div><span style="color:var(--text-tertiary)">Expected:</span> ${f.expected}</div>` : ''}
+                  ${f.actual ? `<div><span style="color:var(--text-tertiary)">Actual:</span> ${f.actual}</div>` : ''}
+                  ${f.pipeline_ref ? `<div><span style="color:var(--text-tertiary)">Pipeline:</span> <span style="color:var(--accent-primary)">${f.pipeline_ref}</span></div>` : ''}
+                </div>
+              ` : ''}
+              ${hasImages ? `
+                <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+                  ${f.screenshots.map(ss => `<img src="/api/qa/manual/screenshot/${encodeURIComponent(state.qaProject)}/${encodeURIComponent(ss)}" title="${ss}" style="height:56px;border-radius:4px;border:1px solid var(--border-subtle);object-fit:cover;object-position:top;cursor:pointer" onclick="expandScreengrab(this.src,'${ss.replace(/'/g,"\\'")}')"/>`).join('')}
+                </div>
+              ` : ''}
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+      detailArea.innerHTML = `
+        <div class="qa-detail-title">${autoIcon} ${s.id} — ${s.name}</div>
+        <div class="qa-detail-meta">
+          <span class="tag ${tagClass}">${tagLabel}</span>
+          <span>Auto: ${s.status || '—'}</span>
+          <span>&middot;</span>
+          <span>Manual: ${manualStatusText}</span>
+        </div>
+        ${assertionsHtml}
+        ${manualHtml}
+        ${findingsViewHtml}
+      `;
+    }
+
+    // Auto-select first scenario after split-pane renders
+    const _autoSelectObserver = new MutationObserver(() => {
+      const list = document.querySelector('.qa-scenario-list');
+      if (list && !document.querySelector('.qa-scenario-list-item.selected')) {
+        const first = list.querySelector('.qa-scenario-list-item');
+        if (first) {
+          const id = first.getAttribute('data-scenario');
+          if (id) selectOverlayScenario(id);
+        }
+      }
+    });
+    _autoSelectObserver.observe(document.body, { childList: true, subtree: true });
+
+    // ---- SCOPE TAB ----
+
+    function renderOverlayScope(data, eventId) {
+      const plan = data.plan;
+      if (!plan?.scope) {
+        return '<div style="padding:24px;color:var(--text-tertiary)">No verify-plan data. Run <code>/verify</code> to populate.</div>';
+      }
+      const s = plan.scope;
+      let html = '';
+
+      // Trigger
+      html += `<div class="qa-scope-section">
+        <div class="qa-scope-label">Trigger</div>
+        <div class="qa-scope-text">${s.trigger}</div>
+      </div>`;
+
+      // Write chain
+      if (s.write_chain?.length) {
+        html += `<div class="qa-scope-section">
+          <div class="qa-scope-label">Write Chain (${s.write_chain.length})</div>
+          <table class="qa-scope-table">
+            ${s.write_chain.map(w => `
+              <tr>
+                <td class="col-module">${w.module}</td>
+                <td class="col-arrow">&#8594;</td>
+                <td class="col-target">${w.table || 'API'}</td>
+                <td class="col-op">${w.operation}</td>
+              </tr>
+            `).join('')}
+          </table>
+        </div>`;
+      }
+
+      // Read chain with screenshots
+      if (s.read_chain?.length) {
+        html += `<div class="qa-scope-section">
+          <div class="qa-scope-label">Read Chain &mdash; Verified Viewers (${s.read_chain.length})</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:8px">`;
+        for (const r of s.read_chain) {
+          const proj = encodeURIComponent(state.qaProject);
+          const imgBase = `/api/qa/screenshots/${proj}/current/${r.viewer}.png`;
+          const imgExpanded = r.has_expand ? `/api/qa/screenshots/${proj}/current/${r.viewer}_expanded.png` : null;
+          html += `<div style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden;transition:all 0.15s">
+            <div style="position:relative;background:var(--bg-raised);cursor:pointer" onclick="expandScreengrab('${imgBase}', '${r.viewer}')">
+              <img src="${imgBase}" style="width:100%;height:100px;object-fit:cover;object-position:top;display:block" onerror="this.parentElement.innerHTML='<div style=\\'height:100px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:12px\\'>No screenshot</div>'">
+              ${imgExpanded ? `<div style="position:absolute;top:4px;right:4px;background:var(--bg-base);border-radius:4px;padding:1px 6px;font-size:10px;color:var(--text-muted);border:1px solid var(--border-subtle)" onclick="event.stopPropagation();expandScreengrab('${imgExpanded}', '${r.viewer} expanded')">+ expanded</div>` : ''}
+            </div>
+            <div style="padding:10px 12px">
+              <div style="font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--accent-primary);margin-bottom:2px">${r.viewer}</div>
+              <div style="font-size:12px;color:var(--text-secondary);line-height:1.4">${r.description}</div>
+            </div>
+          </div>`;
+        }
+        html += '</div></div>';
+      }
+
+      // Contract gaps — collapsible
+      if (s.api_contract?.gaps?.length) {
+        html += `<div class="qa-scope-section">
+          <details class="qa-collapsible" open>
+            <summary>Contract Gaps (${s.api_contract.gaps.length}) <span style="color:var(--accent-secondary)">&#9888;</span></summary>
+            <div style="padding:8px 0">
+              ${s.api_contract.gaps.map(g => {
+                // Parse "field_name: description" or "field_name — description"
+                const match = g.match(/^([a-z_]+(?:\.[a-z_]+)*)[\s]*[:—\-–]\s*(.+)$/i);
+                if (match) {
+                  return `<div style="display:flex;gap:12px;padding:4px 0;border-bottom:1px solid var(--border-subtle);font-size:13px;line-height:1.5">
+                    <span style="color:var(--accent-secondary);font-family:var(--font-mono);font-weight:600;font-size:12px;min-width:120px;flex-shrink:0">${match[1]}</span>
+                    <span style="color:var(--text-secondary)">${match[2]}</span>
+                  </div>`;
+                }
+                return `<div style="color:var(--text-secondary);font-size:13px;padding:4px 0;border-bottom:1px solid var(--border-subtle);line-height:1.5">&#8226; ${g}</div>`;
+              }).join('')}
+            </div>
+          </details>
+        </div>`;
+      }
+
+      // Propagation diagram — collapsible + enlargeable
+      if (s.propagation?.length) {
+        const propText = s.propagation.join('\n');
+        html += `<div class="qa-scope-section">
+          <details class="qa-collapsible" open>
+            <summary style="display:flex;align-items:center;gap:8px">
+              Propagation Diagram
+              <button onclick="event.stopPropagation();expandPropagation()" class="qa-snip-btn" style="font-size:10px;padding:2px 8px" title="Enlarge">&#8599; Enlarge</button>
+            </summary>
+            <pre class="qa-propagation-pre" id="qa-propagation-content">${propText}</pre>
+          </details>
+        </div>`;
+      }
+
+      return html;
+    }
+
+    // ---- RESULTS TAB ----
+
+    function renderOverlayResults(data, eventId) {
+      const plan = data.plan;
+      let html = '';
+
+      // Self-check
+      if (plan?.spec?.self_check) {
+        const sc = plan.spec.self_check;
+        const ok = sc.complete;
+        html += `<div class="qa-scope-section">
+          <div class="qa-scope-label" style="color:${ok ? 'var(--semantic-success)' : 'var(--semantic-error)'}">
+            Self-Check: ${sc.viewers_covered}/${sc.viewers_planned} viewers ${ok ? '&#10003;' : '&#10007;'}
+          </div>
+          ${sc.detail ? `<div style="font-size:13px;color:var(--text-secondary);line-height:1.5">${sc.detail}</div>` : ''}
+          ${sc.gaps?.length ? `<div style="color:var(--semantic-error);font-size:13px;margin-top:4px">Gaps: ${sc.gaps.join(', ')}</div>` : ''}
+        </div>`;
+      }
+
+      // Run results
+      const scenarioResults = plan?.results?.scenarios || data.results || [];
+      if (scenarioResults.length) {
+        const runTime = plan?.results?.run_time ? new Date(plan.results.run_time).toLocaleDateString('en-GB', {day:'numeric',month:'short'}) : '';
+        const duration = plan?.results?.duration_ms ? `${(plan.results.duration_ms / 1000).toFixed(1)}s` : '';
+        html += `<div class="qa-scope-section">
+          <div class="qa-scope-label">Run Results ${runTime ? `<span style="font-weight:400;text-transform:none;letter-spacing:0">&mdash; ${runTime}${duration ? ` &middot; ${duration}` : ''}</span>` : ''}</div>
+          ${scenarioResults.map(r => {
+            const icon = r.status === 'pass' ? '&#10003;' : r.status === 'fail' ? '&#10007;' : '&#9675;';
+            const cls = r.status === 'pass' ? 'qa-result-pass' : r.status === 'fail' ? 'qa-result-fail' : '';
+            const dur = r.duration_ms ? `${(r.duration_ms / 1000).toFixed(1)}s` : '';
+            const err = r.error ? `<span style="color:var(--semantic-error);font-size:12px"> &larr; ${r.error}</span>` : '';
+            return `<div class="qa-result-row">
+              <span class="qa-result-icon ${cls}">${icon}</span>
+              <span class="qa-result-name">${r.name || r.id}</span>
+              ${dur ? `<span class="qa-result-duration">${dur}</span>` : ''}
+              ${err}
+            </div>`;
+          }).join('')}
+        </div>`;
+      }
+
+      // All findings — automated + manual merged
+      const autoFindings = (plan?.results?.findings || data.findings || []).map(f => ({...f, _source: 'auto'}));
+      const manualFindings = [];
+      // Collect manual findings from scenarios
+      const scenarios = plan?.matrix?.scenarios || [];
+      for (const s of scenarios) {
+        for (const f of (s.manual_findings || [])) {
+          manualFindings.push({...f, _source: 'manual', scenario: s.id});
+        }
+      }
+      const allFindings = [...autoFindings, ...manualFindings];
+
+      if (allFindings.length) {
+        html += `<div class="qa-scope-section">
+          <div class="qa-scope-label" style="color:var(--accent-terra)">Findings (${allFindings.length})</div>
+          ${allFindings.map(f => {
+            const sourceTag = f._source === 'manual'
+              ? '<span class="qa-finding-source-tag qa-finding-source-manual">manual</span>'
+              : '<span class="qa-finding-source-tag qa-finding-source-auto">auto</span>';
+            return `<div class="qa-finding-card">
+              <div class="qa-finding-card-title">
+                ${f.id} (${f.severity}) &mdash; ${f.title} ${sourceTag}
+                ${f.scenario ? `<span style="color:var(--text-muted);font-size:12px">[${f.scenario}]</span>` : ''}
+              </div>
+              <div class="qa-finding-card-detail">
+                ${f.expected ? `<div>Expected: ${f.expected}</div>` : ''}
+                ${f.actual ? `<div>Actual: ${f.actual}</div>` : ''}
+                ${f.pipeline_ref ? `<div>Pipeline: <span style="color:var(--accent-camel)">${f.pipeline_ref}</span></div>` : ''}
+                ${f.screenshots?.length ? `<div>Evidence: ${f.screenshots.length} screenshot(s) &#128247;</div>` : ''}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+      } else {
+        html += `<div class="qa-scope-section"><div style="color:var(--text-tertiary);font-size:13px">No findings recorded.</div></div>`;
+      }
+
+      // Spec file
+      if (plan?.spec?.file) {
+        html += `<div style="font-size:12px;color:var(--text-muted);margin-top:12px;font-family:var(--font-mono)">${plan.spec.file}</div>`;
+      }
+
+      return html;
+    }
+
+    // ========================================================================
+    // MANUAL QA — INLINE EDIT MODE
+    // Edit controls appear directly in the split-pane detail panel.
+    // Toggle edit mode → summary bar changes → detail panel shows buttons/notes.
+    // ========================================================================
+
+    async function openManualEditMode(eventId) {
+      const data = window._overlayData;
+      const manualResp = await fetch(`/api/qa/manual?project=${encodeURIComponent(state.qaProject)}`);
+      const manualData = await manualResp.json();
+      const eventManual = manualData.events?.[eventId]?.scenarios || {};
+
+      const plan = data?.plan;
+      const scenarios = plan?.matrix?.scenarios || [];
+
+      // Build edit state for all scenarios
+      const editState = {};
+      for (const s of scenarios) {
+        const existing = eventManual[s.id] || {};
+        editState[s.id] = {
+          manual_status: existing.manual_status || s.manual_status || 'untested',
+          notes: existing.notes || s.manual_notes || '',
+          findings: JSON.parse(JSON.stringify(existing.findings || s.manual_findings || [])),
+          tag: s.tag || null,
+        };
+      }
+
+      window._mqaEdit = editState;
+      window._mqaEventId = eventId;
+      window._overlayEditMode = true;
+
+      // Update summary bar to show Save/Cancel
+      const summaryEl = document.getElementById('qa-overlay-summary');
+      if (summaryEl) {
+        summaryEl.innerHTML = `<div class="qa-overlay-summary">
+          <span style="font-weight:600;color:var(--accent-primary)">Editing: ${eventId}</span>
+          <span style="font-size:12px;color:var(--text-muted)">Click scenarios on the left to review each one</span>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button onclick="saveManualQa()" class="qa-edit-btn active-pass" style="font-weight:600;padding:5px 18px">Save</button>
+            <button onclick="cancelEditMode()" class="qa-edit-btn" style="padding:5px 18px">Cancel</button>
+          </div>
+        </div>`;
+      }
+
+      // Re-render currently selected scenario with edit controls
+      const selected = window._overlaySelectedScenario;
+      if (selected) selectOverlayScenario(selected);
+    }
+
+    function cancelEditMode() {
+      window._overlayEditMode = false;
+      window._mqaEdit = null;
+      const eventId = window._overlayEventId;
+      // Restore summary bar
+      renderOverlayTabs('scenarios');
+    }
+
+    function setManualStatus(scenarioId, status) {
+      if (!window._mqaEdit?.[scenarioId]) return;
+      const es = window._mqaEdit[scenarioId];
+
+      // Sync notes before any state change
+      _syncNotesFromDom(scenarioId);
+
+      es.manual_status = status;
+
+      if (status === 'finding' && es.findings.length === 0) {
+        es.findings.push({ id: `MF${Date.now()}`, severity: 'medium', title: '', expected: '', actual: '', pipeline_ref: '', screenshots: [] });
+        // Re-render to show finding form
+        selectOverlayScenario(scenarioId);
+        return;
+      }
+
+      // Update button classes in place (no full re-render = preserves input focus)
+      const btns = document.querySelectorAll(`button[data-mqa-btn="${scenarioId}"]`);
+      if (btns.length) {
+        btns.forEach(btn => {
+          const s = btn.getAttribute('data-status');
+          btn.className = `qa-edit-btn${s === status ? ` active-${s}` : ''}`;
+        });
+      } else {
+        // Fallback: re-render
+        selectOverlayScenario(scenarioId);
+      }
+    }
+
+    function _syncNotesFromDom(scenarioId) {
+      // Sync only the currently displayed scenario's notes
+      if (!window._mqaEdit) return;
+      const sid = scenarioId || window._overlaySelectedScenario;
+      if (!sid || !window._mqaEdit[sid]) return;
+      const input = document.getElementById(`mqa-notes-${sid}`);
+      if (input) window._mqaEdit[sid].notes = input.value;
+    }
+
+    function addFinding(scenarioId) {
+      if (!window._mqaEdit?.[scenarioId]) return;
+      _syncNotesFromDom(scenarioId);
+      window._mqaEdit[scenarioId].findings.push({ id: `MF${Date.now()}`, severity: 'medium', title: '', expected: '', actual: '', pipeline_ref: '', screenshots: [] });
+      if (window._mqaEdit[scenarioId].manual_status !== 'finding') window._mqaEdit[scenarioId].manual_status = 'finding';
+      selectOverlayScenario(scenarioId);
+    }
+
+    function removeFinding(scenarioId, index) {
+      if (!window._mqaEdit?.[scenarioId]) return;
+      _syncNotesFromDom(scenarioId);
+      window._mqaEdit[scenarioId].findings.splice(index, 1);
+      if (window._mqaEdit[scenarioId].findings.length === 0 && window._mqaEdit[scenarioId].manual_status === 'finding') window._mqaEdit[scenarioId].manual_status = 'fail';
+      selectOverlayScenario(scenarioId);
+    }
+
+    function removeScreenshot(scenarioId, findingIndex, screenshotIndex) {
+      const finding = window._mqaEdit?.[scenarioId]?.findings?.[findingIndex];
+      if (!finding?.screenshots) return;
+      _syncNotesFromDom(scenarioId);
+      finding.screenshots.splice(screenshotIndex, 1);
+      selectOverlayScenario(scenarioId);
+    }
+
+    async function uploadFindingScreenshot(scenarioId, findingIndex, file) {
+      if (!file) return;
+      const finding = window._mqaEdit?.[scenarioId]?.findings?.[findingIndex];
+      if (!finding) return;
+      const formData = new FormData();
+      formData.append('file', file);
+      const resp = await fetch(`/api/qa/manual/screenshot?project=${encodeURIComponent(state.qaProject)}&finding_id=${encodeURIComponent(finding.id)}`, { method: 'POST', body: formData });
+      if (resp.ok) {
+        const result = await resp.json();
+        finding.screenshots = finding.screenshots || [];
+        finding.screenshots.push(result.filename);
+        _syncNotesFromDom(scenarioId);
+        selectOverlayScenario(scenarioId);
+      }
+    }
+
+    async function launchSnipAndPaste(scenarioId, findingIndex) {
+      try {
+        await fetch('/api/qa/snip', { method: 'POST' });
+        // Store context for auto-paste
+        window._snipTarget = { scenarioId, findingIndex };
+        // Listen for paste event (Ctrl+V) — auto-paste after snip
+        if (!window._snipPasteHandler) {
+          window._snipPasteHandler = async (e) => {
+            const target = window._snipTarget;
+            if (!target) return;
+            const items = e.clipboardData?.items;
+            if (!items) return;
+            for (const item of items) {
+              if (item.type.startsWith('image/')) {
+                e.preventDefault();
+                const blob = item.getAsFile();
+                await _uploadClipboardImage(target.scenarioId, target.findingIndex, blob);
+                window._snipTarget = null;
+                return;
+              }
+            }
+          };
+          document.addEventListener('paste', window._snipPasteHandler);
+        }
+        _showToast('Snip started — press Ctrl+V to attach when done', 'info');
+      } catch (e) {
+        console.error('Failed to launch snipping tool:', e);
+      }
+    }
+
+    async function pasteFromClipboard(scenarioId, findingIndex) {
+      try {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+          const imageType = item.types.find(t => t.startsWith('image/'));
+          if (imageType) {
+            const blob = await item.getType(imageType);
+            await _uploadClipboardImage(scenarioId, findingIndex, blob);
+            return;
+          }
+        }
+        _showToast('No image on clipboard', 'error');
+      } catch (e) {
+        _showToast('Clipboard access denied — use Ctrl+V instead', 'error');
+      }
+    }
+
+    async function _uploadClipboardImage(scenarioId, findingIndex, blob) {
+      const finding = window._mqaEdit?.[scenarioId]?.findings?.[findingIndex];
+      if (!finding) return;
+      const formData = new FormData();
+      formData.append('file', blob, `snip_${Date.now()}.png`);
+      const resp = await fetch(`/api/qa/manual/screenshot/paste?project=${encodeURIComponent(state.qaProject)}&finding_id=${encodeURIComponent(finding.id)}`, { method: 'POST', body: formData });
+      if (resp.ok) {
+        const result = await resp.json();
+        finding.screenshots = finding.screenshots || [];
+        finding.screenshots.push(result.filename);
+        _syncNotesFromDom(scenarioId);
+        selectOverlayScenario(scenarioId);
+        _showToast('Screenshot attached', 'success');
+      }
+    }
+
+    function _showToast(message, type) {
+      const toast = document.createElement('div');
+      const bg = type === 'success' ? 'var(--semantic-success)' : type === 'error' ? 'var(--semantic-error)' : 'var(--accent-primary)';
+      toast.style.cssText = `position:fixed;top:20px;right:20px;z-index:700;padding:10px 18px;background:${bg};color:var(--bg-base);border-radius:6px;font-size:13px;font-weight:600;box-shadow:var(--shadow-md);font-family:var(--font-base);transition:opacity 0.3s`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+    }
+
+    async function loadRecentScreenshots(scenarioId, findingIndex) {
+      const strip = document.getElementById(`recent-strip-${scenarioId}-${findingIndex}`);
+      if (!strip) return;
+
+      // Toggle visibility
+      if (strip.style.display !== 'none' && strip.innerHTML) {
+        strip.style.display = 'none';
+        return;
+      }
+
+      strip.innerHTML = '<span style="color:var(--text-muted);font-size:11px">Loading...</span>';
+      strip.style.display = 'flex';
+
+      try {
+        const resp = await fetch('/api/qa/recent-screenshots?limit=8');
+        const data = await resp.json();
+        if (!data.files?.length) {
+          strip.innerHTML = '<span style="color:var(--text-muted);font-size:11px">No screenshots found</span>';
+          return;
+        }
+        strip.innerHTML = data.files.map(f =>
+          `<img src="/api/qa/recent-screenshots/${encodeURIComponent(f.name)}"
+                title="${f.name}"
+                onclick="attachRecentScreenshot('${scenarioId}',${findingIndex},'${f.name.replace(/'/g, "\\'")}')">`
+        ).join('');
+      } catch (e) {
+        strip.innerHTML = '<span style="color:var(--semantic-error);font-size:11px">Failed to load</span>';
+      }
+    }
+
+    async function attachRecentScreenshot(scenarioId, findingIndex, filename) {
+      const finding = window._mqaEdit?.[scenarioId]?.findings?.[findingIndex];
+      if (!finding) return;
+
+      // Fetch the file from recent screenshots and re-upload as finding evidence
+      const resp = await fetch(`/api/qa/recent-screenshots/${encodeURIComponent(filename)}`);
+      if (!resp.ok) return;
+      const blob = await resp.blob();
+      const formData = new FormData();
+      formData.append('file', blob, filename);
+      const uploadResp = await fetch(`/api/qa/manual/screenshot/paste?project=${encodeURIComponent(state.qaProject)}&finding_id=${encodeURIComponent(finding.id)}`, { method: 'POST', body: formData });
+      if (uploadResp.ok) {
+        const result = await uploadResp.json();
+        finding.screenshots = finding.screenshots || [];
+        finding.screenshots.push(result.filename);
+        _syncNotesFromDom(scenarioId);
+        selectOverlayScenario(scenarioId);
+      }
+    }
+
+    async function saveManualQa() {
+      _syncNotesFromDom();
+      const eventId = window._mqaEventId;
+      const editState = window._mqaEdit;
+      if (!eventId || !editState) return;
+      const scenarios = {};
+      for (const [sid, data] of Object.entries(editState)) {
+        if (data.tag === 'api_only' || data.tag === 'expected_fail') continue;
+        scenarios[sid] = { manual_status: data.manual_status, notes: data.notes || undefined, findings: data.findings.length > 0 ? data.findings : undefined, tested_at: data.manual_status !== 'untested' ? new Date().toISOString() : undefined };
+      }
+      const resp = await fetch(`/api/qa/manual?project=${encodeURIComponent(state.qaProject)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event_id: eventId, scenarios }) });
+      if (resp.ok) {
+        window._overlayEditMode = false;
+        window._mqaEdit = null;
+        // Remove snip paste listener
+        if (window._snipPasteHandler) {
+          document.removeEventListener('paste', window._snipPasteHandler);
+          window._snipPasteHandler = null;
+        }
+        _showToast('Manual QA saved', 'success');
+        await loadQaCoverage();
+        renderQa();
+        openEventOverlay(eventId, 'scenarios');
       }
     }
 
@@ -8140,6 +9543,7 @@
             <input type="checkbox" id="qa-diff-toggle" onchange="renderQa()">
             Visual Diff
           </label>
+          <button onclick="openGalleryUploadPanel()" style="margin-left:auto;padding:4px 12px;font-size:12px;border-radius:4px;border:1px solid var(--accent-camel);cursor:pointer;color:var(--accent-camel);background:none">&#128247; Upload Correction</button>
         </div>
       `;
 
@@ -8161,8 +9565,9 @@
             : `<div class="qa-thumb-placeholder">Not captured</div>`;
 
           let html = expandedOnly ? '' : `
-            <div class="qa-thumb ${state.qaExpandedNode === node.id ? 'expanded' : ''}" onclick="toggleGalleryNode('${node.id}')">
+            <div class="qa-thumb ${state.qaExpandedNode === node.id ? 'expanded' : ''}" onclick="toggleGalleryNode('${node.id}')" style="position:relative">
               ${imgTag}
+              ${node.has_screenshot ? `<button onclick="event.stopPropagation();expandScreengrab('${imgSrc}','${node.id}','${node.id}')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);border:1px solid var(--border-subtle);border-radius:4px;padding:2px 6px;cursor:pointer;color:var(--text-secondary);font-size:10px" title="Enlarge + replace options">&#8599;</button>` : ''}
               <div class="qa-thumb-label">
                 <span style="font-weight:500">${node.id}</span>
                 <span style="color:var(--text-tertiary);font-size:11px">${node.type === 'modal' ? '(modal)' : node.type === 'sub-viewer' ? '(tab)' : ''}</span>
@@ -8175,11 +9580,12 @@
             for (const v of node.variants) {
               const variantId = `${node.id}__${v.suffix}`;
               html += `
-                <div class="qa-thumb qa-thumb-variant ${state.qaExpandedNode === variantId ? 'expanded' : ''}" onclick="toggleGalleryVariant('${node.id}', '${v.suffix}', '${v.screenshot_url}', '${v.previous_url || ''}')">
+                <div class="qa-thumb qa-thumb-variant ${state.qaExpandedNode === variantId ? 'expanded' : ''}" onclick="toggleGalleryVariant('${node.id}', '${v.suffix}', '${v.screenshot_url}', '${v.previous_url || ''}')" style="position:relative">
                   <img src="${v.screenshot_url}" alt="${variantId}" loading="lazy">
+                  <button onclick="event.stopPropagation();expandScreengrab('${v.screenshot_url}','${node.id}_${v.suffix}','${node.id}')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);border:1px solid var(--border-subtle);border-radius:4px;padding:2px 6px;cursor:pointer;color:var(--text-secondary);font-size:10px" title="Enlarge + replace options">&#8599;</button>
                   <div class="qa-thumb-label">
                     <span style="font-weight:500">${node.id}_${v.suffix}</span>
-                    <span style="color:var(--accent-terra);font-size:11px">(${v.suffix})</span>
+                    <span style="color:var(--accent-secondary);font-size:11px">(${v.suffix})</span>
                   </div>
                 </div>
               `;
@@ -8216,23 +9622,310 @@
       return filterBar + groups;
     }
 
-    function expandScreengrab(src, title) {
-      // Lightbox overlay for full-size screengrab
+    function openGalleryUploadPanel() {
+      // Build node options from gallery data
+      const gallery = state.qaGallery;
+      if (!gallery?.groups) return;
+
+      const nodes = [];
+      for (const g of gallery.groups) {
+        nodes.push({ id: g.viewer.id, name: g.viewer.name, type: g.viewer.type });
+        for (const c of (g.children || [])) {
+          nodes.push({ id: c.id, name: c.name, type: c.type });
+        }
+      }
+
+      const options = nodes.map(n => {
+        const typeLabel = n.type === 'sub-viewer' ? 'tab' : n.type === 'modal' ? 'modal' : '';
+        return `<option value="${n.id}">${n.id} — ${n.name}${typeLabel ? ` (${typeLabel})` : ''}</option>`;
+      }).join('');
+
+      // Insert inline panel at top of gallery
+      const existing = document.getElementById('qa-gallery-upload-panel');
+      if (existing) { existing.remove(); return; } // toggle off
+
+      const panel = document.createElement('div');
+      panel.id = 'qa-gallery-upload-panel';
+      panel.style.cssText = 'padding:12px 16px;margin-bottom:16px;border:1px solid var(--accent-camel);border-radius:6px;background:var(--bg-secondary)';
+      panel.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <span style="font-size:12px;color:var(--text-secondary);font-weight:500">Replace screenshot for:</span>
+          <select id="qa-upload-node-select" style="padding:4px 8px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:4px;color:var(--text-primary);font-size:12px;min-width:240px">
+            ${options}
+          </select>
+          <label style="padding:4px 12px;font-size:12px;border-radius:4px;border:1px solid var(--accent-camel);cursor:pointer;color:var(--accent-camel);background:none;display:inline-block">
+            Choose File
+            <input type="file" accept="image/*" style="display:none" onchange="submitGalleryUpload(this.files[0])">
+          </label>
+          <span id="qa-upload-status" style="font-size:11px;color:var(--text-tertiary)"></span>
+          <button onclick="document.getElementById('qa-gallery-upload-panel').remove()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:14px">&#10005;</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-tertiary);margin-top:6px">Current screenshot will be moved to _previous/ for visual diff.</div>
+      `;
+
+      const qaBody = document.querySelector('.qa-body');
+      if (qaBody) qaBody.prepend(panel);
+    }
+
+    async function submitGalleryUpload(file) {
+      if (!file) return;
+      const nodeId = document.getElementById('qa-upload-node-select')?.value;
+      if (!nodeId) return;
+
+      const statusEl = document.getElementById('qa-upload-status');
+      if (statusEl) statusEl.textContent = 'Uploading...';
+
+      const formData = new FormData();
+      formData.append('file', file);
+      const resp = await fetch(
+        `/api/qa/gallery/upload?project=${encodeURIComponent(state.qaProject)}&node_id=${encodeURIComponent(nodeId)}`,
+        { method: 'POST', body: formData }
+      );
+      if (resp.ok) {
+        const result = await resp.json();
+        if (statusEl) {
+          statusEl.style.color = 'var(--semantic-success)';
+          statusEl.textContent = result.previous_saved
+            ? `Uploaded ${result.filename} — previous saved to _previous/`
+            : `Uploaded ${result.filename}`;
+        }
+        // Reload gallery after brief delay to show success message
+        setTimeout(async () => {
+          await loadQaGallery();
+          renderQa();
+        }, 1500);
+      } else {
+        const err = await resp.json().catch(() => ({}));
+        if (statusEl) {
+          statusEl.style.color = 'var(--semantic-error)';
+          statusEl.textContent = `Failed: ${err.detail || 'Unknown error'}`;
+        }
+      }
+    }
+
+    function expandPropagation() {
+      const pre = document.getElementById('qa-propagation-content');
+      if (!pre) return;
       const existing = document.getElementById('qa-lightbox');
       if (existing) existing.remove();
 
       const overlay = document.createElement('div');
       overlay.id = 'qa-lightbox';
-      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:24px';
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:1000;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:24px';
       overlay.onclick = () => overlay.remove();
       overlay.innerHTML = `
-        <div style="max-width:90vw;max-height:90vh;position:relative" onclick="event.stopPropagation()">
-          <div style="color:var(--text-tertiary);font-size:12px;margin-bottom:8px;font-family:var(--font-mono)">${title || ''}</div>
-          <img src="${src}" style="max-width:90vw;max-height:85vh;border-radius:8px;border:1px solid var(--border-default);box-shadow:var(--shadow-lg)">
-          <button onclick="this.parentElement.parentElement.remove()" style="position:absolute;top:-8px;right:-8px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:50%;width:28px;height:28px;color:var(--text-primary);cursor:pointer;font-size:14px">✕</button>
+        <div style="max-width:95vw;max-height:90vh;position:relative;overflow:auto" onclick="event.stopPropagation()">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <span style="color:var(--text-tertiary);font-size:14px;font-weight:600">Propagation Diagram</span>
+          </div>
+          <pre style="font-family:var(--font-mono);font-size:14px;line-height:1.6;color:var(--text-primary);background:var(--bg-surface);padding:24px;border-radius:8px;border:1px solid var(--border-default);white-space:pre;overflow-x:auto">${pre.textContent}</pre>
+          <button onclick="this.parentElement.parentElement.remove()" style="position:absolute;top:-8px;right:-8px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:50%;width:28px;height:28px;color:var(--text-primary);cursor:pointer;font-size:14px">&#10005;</button>
         </div>
       `;
       document.body.appendChild(overlay);
+    }
+
+    function expandScreengrab(src, title, nodeId) {
+      const existing = document.getElementById('qa-lightbox');
+      if (existing) existing.remove();
+
+      const resolvedNodeId = nodeId || (title || '').replace(/ expanded$/, '').trim();
+      const isReplaceable = resolvedNodeId && !src.includes('/manual/screenshot/');
+
+      // Store original src for cancel
+      window._lightboxOriginalSrc = src;
+      window._lightboxNodeId = resolvedNodeId;
+      window._lightboxPendingBlob = null;
+
+      const overlay = document.createElement('div');
+      overlay.id = 'qa-lightbox';
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:24px';
+      overlay.onclick = () => { _lightboxCleanup(); overlay.remove(); };
+
+      const svgBrowse = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
+      const svgSnip = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>';
+      const svgPaste = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>';
+      const svgRecent = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>';
+
+      const toolbar = isReplaceable ? `
+        <label class="qa-snip-btn" title="Browse" style="cursor:pointer;background:rgba(0,0,0,0.3)">${svgBrowse}<input type="file" accept="image/*" style="display:none" onchange="lightboxStageFile(this.files[0])"></label>
+        <button class="qa-snip-btn" title="Snip" style="background:rgba(0,0,0,0.3)" onclick="lightboxSnip()">${svgSnip}</button>
+        <button class="qa-snip-btn" title="Paste" style="background:rgba(0,0,0,0.3)" onclick="lightboxPaste()">${svgPaste}</button>
+        <button class="qa-snip-btn" title="Recent" style="background:rgba(0,0,0,0.3);border-color:var(--text-muted);color:var(--text-muted)" onclick="lightboxRecent()">${svgRecent}</button>
+        <span id="qa-lightbox-status" style="font-size:11px"></span>
+        <div id="qa-lightbox-confirm" style="display:none;margin-left:8px;display:none;gap:6px">
+          <button class="qa-snip-btn" style="background:var(--semantic-success);color:var(--bg-base);border-color:var(--semantic-success);font-weight:600" onclick="lightboxConfirmSave()">&#10003; Save</button>
+          <button class="qa-snip-btn" style="background:rgba(0,0,0,0.3)" onclick="lightboxCancelPreview()">Cancel</button>
+        </div>
+      ` : '';
+
+      overlay.innerHTML = `
+        <div style="max-width:90vw;max-height:90vh;position:relative" onclick="event.stopPropagation()">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+            <span style="color:var(--text-tertiary);font-size:12px;font-family:var(--font-mono)">${title || ''}</span>
+            ${toolbar}
+          </div>
+          <img src="${src}" id="qa-lightbox-img" style="max-width:90vw;max-height:85vh;border-radius:8px;border:1px solid var(--border-default);box-shadow:var(--shadow-lg)">
+          <div id="qa-lightbox-recent" class="qa-screenshot-strip" style="display:none;margin-top:8px"></div>
+          <button onclick="_lightboxCleanup();this.parentElement.parentElement.remove()" style="position:absolute;top:-8px;right:-8px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:50%;width:28px;height:28px;color:var(--text-primary);cursor:pointer;font-size:14px">&#10005;</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+    }
+
+    function _lightboxCleanup() {
+      // Revoke any object URL preview
+      if (window._lightboxPreviewUrl) {
+        URL.revokeObjectURL(window._lightboxPreviewUrl);
+        window._lightboxPreviewUrl = null;
+      }
+      window._lightboxPendingBlob = null;
+      if (window._lightboxPasteHandler) {
+        document.removeEventListener('paste', window._lightboxPasteHandler);
+        window._lightboxPasteHandler = null;
+      }
+    }
+
+    function _lightboxStageBlob(blob) {
+      // Preview the new image without uploading
+      window._lightboxPendingBlob = blob;
+      if (window._lightboxPreviewUrl) URL.revokeObjectURL(window._lightboxPreviewUrl);
+      window._lightboxPreviewUrl = URL.createObjectURL(blob);
+
+      const img = document.getElementById('qa-lightbox-img');
+      if (img) {
+        img.src = window._lightboxPreviewUrl;
+        img.style.border = '2px solid var(--semantic-success)';
+      }
+
+      // Show Save/Cancel
+      const confirmEl = document.getElementById('qa-lightbox-confirm');
+      if (confirmEl) confirmEl.style.display = 'flex';
+
+      const statusEl = document.getElementById('qa-lightbox-status');
+      if (statusEl) { statusEl.style.color = 'var(--accent-primary)'; statusEl.textContent = 'Preview — click Save to confirm'; }
+    }
+
+    function lightboxStageFile(file) {
+      if (file) _lightboxStageBlob(file);
+    }
+
+    function lightboxCancelPreview() {
+      const img = document.getElementById('qa-lightbox-img');
+      if (img) {
+        img.src = window._lightboxOriginalSrc;
+        img.style.border = '1px solid var(--border-default)';
+      }
+      if (window._lightboxPreviewUrl) {
+        URL.revokeObjectURL(window._lightboxPreviewUrl);
+        window._lightboxPreviewUrl = null;
+      }
+      window._lightboxPendingBlob = null;
+      const confirmEl = document.getElementById('qa-lightbox-confirm');
+      if (confirmEl) confirmEl.style.display = 'none';
+      const statusEl = document.getElementById('qa-lightbox-status');
+      if (statusEl) statusEl.textContent = '';
+    }
+
+    async function lightboxConfirmSave() {
+      const blob = window._lightboxPendingBlob;
+      const nodeId = window._lightboxNodeId;
+      if (!blob || !nodeId) return;
+
+      const statusEl = document.getElementById('qa-lightbox-status');
+      if (statusEl) { statusEl.style.color = 'var(--text-tertiary)'; statusEl.textContent = 'Saving...'; }
+
+      const formData = new FormData();
+      formData.append('file', blob, `replace_${Date.now()}.png`);
+      const resp = await fetch(
+        `/api/qa/gallery/upload?project=${encodeURIComponent(state.qaProject)}&node_id=${encodeURIComponent(nodeId)}`,
+        { method: 'POST', body: formData }
+      );
+      if (resp.ok) {
+        _showToast('Screenshot replaced', 'success');
+        if (statusEl) { statusEl.style.color = 'var(--semantic-success)'; statusEl.textContent = 'Saved'; }
+        const confirmEl = document.getElementById('qa-lightbox-confirm');
+        if (confirmEl) confirmEl.style.display = 'none';
+        // Update original src so Cancel doesn't revert to old
+        const img = document.getElementById('qa-lightbox-img');
+        if (img) {
+          window._lightboxOriginalSrc = img.src;
+          img.style.border = '1px solid var(--border-default)';
+        }
+        window._lightboxPendingBlob = null;
+        loadQaGallery();
+      } else {
+        const err = await resp.json().catch(() => ({}));
+        if (statusEl) { statusEl.style.color = 'var(--semantic-error)'; statusEl.textContent = err.detail || 'Failed'; }
+      }
+    }
+
+    async function lightboxSnip() {
+      try {
+        await fetch('/api/qa/snip', { method: 'POST' });
+        if (!window._lightboxPasteHandler) {
+          window._lightboxPasteHandler = async (e) => {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+            for (const item of items) {
+              if (item.type.startsWith('image/')) {
+                e.preventDefault();
+                _lightboxStageBlob(item.getAsFile());
+                return;
+              }
+            }
+          };
+          document.addEventListener('paste', window._lightboxPasteHandler);
+        }
+        _showToast('Snip started — Ctrl+V to preview', 'info');
+      } catch (e) { console.error(e); }
+    }
+
+    async function lightboxPaste() {
+      try {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+          const imageType = item.types.find(t => t.startsWith('image/'));
+          if (imageType) {
+            _lightboxStageBlob(await item.getType(imageType));
+            return;
+          }
+        }
+        _showToast('No image on clipboard', 'error');
+      } catch (e) {
+        _showToast('Clipboard access denied — use Ctrl+V', 'error');
+      }
+    }
+
+    async function lightboxRecent() {
+      const strip = document.getElementById('qa-lightbox-recent');
+      if (!strip) return;
+      if (strip.style.display !== 'none' && strip.innerHTML.includes('<img')) {
+        strip.style.display = 'none';
+        return;
+      }
+      strip.innerHTML = '<span style="color:var(--text-muted);font-size:11px">Loading...</span>';
+      strip.style.display = 'flex';
+      try {
+        const resp = await fetch('/api/qa/recent-screenshots?limit=8');
+        const data = await resp.json();
+        if (!data.files?.length) { strip.innerHTML = '<span style="color:var(--text-muted);font-size:11px">No screenshots</span>'; return; }
+        strip.innerHTML = data.files.map(f =>
+          `<img src="/api/qa/recent-screenshots/${encodeURIComponent(f.name)}" title="${f.name}" onclick="lightboxStageRecent('${f.name.replace(/'/g,"\\'")}')">`
+        ).join('');
+      } catch (e) { strip.innerHTML = '<span style="color:var(--semantic-error);font-size:11px">Failed</span>'; }
+    }
+
+    async function lightboxStageRecent(filename) {
+      const resp = await fetch(`/api/qa/recent-screenshots/${encodeURIComponent(filename)}`);
+      if (!resp.ok) return;
+      _lightboxStageBlob(await resp.blob());
+    }
+
+    // Legacy compat — still called by old file input onchange
+    async function replaceLightboxScreengrab(nodeId, file) {
+      if (!file) return;
+      _lightboxStageBlob(file);
     }
 
     async function toggleGalleryNode(nodeId) {
@@ -8470,46 +10163,61 @@
     function renderQaFindings() {
       const data = state.qaFindings;
       if (!data || !data.findings || data.findings.length === 0) {
-        return '<div style="color:var(--text-tertiary);padding:40px;text-align:center">No findings recorded. Findings are captured during <code>/verify</code> runs.</div>';
+        return '<div style="color:var(--text-tertiary);padding:40px;text-align:center">No findings recorded. Findings come from <code>/verify</code> runs and manual reviews.</div>';
       }
 
       const s = data.stats;
       const statCards = `
-        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);margin-bottom:20px">
-          <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">${s.total}</div></div>
-          <div class="stat-card"><div class="stat-label">High</div><div class="stat-value" style="color:var(--semantic-error)">${s.high}</div></div>
-          <div class="stat-card"><div class="stat-label">Medium</div><div class="stat-value" style="color:var(--accent-terra)">${s.medium}</div></div>
-          <div class="stat-card"><div class="stat-label">Low</div><div class="stat-value" style="color:var(--text-tertiary)">${s.low}</div></div>
+        <div class="qa-stats-row" style="grid-template-columns:repeat(6,1fr)">
+          <div class="qa-stat-card"><div class="qa-stat-label">Total</div><div class="qa-stat-value">${s.total}</div></div>
+          <div class="qa-stat-card"><div class="qa-stat-label">High</div><div class="qa-stat-value" style="color:var(--semantic-error)">${s.high}</div></div>
+          <div class="qa-stat-card"><div class="qa-stat-label">Medium</div><div class="qa-stat-value" style="color:var(--accent-secondary)">${s.medium}</div></div>
+          <div class="qa-stat-card"><div class="qa-stat-label">Low</div><div class="qa-stat-value" style="color:var(--text-tertiary)">${s.low}</div></div>
+          <div class="qa-stat-card"><div class="qa-stat-label">Auto</div><div class="qa-stat-value" style="color:var(--semantic-success)">${s.auto || 0}</div></div>
+          <div class="qa-stat-card"><div class="qa-stat-label">Manual</div><div class="qa-stat-value" style="color:var(--accent-primary)">${s.manual || 0}</div></div>
         </div>
       `;
 
       const rows = data.findings.map(f => {
         const sevClass = f.severity === 'high' ? 'high' : f.severity === 'medium' ? 'medium' : 'low';
-        const statusBadge = f.status === 'fixed' ? '<span style="color:var(--semantic-success);font-size:11px">FIXED</span>' :
-                            f.status === 'verified' ? '<span style="color:var(--accent-camel);font-size:11px">VERIFIED</span>' : '';
+        const sourceBadge = f.source === 'manual'
+          ? '<span class="qa-finding-source-tag qa-finding-source-manual">manual</span>'
+          : '<span class="qa-finding-source-tag qa-finding-source-auto">auto</span>';
+        const statusBadge = f.status === 'fixed' ? '<span style="color:var(--semantic-success);font-size:11px;margin-left:6px">FIXED</span>' :
+                            f.status === 'verified' ? '<span style="color:var(--accent-primary);font-size:11px;margin-left:6px">VERIFIED</span>' : '';
+        const scenarioCol = f.scenario ? `<span style="color:var(--text-muted);font-size:11px">[${f.scenario}]</span>` : '';
         return `
           <tr class="qa-finding-row" onclick="toggleFindingDetail('${f.id}')">
-            <td>${f.id}</td>
+            <td style="font-family:var(--font-mono);font-size:11px">${f.id}</td>
             <td><span class="qa-severity ${sevClass}">${f.severity?.toUpperCase()}</span></td>
-            <td>${f.title} ${statusBadge}</td>
-            <td>${f.event || '—'}</td>
-            <td style="color:var(--accent-camel)">${f.pipeline_ref || '—'}</td>
+            <td>${f.title || '—'} ${sourceBadge}${statusBadge}</td>
+            <td style="font-size:12px">${f.event || '—'} ${scenarioCol}</td>
+            <td style="color:var(--accent-primary);font-size:12px">${f.pipeline_ref || '—'}</td>
           </tr>
           ${state.qaExpandedEvent === f.id ? `
           <tr><td colspan="5" style="padding:0">
             <div class="qa-finding-detail">
-              <div style="margin-bottom:8px"><strong>${f.title}</strong></div>
+              <div style="margin-bottom:8px"><strong>${f.title}</strong> ${sourceBadge}</div>
               ${f.expected ? `<div><span style="color:var(--text-tertiary)">Expected:</span> ${f.expected}</div>` : ''}
               ${f.actual ? `<div><span style="color:var(--text-tertiary)">Actual:</span> ${f.actual}</div>` : ''}
               ${f.fix ? `<div><span style="color:var(--text-tertiary)">Fix:</span> ${f.fix}</div>` : ''}
-              ${f.spec_file ? `<div style="margin-top:8px"><span style="color:var(--text-tertiary)">Source:</span> ${f.spec_file}</div>` : ''}
-              <div style="margin-top:12px;display:flex;gap:8px">
-                <select onchange="updateFindingStatus('${f.id}', this.value)" style="background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-default);border-radius:4px;padding:4px 8px">
-                  <option value="open" ${f.status === 'open' ? 'selected' : ''}>Open</option>
-                  <option value="fixed" ${f.status === 'fixed' ? 'selected' : ''}>Fixed</option>
-                  <option value="verified" ${f.status === 'verified' ? 'selected' : ''}>Verified</option>
-                </select>
-              </div>
+              ${f.pipeline_ref ? `<div><span style="color:var(--text-tertiary)">Pipeline:</span> <span style="color:var(--accent-primary)">${f.pipeline_ref}</span></div>` : ''}
+              ${f.scenario ? `<div><span style="color:var(--text-tertiary)">Scenario:</span> ${f.scenario}</div>` : ''}
+              ${f.spec_file ? `<div><span style="color:var(--text-tertiary)">Source:</span> ${f.spec_file}</div>` : ''}
+              ${f.screenshots?.length ? `
+                <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+                  ${f.screenshots.map(ss => `<img src="/api/qa/manual/screenshot/${encodeURIComponent(state.qaProject)}/${encodeURIComponent(ss)}" title="${ss}" style="height:56px;border-radius:4px;border:1px solid var(--border-subtle);object-fit:cover;object-position:top;cursor:pointer" onclick="event.stopPropagation();expandScreengrab(this.src,'${ss.replace(/'/g,"\\'")}')"/>`).join('')}
+                </div>
+              ` : ''}
+              ${f.source === 'auto' ? `
+                <div style="margin-top:12px;display:flex;gap:8px">
+                  <select onchange="updateFindingStatus('${f.id}', this.value)" style="background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-default);border-radius:4px;padding:4px 8px;font-family:var(--font-base)">
+                    <option value="open" ${f.status === 'open' ? 'selected' : ''}>Open</option>
+                    <option value="fixed" ${f.status === 'fixed' ? 'selected' : ''}>Fixed</option>
+                    <option value="verified" ${f.status === 'verified' ? 'selected' : ''}>Verified</option>
+                  </select>
+                </div>
+              ` : ''}
             </div>
           </td></tr>
           ` : ''}
@@ -8517,18 +10225,24 @@
       }).join('');
 
       return statCards + `
-        <table class="qa-event-table">
-          <thead>
-            <tr>
-              <th style="width:60px">ID</th>
-              <th style="width:80px">Sev.</th>
-              <th>Finding</th>
-              <th style="width:100px">Event</th>
-              <th style="width:80px">Pipeline</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
+        <div class="qa-table-zone">
+          <div class="qa-table-zone-header">
+            <span class="qa-table-zone-title">All Findings</span>
+            <span class="qa-table-zone-count">${s.auto || 0} auto + ${s.manual || 0} manual</span>
+          </div>
+          <table class="qa-event-table">
+            <thead>
+              <tr>
+                <th style="width:80px">ID</th>
+                <th style="width:70px">Sev.</th>
+                <th>Finding</th>
+                <th style="width:120px">Event</th>
+                <th style="width:80px">Pipeline</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
       `;
     }
 
@@ -8562,6 +10276,26 @@
     }
 
     init();
+  </script>
+
+  <!-- Mode toggle (fixed bottom-right) -->
+  <div class="mode-toggle-group">
+    <button class="mode-toggle-btn" onclick="switchMode('dark-cool')" style="background:#0a0d14;color:#e8eaf0" id="mode-btn-dark-cool">Dark Cool</button>
+    <button class="mode-toggle-btn" onclick="switchMode('neutral-vivid')" style="background:#524e4a;color:#ffffff" id="mode-btn-neutral-vivid">Neutral Vivid</button>
+  </div>
+  <script>
+    function switchMode(mode) {
+      document.documentElement.setAttribute('data-theme', mode);
+      localStorage.setItem('kv-mode', mode);
+      document.querySelectorAll('.mode-toggle-btn').forEach(b => b.classList.remove('active'));
+      const btn = document.getElementById('mode-btn-' + mode);
+      if (btn) btn.classList.add('active');
+    }
+    // Restore saved mode
+    (function() {
+      const saved = localStorage.getItem('kv-mode') || 'dark-cool';
+      switchMode(saved);
+    })();
   </script>
 </body>
 </html>

@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import sqlite3
 import subprocess
 import sys
@@ -22,7 +23,7 @@ from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, UploadFile, File, Body
 from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 
@@ -2869,6 +2870,7 @@ def _discover_qa_projects():
                     "has_coverage": (child / "tests" / "e2e" / "coverage.json").exists(),
                     "has_screenshots": (child / "demos" / "images").is_dir(),
                     "has_findings": (child / "specs" / "qa-findings.json").exists(),
+                    "has_manual_qa": (child / "tests" / "e2e" / "manual-qa.json").exists(),
                 })
                 break  # one graph per project is enough
     return projects
@@ -2897,6 +2899,8 @@ def _resolve_project(project: str):
         "findings_file": specs_dir / "qa-findings.json" if specs_dir.exists() else None,
         "verify_plan_file": project_dir / "tests" / "e2e" / "verify-plan.json",
         "progress_file": project_dir / "tests" / "e2e" / "verify-progress.json",
+        "manual_qa_file": project_dir / "tests" / "e2e" / "manual-qa.json",
+        "findings_images_dir": project_dir / "demos" / "images" / "findings",
         "demos_dir": project_dir / "demos" / "images",
         "prev_dir": project_dir / "demos" / "images" / "_previous",
     }
@@ -2908,6 +2912,34 @@ def _load_json(path: Path):
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
     return None
+
+
+def _compute_manual_status(scenarios: dict) -> str | None:
+    """Compute aggregate manual status for an event from its scenario statuses.
+
+    Returns: "pass" | "finding" | "fail" | "partial" | None (if no reviews)
+    """
+    statuses = [
+        s.get("manual_status") for s in scenarios.values()
+        if s.get("manual_status") not in (None, "untested", "n/a", "skip")
+    ]
+    if not statuses:
+        return None
+    if any(s == "fail" for s in statuses):
+        return "fail"
+    if any(s == "finding" for s in statuses):
+        return "finding"
+    if all(s == "pass" for s in statuses):
+        return "pass"
+    return "partial"
+
+
+def _count_testable_scenarios(plan_scenarios: list) -> int:
+    """Count scenarios that can be manually tested (excludes api_only/expected_fail)."""
+    return sum(
+        1 for s in plan_scenarios
+        if s.get("tag") not in ("api_only", "expected_fail")
+    )
 
 
 @app.get("/api/qa/projects")
@@ -2997,6 +3029,61 @@ async def qa_coverage(project: str = Query(..., description="Project directory n
     tested = stats["passed"] + stats["failed"]
     stats["coverage_pct"] = round(tested / stats["total"] * 100) if stats["total"] > 0 else 0
 
+    # --- Manual QA merge ---
+    manual = _load_json(paths["manual_qa_file"]) or {}
+    manual_events = manual.get("events", {})
+    verify_plan = _load_json(paths["verify_plan_file"])
+
+    manual_reviewed_total = 0
+    manual_events_total = 0
+
+    for cat_data in categories.values():
+        for entry in cat_data["events"]:
+            eid = entry["id"]
+            me = manual_events.get(eid, {})
+            me_scenarios = me.get("scenarios", {})
+
+            # Count testable scenarios from verify-plan if available
+            plan_scenarios = []
+            if verify_plan and "plans" in verify_plan:
+                plan_scenarios = (
+                    verify_plan["plans"]
+                    .get(eid, {})
+                    .get("matrix", {})
+                    .get("scenarios", [])
+                )
+            testable_count = _count_testable_scenarios(plan_scenarios) if plan_scenarios else 0
+
+            # Count reviewed (anything not untested/None/n/a)
+            reviewed = sum(
+                1 for s in me_scenarios.values()
+                if s.get("manual_status") not in (None, "untested", "n/a")
+            )
+            findings_count = sum(
+                len(s.get("findings", [])) for s in me_scenarios.values()
+            )
+
+            entry["manual"] = {
+                "reviewed": reviewed,
+                "total": testable_count,
+                "findings_count": findings_count,
+                "status": _compute_manual_status(me_scenarios),
+                "tested_at": me.get("tested_at"),
+            }
+
+            manual_reviewed_total += reviewed
+            manual_events_total += testable_count
+
+    stats["manual_reviewed"] = manual_reviewed_total
+    stats["manual_total"] = manual_events_total
+    stats["manual_pct"] = (
+        round(manual_reviewed_total / manual_events_total * 100)
+        if manual_events_total > 0 else 0
+    )
+
+    # --- Lifecycle chains from graph ---
+    chains = graph.get("lifecycle_chains", [])
+
     # Run metadata from coverage.json
     run_meta = {
         "generated": raw_coverage.get("generated"),
@@ -3006,7 +3093,7 @@ async def qa_coverage(project: str = Query(..., description="Project directory n
         )),
     }
 
-    return {"stats": stats, "categories": categories, "run": run_meta}
+    return {"stats": stats, "categories": categories, "run": run_meta, "chains": chains}
 
 
 @app.get("/api/qa/coverage/{event_id}")
@@ -3052,6 +3139,46 @@ async def qa_coverage_detail(event_id: str, project: str = Query(...)):
     if verify_plan and "plans" in verify_plan:
         plan = verify_plan["plans"].get(event_id)
 
+    # --- Manual QA overlay per scenario ---
+    manual = _load_json(paths["manual_qa_file"]) or {}
+    event_manual = manual.get("events", {}).get(event_id, {}).get("scenarios", {})
+
+    if plan and plan.get("matrix", {}).get("scenarios"):
+        for scenario in plan["matrix"]["scenarios"]:
+            sid = scenario["id"]
+            ms = event_manual.get(sid, {})
+            # Auto-classify api_only/expected_fail as n/a if no manual entry
+            if scenario.get("tag") in ("api_only", "expected_fail") and not ms:
+                ms = {"manual_status": "n/a"}
+            scenario["manual_status"] = ms.get("manual_status", "untested")
+            scenario["manual_notes"] = ms.get("notes")
+            scenario["manual_findings"] = ms.get("findings", [])
+            scenario["manual_tested_at"] = ms.get("tested_at")
+
+    # Manual summary for this event
+    manual_summary = None
+    if event_manual:
+        reviewed = sum(
+            1 for s in event_manual.values()
+            if s.get("manual_status") not in (None, "untested", "n/a")
+        )
+        total_scenarios = len(
+            plan.get("matrix", {}).get("scenarios", [])
+        ) if plan else 0
+        testable = _count_testable_scenarios(
+            plan.get("matrix", {}).get("scenarios", [])
+        ) if plan else 0
+        findings_count = sum(
+            len(s.get("findings", [])) for s in event_manual.values()
+        )
+        manual_summary = {
+            "reviewed": reviewed,
+            "total": testable,
+            "findings_count": findings_count,
+            "status": _compute_manual_status(event_manual),
+            "tested_at": manual.get("events", {}).get(event_id, {}).get("tested_at"),
+        }
+
     return {
         "event": event_node,
         "coverage": cov,
@@ -3061,6 +3188,7 @@ async def qa_coverage_detail(event_id: str, project: str = Query(...)):
         "edges_in": edges_in,
         "edges_out": edges_out,
         "plan": plan,
+        "manual_summary": manual_summary,
     }
 
 
@@ -3423,28 +3551,56 @@ async def qa_matrix(project: str = Query(...)):
 
 @app.get("/api/qa/findings")
 async def qa_findings(project: str = Query(...)):
-    """Get QA findings from verify-plan.json (canonical) with qa-findings.json fallback."""
+    """Get QA findings from verify-plan.json + manual-qa.json merged."""
     paths = _resolve_project(project)
 
     items = []
 
-    # Primary: read from verify-plan.json (canonical source)
+    # Automated findings from verify-plan.json
     verify_plan = _load_json(paths["verify_plan_file"])
     if verify_plan and "plans" in verify_plan:
         for event_id, plan in verify_plan["plans"].items():
             plan_findings = plan.get("results", {}).get("findings", [])
             for f in plan_findings:
                 f.setdefault("event", event_id)
+                f["source"] = "auto"
                 items.append(f)
 
     # Fallback: if no plan findings, try qa-findings.json
     if not items:
         findings_data = _load_json(paths["findings_file"]) if paths["findings_file"] else None
         if findings_data:
-            items = findings_data.get("findings", [])
+            for f in findings_data.get("findings", []):
+                f["source"] = "auto"
+                items.append(f)
+
+    # Manual findings from manual-qa.json
+    manual_data = _load_json(paths["manual_qa_file"])
+    if manual_data and "events" in manual_data:
+        for event_id, event_data in manual_data["events"].items():
+            for scenario_id, scenario_data in event_data.get("scenarios", {}).items():
+                for f in scenario_data.get("findings", []):
+                    items.append({
+                        "id": f.get("id", f"MF_{event_id}_{scenario_id}"),
+                        "title": f.get("title", ""),
+                        "severity": f.get("severity", "medium"),
+                        "expected": f.get("expected"),
+                        "actual": f.get("actual"),
+                        "pipeline_ref": f.get("pipeline_ref"),
+                        "screenshots": f.get("screenshots", []),
+                        "event": event_id,
+                        "scenario": scenario_id,
+                        "source": "manual",
+                        "status": f.get("status", "open"),
+                    })
 
     # Stats
-    stats = {"total": len(items), "high": 0, "medium": 0, "low": 0, "open": 0, "fixed": 0, "verified": 0}
+    stats = {
+        "total": len(items), "high": 0, "medium": 0, "low": 0,
+        "open": 0, "fixed": 0, "verified": 0,
+        "auto": sum(1 for i in items if i.get("source") == "auto"),
+        "manual": sum(1 for i in items if i.get("source") == "manual"),
+    }
     for item in items:
         sev = item.get("severity", "medium").lower()
         if sev in stats:
@@ -3489,7 +3645,269 @@ async def qa_update_finding_status(finding_id: str, project: str = Query(...), s
     return {"updated": True, "id": finding_id, "status": status}
 
 
+# ---- Manual QA endpoints ----
+
+MAX_SCREENSHOT_SIZE = 5 * 1024 * 1024  # 5MB
+ALLOWED_IMAGE_TYPES = {"image/png", "image/jpeg", "image/webp"}
+
+
+@app.get("/api/qa/manual")
+async def qa_get_manual(project: str = Query(..., description="Project directory name")):
+    """Read manual-qa.json for a project."""
+    paths = _resolve_project(project)
+    data = _load_json(paths["manual_qa_file"]) or {"events": {}}
+    return {"events": data.get("events", {}), "updated_at": data.get("updated_at")}
+
+
+@app.post("/api/qa/manual")
+async def qa_save_manual(project: str = Query(...), body: dict = Body(...)):
+    """Save manual QA data for a single event.
+
+    Body: {"event_id": "e_po_delivery", "scenarios": {"L4": {...}, "P5": {...}}}
+    Merges into existing manual-qa.json — one event at a time.
+    """
+    paths = _resolve_project(project)
+    manual_file = paths["manual_qa_file"]
+
+    event_id = body.get("event_id")
+    scenarios = body.get("scenarios")
+    if not event_id or not isinstance(scenarios, dict):
+        raise HTTPException(status_code=400, detail="Body must include event_id (str) and scenarios (dict)")
+
+    # Load existing or create new
+    data = _load_json(manual_file) or {"project": project, "events": {}}
+
+    # Auto-classify n/a scenarios using verify-plan tags
+    verify_plan = _load_json(paths["verify_plan_file"])
+    if verify_plan:
+        plan_scenarios = (
+            verify_plan.get("plans", {})
+            .get(event_id, {})
+            .get("matrix", {})
+            .get("scenarios", [])
+        )
+        auto_na_ids = {
+            s["id"] for s in plan_scenarios
+            if s.get("tag") in ("api_only", "expected_fail")
+        }
+        for sid in auto_na_ids:
+            if sid not in scenarios:
+                scenarios[sid] = {"manual_status": "n/a"}
+
+    # Merge this event into the file
+    now = datetime.now().isoformat()
+    data["events"][event_id] = {
+        "tested_at": now,
+        "scenarios": scenarios,
+    }
+    data["updated_at"] = now
+
+    # Write back
+    manual_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(manual_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    return {"saved": True, "event_id": event_id, "updated_at": now}
+
+
+@app.post("/api/qa/manual/screenshot")
+async def qa_upload_finding_screenshot(
+    project: str = Query(...),
+    finding_id: str = Query(...),
+    file: UploadFile = File(...),
+):
+    """Upload a screenshot as evidence for a manual finding."""
+    paths = _resolve_project(project)
+    findings_dir = paths["findings_images_dir"]
+
+    # Validate file type
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail=f"File type must be one of: {ALLOWED_IMAGE_TYPES}")
+
+    # Read and validate size
+    contents = await file.read()
+    if len(contents) > MAX_SCREENSHOT_SIZE:
+        raise HTTPException(status_code=413, detail=f"File too large. Max {MAX_SCREENSHOT_SIZE // (1024*1024)}MB")
+
+    # Determine extension from content type
+    ext_map = {"image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp"}
+    ext = ext_map.get(file.content_type, ".png")
+    filename = f"{finding_id}{ext}"
+
+    # Write file
+    findings_dir.mkdir(parents=True, exist_ok=True)
+    file_path = findings_dir / filename
+
+    # Security: ensure path is within project
+    try:
+        file_path.resolve().relative_to(paths["dir"].resolve())
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Path traversal detected")
+
+    with open(file_path, "wb") as f:
+        f.write(contents)
+
+    serve_url = f"/api/qa/manual/screenshot/{project}/{filename}"
+    return {"filename": filename, "url": serve_url}
+
+
+@app.get("/api/qa/manual/screenshot/{project}/{filename}")
+async def qa_serve_finding_screenshot(project: str, filename: str):
+    """Serve a finding evidence screenshot."""
+    paths = _resolve_project(project)
+    file_path = paths["findings_images_dir"] / filename
+
+    # Security: ensure path is within project
+    try:
+        file_path.resolve().relative_to(paths["dir"].resolve())
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Path traversal detected")
+
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail=f"Screenshot not found: {filename}")
+
+    media_type = "image/png"
+    if filename.endswith(".jpg") or filename.endswith(".jpeg"):
+        media_type = "image/jpeg"
+    elif filename.endswith(".webp"):
+        media_type = "image/webp"
+
+    return FileResponse(str(file_path), media_type=media_type)
+
+
+@app.post("/api/qa/gallery/upload")
+async def qa_gallery_upload(
+    project: str = Query(...),
+    node_id: str = Query(...),
+    file: UploadFile = File(...),
+):
+    """Upload a manual gallery correction screenshot.
+
+    Moves current automated screenshot to _previous/, saves uploaded file as current.
+    """
+    paths = _resolve_project(project)
+    demos_dir = paths["demos_dir"]
+    prev_dir = paths["prev_dir"]
+
+    # Validate file type
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail=f"File type must be one of: {ALLOWED_IMAGE_TYPES}")
+
+    # Read and validate size
+    contents = await file.read()
+    if len(contents) > MAX_SCREENSHOT_SIZE:
+        raise HTTPException(status_code=413, detail=f"File too large. Max {MAX_SCREENSHOT_SIZE // (1024*1024)}MB")
+
+    filename = f"{node_id}.png"
+    current_path = demos_dir / filename
+
+    # Security: ensure path is within project
+    try:
+        current_path.resolve().relative_to(paths["dir"].resolve())
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Path traversal detected")
+
+    # Move current to _previous/ if it exists
+    previous_saved = False
+    if current_path.exists():
+        prev_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(str(current_path), str(prev_dir / filename))
+        previous_saved = True
+
+    # Write new file
+    demos_dir.mkdir(parents=True, exist_ok=True)
+    with open(current_path, "wb") as f:
+        f.write(contents)
+
+    return {"filename": filename, "previous_saved": previous_saved}
+
+
 # Run initial indexing on startup (async)
+@app.get("/api/qa/recent-screenshots")
+async def qa_recent_screenshots(limit: int = Query(12)):
+    """List recent screenshots from Windows Screenshots folder, newest first."""
+    screenshots_dir = Path(os.path.expanduser("~")) / "OneDrive" / "Pictures" / "Screenshots"
+    if not screenshots_dir.exists():
+        # Fallback to non-OneDrive path
+        screenshots_dir = Path(os.path.expanduser("~")) / "Pictures" / "Screenshots"
+    if not screenshots_dir.exists():
+        return {"files": []}
+
+    files = []
+    for f in screenshots_dir.iterdir():
+        if f.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp"):
+            files.append({"name": f.name, "path": str(f), "mtime": f.stat().st_mtime})
+
+    files.sort(key=lambda x: x["mtime"], reverse=True)
+    return {"files": files[:limit], "dir": str(screenshots_dir)}
+
+
+@app.get("/api/qa/recent-screenshots/{filename}")
+async def qa_serve_recent_screenshot(filename: str):
+    """Serve a screenshot file from the Screenshots folder (for thumbnail preview)."""
+    screenshots_dir = Path(os.path.expanduser("~")) / "OneDrive" / "Pictures" / "Screenshots"
+    if not screenshots_dir.exists():
+        screenshots_dir = Path(os.path.expanduser("~")) / "Pictures" / "Screenshots"
+
+    file_path = screenshots_dir / filename
+    # Security: ensure within screenshots dir
+    try:
+        file_path.resolve().relative_to(screenshots_dir.resolve())
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Path traversal detected")
+
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Not found")
+
+    media_type = "image/png"
+    if filename.lower().endswith((".jpg", ".jpeg")):
+        media_type = "image/jpeg"
+
+    return FileResponse(str(file_path), media_type=media_type)
+
+
+@app.post("/api/qa/snip")
+async def qa_launch_snipping_tool():
+    """Launch Windows screen capture overlay directly (no +New needed)."""
+    try:
+        # ms-screenclip: opens the capture overlay immediately on Windows 11
+        os.startfile("ms-screenclip:")
+        return {"ok": True}
+    except Exception:
+        try:
+            subprocess.Popen(["snippingtool", "/clip"], shell=False)
+            return {"ok": True}
+        except Exception:
+            raise HTTPException(status_code=500, detail="Could not launch snipping tool")
+
+
+@app.post("/api/qa/manual/screenshot/paste")
+async def qa_paste_screenshot(
+    project: str = Query(...),
+    finding_id: str = Query(...),
+    file: UploadFile = File(...),
+):
+    """Save a pasted clipboard screenshot as finding evidence."""
+    paths = _resolve_project(project)
+    findings_dir = paths["findings_images_dir"]
+    findings_dir.mkdir(parents=True, exist_ok=True)
+
+    # Read and validate
+    content = await file.read()
+    if len(content) > MAX_SCREENSHOT_SIZE:
+        raise HTTPException(status_code=413, detail="File too large (5MB max)")
+
+    # Generate filename
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{finding_id}_{timestamp}.png"
+    dest = findings_dir / filename
+
+    with open(dest, "wb") as f:
+        f.write(content)
+
+    return {"filename": filename, "path": str(dest)}
+
+
 @app.on_event("startup")
 async def startup_index():
     """Index documents on server startup."""

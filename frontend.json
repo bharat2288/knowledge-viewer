@@ -1,0 +1,30 @@
+{
+  "mode": ["dark-cool", "neutral-vivid"],
+  "defaultMode": "dark-cool",
+  "primaryTemplate": "data-explorer",
+  "components": [
+    "stat-card", "progress-bar", "toggle-group", "chain-pill",
+    "chain-stacked-chip", "split-pane", "scenario-list-item",
+    "detail-panel", "table-zone", "overlay", "mode-toggle"
+  ],
+  "handDrawn": {
+    "enabled": false
+  },
+  "favicon": {
+    "style": "typographic",
+    "letter": "K",
+    "generated": true
+  },
+  "designSystemPath": "C:\\Users\\bhara\\dev\\design",
+  "pages": [
+    {
+      "name": "knowledge-viewer",
+      "file": "index.html",
+      "template": "data-explorer",
+      "created": "2026-03-21",
+      "views": ["dashboard", "sessions", "errors", "decisions", "learnings", "prompts", "tags", "conversations", "docs", "qa"],
+      "qaSubTabs": ["coverage", "gallery", "monitor", "findings"]
+    }
+  ],
+  "created": "2026-03-21"
+}
