@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light-clean">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Knowledge Viewer — QA Compact Dense</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Bricolage+Grotesque:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Design System Modes -->
+  <link rel="stylesheet" href="../../design/modes/light-clean.css">
+  <link rel="stylesheet" href="../../design/modes/neutral-vivid.css">
+
+  <style>
+    :root {
+      --font-mono: 'SF Mono', Monaco, 'Cascadia Code', Consolas, monospace;
+      --text-xs: 10px;
+      --text-sm: 11px;
+      --text-base: 13px;
+      --text-md: 15px;
+      --text-lg: 17px;
+      --text-xl: 20px;
+      --text-2xl: 24px;
+      --space-1: 4px; --space-2: 6px; --space-3: 10px; --space-4: 14px;
+      --space-5: 18px; --space-6: 22px; --space-8: 28px;
+      --radius-sm: 3px; --radius-md: 5px; --radius-lg: 6px; --radius-xl: 8px;
+      --z-sticky: 30; --z-overlay: 50; --z-modal: 60;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-base);
+      font-size: var(--text-base);
+      line-height: 1.45;
+      color: var(--text-primary);
+      background: var(--bg-base);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+    }
+
+    /* ===================================================
+       SIDEBAR — narrow 160px
+       =================================================== */
+    .sidebar {
+      width: 160px;
+      min-height: 100vh;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-subtle);
+      padding: var(--space-3) 0;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-brand {
+      padding: var(--space-2) var(--space-3) var(--space-4);
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-section {
+      padding: var(--space-1) var(--space-3);
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-top: var(--space-2);
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px var(--space-3);
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.1s;
+      border-left: 2px solid transparent;
+    }
+
+    .sidebar-item:hover {
+      background: var(--bg-raised);
+      color: var(--text-primary);
+    }
+
+    .sidebar-item.active {
+      color: var(--accent-primary);
+      border-left-color: var(--accent-primary);
+      background: var(--accent-primary-subtle);
+      font-weight: 500;
+    }
+
+    .sidebar-badge {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border-subtle);
+      margin: var(--space-2) var(--space-3);
+    }
+
+    /* ===================================================
+       MAIN CONTENT
+       =================================================== */
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: var(--space-4) var(--space-6);
+    }
+
+    /* ===================================================
+       QA HEADER
+       =================================================== */
+    .qa-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+    }
+
+    .qa-title {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .qa-project-select {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 4px 24px 4px 10px;
+      font-family: var(--font-base);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23b4b0a8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+    }
+
+    /* Sub-tabs */
+    .qa-subtabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: var(--space-4);
+    }
+
+    .qa-subtab {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-base);
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .qa-subtab:hover { color: var(--text-secondary); }
+    .qa-subtab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+
+    /* ===================================================
+       SINGLE STATS BAR (inline, not cards)
+       =================================================== */
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-2) var(--space-4);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-3);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .stats-bar .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .stats-bar .stat-val {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stats-bar .sep {
+      color: var(--border-default);
+      user-select: none;
+    }
+
+    .stats-bar .manual-section {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-left: auto;
+      padding-left: var(--space-3);
+      border-left: 1px solid var(--border-subtle);
+    }
+
+    .stats-bar .progress {
+      width: 80px;
+      height: 4px;
+      background: var(--bg-elevated);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .stats-bar .progress-fill {
+      height: 100%;
+      border-radius: 2px;
+    }
+
+    .stats-bar .progress-fill.auto { background: var(--accent-primary); }
+    .stats-bar .progress-fill.manual { background: var(--accent-secondary); }
+
+    /* Meta bar */
+    .meta-bar {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-bottom: var(--space-3);
+    }
+
+    /* Grouping toggle */
+    .group-toggle {
+      display: flex;
+      gap: 2px;
+      margin-bottom: var(--space-4);
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      padding: 2px;
+      width: fit-content;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .group-btn {
+      padding: 3px 12px;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      border: none;
+      background: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all 0.1s;
+    }
+
+    .group-btn:hover { color: var(--text-secondary); }
+    .group-btn.active { background: var(--bg-raised); color: var(--text-primary); }
+
+    /* ===================================================
+       CHAIN GROUPS — compact horizontal bar with pills
+       =================================================== */
+    .chain-group {
+      margin-bottom: var(--space-3);
+    }
+
+    .chain-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-primary);
+      margin-bottom: 6px;
+      margin-top: 12px;
+    }
+
+    .chain-bar {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      flex-wrap: wrap;
+    }
+
+    .chain-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: all 0.12s;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .chain-pill:hover {
+      background: var(--bg-raised);
+      border-color: var(--accent-primary);
+    }
+
+    .chain-pill-name {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .chain-pill-stat {
+      color: var(--text-tertiary);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .chain-arrow {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin: 0 1px;
+      user-select: none;
+    }
+
+    .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
+    .dot-pass { background: var(--semantic-success); box-shadow: 0 0 4px rgba(52,208,88,0.4); }
+    .dot-fail { background: var(--semantic-error); box-shadow: 0 0 4px rgba(244,67,54,0.4); }
+    .dot-untested { background: var(--text-muted); }
+    .dot-partial { background: var(--accent-secondary); }
+
+    .ms { font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 600; }
+    .ms-pass { color: var(--semantic-success); }
+    .ms-fail { color: var(--semantic-error); }
+    .ms-finding { color: var(--accent-secondary); }
+    .ms-untested { color: var(--text-muted); }
+
+    /* ===================================================
+       STANDALONE TABLE
+       =================================================== */
+    .table-zone {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-4);
+    }
+
+    .table-zone-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .table-zone-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-primary);
+    }
+
+    .table-zone-count {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-tertiary);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    td {
+      padding: 6px var(--space-3);
+      font-size: var(--text-base);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr.clickable { cursor: pointer; transition: background 0.1s; }
+    tr.clickable:hover { background: var(--bg-raised); }
+
+    /* ===================================================
+       OVERLAY
+       =================================================== */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg-base);
+      z-index: var(--z-overlay);
+      overflow-y: auto;
+    }
+
+    .overlay.open { display: block; }
+
+    .overlay-content {
+      max-width: 1100px;
+      padding: var(--space-4) var(--space-6);
+    }
+
+    .overlay-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: var(--space-2);
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 0;
+    }
+
+    .overlay-title {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .overlay-title .status-icon { margin-right: var(--space-2); }
+
+    .overlay-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .zoom-btn {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 2px 7px;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      transition: all 0.1s;
+    }
+
+    .zoom-btn:hover, .zoom-btn.active { color: var(--accent-primary); border-color: var(--accent-primary); }
+
+    .close-btn {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 5px 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      margin-left: var(--space-2);
+      transition: all 0.1s;
+    }
+
+    .close-btn:hover { background: var(--bg-elevated); color: var(--text-primary); }
+
+    /* Overlay tabs */
+    .overlay-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: var(--space-4);
+    }
+
+    .overlay-tab {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-base);
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .overlay-tab:hover { color: var(--text-secondary); }
+    .overlay-tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+
+    /* Summary bar — compact 12px */
+    .summary-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-4);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .summary-bar strong { color: var(--text-primary); }
+
+    .summary-bar .edit-btn {
+      margin-left: auto;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 3px 12px;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .summary-bar .edit-btn:hover {
+      background: var(--accent-primary);
+      color: var(--bg-base);
+      border-color: var(--accent-primary);
+    }
+
+    /* ===================================================
+       SCENARIO TABLE (replaces scenario cards)
+       =================================================== */
+    .scenario-group-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-primary);
+      margin: 12px 0 4px 0;
+      padding-bottom: 2px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .scenario-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: var(--space-2);
+    }
+
+    .scenario-table th {
+      text-align: left;
+      padding: var(--space-1) var(--space-2);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-tertiary);
+      border-bottom: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+
+    .scenario-table td {
+      padding: 6px var(--space-2);
+      font-size: var(--text-base);
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: top;
+    }
+
+    .scenario-table tr:last-child td { border-bottom: none; }
+    .scenario-table tr:hover { background: var(--bg-raised); }
+
+    .scenario-id {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+    }
+
+    .scenario-viewers {
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
+      line-height: 1.4;
+    }
+
+    .scenario-viewers .viewer {
+      color: var(--accent-primary);
+      font-weight: 500;
+    }
+
+    .note-indicator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: var(--radius-sm);
+      background: var(--accent-secondary-subtle);
+      color: var(--accent-secondary);
+      font-size: 10px;
+      font-weight: 700;
+      cursor: default;
+    }
+
+    .note-indicator.finding {
+      background: var(--accent-pop-subtle, var(--accent-secondary-subtle));
+      color: var(--accent-secondary);
+    }
+
+    /* ===================================================
+       MODE TOGGLE
+       =================================================== */
+    .mode-toggle {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 100;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: 6px 14px;
+      font-family: var(--font-base);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: var(--shadow-md);
+    }
+
+    .mode-toggle:hover {
+      background: var(--accent-primary);
+      color: var(--bg-base);
+      border-color: var(--accent-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR (160px narrow) -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">Knowledge</div>
+
+    <div class="sidebar-section">Knowledge</div>
+    <div class="sidebar-item">Dashboard</div>
+    <div class="sidebar-item">Sessions <span class="sidebar-badge">42</span></div>
+    <div class="sidebar-item">Errors <span class="sidebar-badge">77</span></div>
+    <div class="sidebar-item">Decisions <span class="sidebar-badge">233</span></div>
+    <div class="sidebar-item">Learnings <span class="sidebar-badge">131</span></div>
+
+    <div class="sidebar-section">Content</div>
+    <div class="sidebar-item">Prompts <span class="sidebar-badge">664</span></div>
+    <div class="sidebar-item">Tags <span class="sidebar-badge">23</span></div>
+    <div class="sidebar-item">Docs <span class="sidebar-badge">84</span></div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-item active">QA <span class="sidebar-badge">27</span></div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- QA Header -->
+    <div class="qa-header">
+      <h1 class="qa-title">QA</h1>
+      <select class="qa-project-select">
+        <option>moom-order-forecasting</option>
+        <option>scholia</option>
+        <option>fin</option>
+      </select>
+    </div>
+
+    <!-- Sub-tabs -->
+    <div class="qa-subtabs">
+      <button class="qa-subtab active">Coverage</button>
+      <button class="qa-subtab">Gallery</button>
+      <button class="qa-subtab">Monitor</button>
+      <button class="qa-subtab">Findings</button>
+    </div>
+
+    <!-- Single stats bar (merged stats + manual into one line) -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-val">27</span> events
+      </div>
+      <span class="sep">&middot;</span>
+      <div class="stat-item">
+        <span class="dot dot-pass"></span>
+        <span class="stat-val" style="color:var(--semantic-success)">19</span> passed
+      </div>
+      <span class="sep">&middot;</span>
+      <div class="stat-item">
+        <span class="dot dot-fail"></span>
+        <span class="stat-val" style="color:var(--semantic-error)">3</span> failed
+      </div>
+      <span class="sep">&middot;</span>
+      <div class="stat-item">
+        <span class="dot dot-untested"></span>
+        <span class="stat-val" style="color:var(--text-tertiary)">5</span> untested
+      </div>
+      <span class="sep">&middot;</span>
+      <div class="stat-item">
+        <span class="stat-val">81%</span> coverage
+        <div class="progress"><div class="progress-fill auto" style="width:81%"></div></div>
+      </div>
+      <div class="manual-section">
+        <span>Manual:</span>
+        <span class="stat-val">14/27</span> (52%)
+        <div class="progress"><div class="progress-fill manual" style="width:52%"></div></div>
+      </div>
+    </div>
+
+    <!-- Meta bar -->
+    <div class="meta-bar">
+      Last run: 20-Mar-26 19:30 &nbsp;|&nbsp; Duration: 272s &nbsp;|&nbsp; Spec files: 7
+    </div>
+
+    <!-- Grouping toggle -->
+    <div class="group-toggle">
+      <button class="group-btn">By Category</button>
+      <button class="group-btn">By Domain</button>
+      <button class="group-btn active">By Chain</button>
+    </div>
+
+    <!-- Chain: Purchase Order — compact horizontal bar -->
+    <div class="chain-group">
+      <div class="chain-label">Purchase Order</div>
+      <div class="chain-bar">
+        <div class="chain-pill" onclick="document.getElementById('overlay').classList.add('open')">
+          <span class="dot dot-pass"></span>
+          <span class="chain-pill-name">Create</span>
+          <span class="chain-pill-stat">6/14</span>
+          <span class="ms ms-pass" style="font-size:10px">&#10003;m</span>
+        </div>
+        <span class="chain-arrow">&rarr;</span>
+        <div class="chain-pill">
+          <span class="dot dot-pass"></span>
+          <span class="chain-pill-name">Send</span>
+          <span class="chain-pill-stat">3/3</span>
+          <span class="ms ms-pass" style="font-size:10px">&#10003;m</span>
+        </div>
+        <span class="chain-arrow">&rarr;</span>
+        <div class="chain-pill">
+          <span class="dot dot-pass"></span>
+          <span class="chain-pill-name">Confirm</span>
+          <span class="chain-pill-stat">5/5</span>
+          <span class="ms ms-untested" style="font-size:10px">&mdash;</span>
+        </div>
+        <span class="chain-arrow">&rarr;</span>
+        <div class="chain-pill">
+          <span class="dot dot-pass"></span>
+          <span class="chain-pill-name">Delivery</span>
+          <span class="chain-pill-stat">4/4</span>
+          <span class="ms ms-finding" style="font-size:10px">!m</span>
+        </div>
+        <span class="chain-arrow">&rarr;</span>
+        <div class="chain-pill">
+          <span class="dot dot-partial"></span>
+          <span class="chain-pill-name">Paid</span>
+          <span class="chain-pill-stat">10/16</span>
+          <span class="ms ms-untested" style="font-size:10px">&mdash;</span>
+        </div>
+        <span class="chain-arrow">&rarr;</span>
+        <div class="chain-pill">
+          <span class="dot dot-pass"></span>
+          <span class="chain-pill-name">Delete</span>
+          <span class="chain-pill-stat">2/2</span>
+          <span class="ms ms-pass" style="font-size:10px">&#10003;m</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chain: Transfer -->
+    <div class="chain-group">
+      <div class="chain-label">Transfer</div>
+      <div class="chain-bar">
+        <div class="chain-pill">
+          <span class="dot dot-pass"></span>
+          <span class="chain-pill-name">Out</span>
+          <span class="chain-pill-stat">4/4</span>
+          <span class="ms ms-pass" style="font-size:10px">&#10003;m</span>
+        </div>
+        <span class="chain-arrow">&rarr;</span>
+        <div class="chain-pill">
+          <span class="dot dot-pass"></span>
+          <span class="chain-pill-name">Accept</span>
+          <span class="chain-pill-stat">9/9</span>
+          <span class="ms ms-pass" style="font-size:10px">&#10003;m</span>
+        </div>
+        <span class="chain-arrow">&rarr;</span>
+        <div class="chain-pill">
+          <span class="dot dot-untested"></span>
+          <span class="chain-pill-name">Void</span>
+          <span class="chain-pill-stat">&mdash;</span>
+          <span class="ms ms-untested" style="font-size:10px">&mdash;</span>
+        </div>
+        <span class="chain-arrow">&rarr;</span>
+        <div class="chain-pill">
+          <span class="dot dot-untested"></span>
+          <span class="chain-pill-name">Delete</span>
+          <span class="chain-pill-stat">&mdash;</span>
+          <span class="ms ms-untested" style="font-size:10px">&mdash;</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Standalone table -->
+    <div class="table-zone">
+      <div class="table-zone-header">
+        <span class="table-zone-title">Standalone</span>
+        <span class="table-zone-count">8 events &middot; 5/8 covered</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:70px">Auto</th>
+            <th>Event</th>
+            <th style="width:60px;text-align:center">Scen.</th>
+            <th style="width:70px;text-align:center">Manual</th>
+            <th style="width:60px;text-align:center">Last Run</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="clickable">
+            <td><span class="dot dot-pass"></span> PASS</td>
+            <td>Channel Save</td>
+            <td style="text-align:center">3/3</td>
+            <td style="text-align:center"><span class="ms ms-pass">&#10003;m</span> 3/3</td>
+            <td style="text-align:center">20-Mar</td>
+          </tr>
+          <tr class="clickable">
+            <td><span class="dot dot-pass"></span> PASS</td>
+            <td>Warehouse Save</td>
+            <td style="text-align:center">2/2</td>
+            <td style="text-align:center"><span class="ms ms-untested">&mdash;</span></td>
+            <td style="text-align:center">20-Mar</td>
+          </tr>
+          <tr class="clickable">
+            <td><span class="dot dot-pass"></span> PASS</td>
+            <td>Pack SKU</td>
+            <td style="text-align:center">4/4</td>
+            <td style="text-align:center"><span class="ms ms-pass">&#10003;m</span> 4/4</td>
+            <td style="text-align:center">20-Mar</td>
+          </tr>
+          <tr class="clickable">
+            <td><span class="dot dot-pass"></span> PASS</td>
+            <td>Batch Import</td>
+            <td style="text-align:center">9/9</td>
+            <td style="text-align:center"><span class="ms ms-untested">&mdash;</span></td>
+            <td style="text-align:center">20-Mar</td>
+          </tr>
+          <tr class="clickable">
+            <td><span class="dot dot-untested"></span> &mdash;</td>
+            <td>Anomaly Rerun</td>
+            <td style="text-align:center">&mdash;</td>
+            <td style="text-align:center"><span class="ms ms-untested">&mdash;</span></td>
+            <td style="text-align:center">&mdash;</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- OVERLAY -->
+  <div class="overlay" id="overlay">
+    <div class="overlay-content">
+
+      <div class="overlay-header">
+        <div class="overlay-title">
+          <span class="status-icon" style="color:var(--semantic-success)">&#10003;</span>
+          PO Create <span style="color:var(--text-muted);font-weight:400;font-size:var(--text-base)">[lifecycle]</span>
+        </div>
+        <div class="overlay-controls">
+          <span style="font-size:var(--text-xs);color:var(--text-muted)">Zoom</span>
+          <button class="zoom-btn" style="font-size:11px">A</button>
+          <button class="zoom-btn active" style="font-size:13px">A</button>
+          <button class="zoom-btn" style="font-size:15px">A</button>
+          <button class="close-btn" onclick="document.getElementById('overlay').classList.remove('open')">&#10005; Close</button>
+        </div>
+      </div>
+
+      <!-- Overlay tabs -->
+      <div class="overlay-tabs">
+        <button class="overlay-tab active">Scenarios</button>
+        <button class="overlay-tab">Scope</button>
+        <button class="overlay-tab">Results</button>
+      </div>
+
+      <!-- Summary bar — compact 12px -->
+      <div class="summary-bar">
+        <span>Auto: <strong>12/16 passed</strong></span>
+        <span>Manual: <strong>8/16 reviewed</strong></span>
+        <span style="color:var(--accent-secondary)">2 findings</span>
+        <button class="edit-btn">Edit</button>
+      </div>
+
+      <!-- Scenario group: Positive — rendered as TABLE rows -->
+      <div class="scenario-group-label">Positive (6)</div>
+      <table class="scenario-table">
+        <thead>
+          <tr>
+            <th style="width:30px">A</th>
+            <th style="width:30px">M</th>
+            <th style="width:40px">ID</th>
+            <th>Scenario</th>
+            <th>Viewers</th>
+            <th style="width:30px;text-align:center">N</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="ms ms-pass">&#10003;</span></td>
+            <td><span class="ms ms-pass">&#10003;m</span></td>
+            <td><span class="scenario-id">L4</span></td>
+            <td>Deliver bulk line only &rarr; Partial status</td>
+            <td class="scenario-viewers"><span class="viewer">v_proc_orders</span>, <span class="viewer">v_proc_materials</span>, <span class="viewer">v_ledger_feed</span></td>
+            <td style="text-align:center"><span class="note-indicator" title="Accordion shows correct lot detail">N</span></td>
+          </tr>
+          <tr>
+            <td><span class="ms ms-pass">&#10003;</span></td>
+            <td><span class="ms ms-finding">!m</span></td>
+            <td><span class="scenario-id">L5</span></td>
+            <td>Deliver prepack line &rarr; Delivered + auto-pack</td>
+            <td class="scenario-viewers"><span class="viewer">v_proc_orders</span>, <span class="viewer">v_inv_skus</span></td>
+            <td style="text-align:center"><span class="note-indicator finding" title="MF001: Wrong toast on delivery confirmation">!</span></td>
+          </tr>
+          <tr>
+            <td><span class="ms ms-pass">&#10003;</span></td>
+            <td><span class="ms ms-untested">&mdash;</span></td>
+            <td><span class="scenario-id">L6</span></td>
+            <td>Deliver remaining &rarr; Fully Delivered status</td>
+            <td class="scenario-viewers"><span class="viewer">v_proc_orders</span></td>
+            <td style="text-align:center"></td>
+          </tr>
+          <tr>
+            <td><span class="ms ms-untested">&#9675;</span></td>
+            <td><span class="ms ms-pass">&#10003;m</span></td>
+            <td><span class="scenario-id">P1</span></td>
+            <td>Single material, exact qty</td>
+            <td class="scenario-viewers">&mdash;</td>
+            <td style="text-align:center"></td>
+          </tr>
+          <tr>
+            <td><span class="ms ms-untested">&#9675;</span></td>
+            <td><span class="ms ms-untested">&mdash;</span></td>
+            <td><span class="scenario-id">P2</span></td>
+            <td>Multiple materials, mixed qtys</td>
+            <td class="scenario-viewers"><span class="viewer">v_proc_orders</span></td>
+            <td style="text-align:center"></td>
+          </tr>
+          <tr>
+            <td><span class="ms ms-untested">&#9675;</span></td>
+            <td><span class="ms ms-fail">&#10007;m</span></td>
+            <td><span class="scenario-id">P3</span></td>
+            <td>Zero-qty line (partial delivery)</td>
+            <td class="scenario-viewers"><span class="viewer">v_proc_orders</span></td>
+            <td style="text-align:center"><span class="note-indicator finding" title="MF002: Duplicate line in accordion">!</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Scenario group: Negative -->
+      <div class="scenario-group-label" style="color:var(--accent-secondary)">Negative (8)</div>
+      <table class="scenario-table">
+        <thead>
+          <tr>
+            <th style="width:30px">A</th>
+            <th style="width:30px">M</th>
+            <th style="width:40px">ID</th>
+            <th>Scenario</th>
+            <th>Viewers</th>
+            <th style="width:30px;text-align:center">N</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="ms ms-pass">&#10003;</span></td>
+            <td><span class="ms" style="color:var(--text-muted)">n/a</span></td>
+            <td><span class="scenario-id">N1</span></td>
+            <td>Over-delivery &rarr; expected_fail</td>
+            <td class="scenario-viewers">&mdash;</td>
+            <td style="text-align:center"></td>
+          </tr>
+          <tr>
+            <td><span class="ms ms-pass">&#10003;</span></td>
+            <td><span class="ms" style="color:var(--text-muted)">n/a</span></td>
+            <td><span class="scenario-id">N2</span></td>
+            <td>Deliver on draft PO &rarr; api_only</td>
+            <td class="scenario-viewers">&mdash;</td>
+            <td style="text-align:center"></td>
+          </tr>
+          <tr>
+            <td><span class="ms ms-pass">&#10003;</span></td>
+            <td><span class="ms" style="color:var(--text-muted)">n/a</span></td>
+            <td><span class="scenario-id">N3</span></td>
+            <td>Negative qty &rarr; rejected</td>
+            <td class="scenario-viewers">&mdash;</td>
+            <td style="text-align:center"></td>
+          </tr>
+          <tr>
+            <td><span class="ms ms-pass">&#10003;</span></td>
+            <td><span class="ms" style="color:var(--text-muted)">n/a</span></td>
+            <td><span class="scenario-id">N4</span></td>
+            <td>Duplicate delivery id &rarr; 409 conflict</td>
+            <td class="scenario-viewers">&mdash;</td>
+            <td style="text-align:center"></td>
+          </tr>
+          <tr>
+            <td><span class="ms ms-fail">&#10007;</span></td>
+            <td><span class="ms" style="color:var(--text-muted)">n/a</span></td>
+            <td><span class="scenario-id">N5</span></td>
+            <td>Missing vendor_id &rarr; 422</td>
+            <td class="scenario-viewers">&mdash;</td>
+            <td style="text-align:center"></td>
+          </tr>
+          <tr>
+            <td><span class="ms ms-fail">&#10007;</span></td>
+            <td><span class="ms" style="color:var(--text-muted)">n/a</span></td>
+            <td><span class="scenario-id">N6</span></td>
+            <td>Invalid warehouse &rarr; 400</td>
+            <td class="scenario-viewers">&mdash;</td>
+            <td style="text-align:center"></td>
+          </tr>
+          <tr>
+            <td><span class="ms ms-pass">&#10003;</span></td>
+            <td><span class="ms" style="color:var(--text-muted)">n/a</span></td>
+            <td><span class="scenario-id">N7</span></td>
+            <td>Empty lines array &rarr; rejected</td>
+            <td class="scenario-viewers">&mdash;</td>
+            <td style="text-align:center"></td>
+          </tr>
+          <tr>
+            <td><span class="ms ms-untested">&#9675;</span></td>
+            <td><span class="ms" style="color:var(--text-muted)">n/a</span></td>
+            <td><span class="scenario-id">N8</span></td>
+            <td>Concurrent edit conflict &rarr; 409</td>
+            <td class="scenario-viewers">&mdash;</td>
+            <td style="text-align:center"></td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- MODE TOGGLE (fixed bottom-right) -->
+  <button class="mode-toggle" onclick="toggleMode()">Mode: Light Clean</button>
+
+  <script>
+    function toggleMode() {
+      const html = document.documentElement;
+      const btn = document.querySelector('.mode-toggle');
+      if (html.getAttribute('data-theme') === 'light-clean') {
+        html.setAttribute('data-theme', 'neutral-vivid');
+        btn.textContent = 'Mode: Neutral Vivid';
+      } else {
+        html.setAttribute('data-theme', 'light-clean');
+        btn.textContent = 'Mode: Light Clean';
+      }
+    }
+  </script>
+
+</body>
+</html>

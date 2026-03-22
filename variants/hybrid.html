@@ -1,0 +1,2270 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark-cool">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Knowledge Viewer — QA Hybrid</title>
+
+  <!-- Fonts (all modes) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&display=swap" rel="stylesheet">
+
+  <!-- Design System — all three modes loaded, toggled via data-theme -->
+  <link rel="stylesheet" href="../../design/modes/light-clean.css">
+  <link rel="stylesheet" href="../../design/modes/dark-cool.css">
+  <link rel="stylesheet" href="../../design/modes/neutral-vivid.css">
+  <link rel="stylesheet" href="../../design/components/components.css">
+
+  <style>
+    :root {
+      --font-mono: 'SF Mono', Monaco, 'Cascadia Code', Consolas, monospace;
+      --text-xs: 10px;
+      --text-sm: 12px;
+      --text-base: 14px;
+      --text-md: 16px;
+      --text-lg: 18px;
+      --text-xl: 22px;
+      --text-2xl: 28px;
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+      --space-5: 20px; --space-6: 24px; --space-8: 32px;
+      --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
+      --z-sticky: 30; --z-overlay: 50; --z-modal: 60;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-base);
+      font-size: var(--text-base);
+      line-height: 1.5;
+      color: var(--text-primary);
+      background: var(--bg-base);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+    }
+
+    /* =============================================
+       SIDEBAR (200px, grouped sections — from V3)
+       ============================================= */
+    .sidebar {
+      width: 200px;
+      min-height: 100vh;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-subtle);
+      padding: var(--space-4) 0;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-brand {
+      padding: var(--space-3) var(--space-4) var(--space-6);
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-section {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-top: var(--space-3);
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px var(--space-4);
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.1s;
+      border-left: 2px solid transparent;
+    }
+
+    .sidebar-item:hover {
+      background: var(--bg-raised);
+      color: var(--text-primary);
+    }
+
+    .sidebar-item.active {
+      color: var(--accent-primary);
+      border-left-color: var(--accent-primary);
+      background: var(--accent-primary-subtle);
+      font-weight: 500;
+    }
+
+    .sidebar-badge {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border-subtle);
+      margin: var(--space-3) var(--space-4);
+    }
+
+    /* =============================================
+       MAIN CONTENT
+       ============================================= */
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: var(--space-6) var(--space-8);
+    }
+
+    /* =============================================
+       QA HEADER
+       ============================================= */
+    .qa-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-6);
+    }
+
+    .qa-title {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .qa-project-select {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 6px 28px 6px 12px;
+      font-family: var(--font-base);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23b4b0a8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    /* Sub-tabs */
+    .qa-subtabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: var(--space-6);
+    }
+
+    .qa-subtab {
+      padding: var(--space-3) var(--space-5);
+      font-size: var(--text-base);
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .qa-subtab:hover { color: var(--text-secondary); }
+
+    .qa-subtab.active {
+      color: var(--accent-primary);
+      border-bottom-color: var(--accent-primary);
+    }
+
+    /* =============================================
+       STAT CARDS (5-card row — from V3)
+       ============================================= */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-4);
+      transition: all 0.15s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--border-default);
+      background: var(--bg-raised);
+    }
+
+    .stat-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-1);
+    }
+
+    .stat-value {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Manual bar */
+    .manual-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-4);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+
+    .manual-bar .progress {
+      flex: 1;
+      max-width: 200px;
+      height: 6px;
+      background: var(--bg-elevated);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .manual-bar .progress-fill {
+      height: 100%;
+      background: var(--accent-secondary);
+      border-radius: 3px;
+    }
+
+    /* Meta bar */
+    .meta-bar {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      margin-bottom: var(--space-4);
+    }
+
+    /* =============================================
+       TOGGLE ROW: Grouping + Chain Style
+       ============================================= */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+
+    .group-toggle {
+      display: flex;
+      gap: 2px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      padding: 2px;
+      width: fit-content;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .group-btn, .chain-style-btn {
+      padding: 5px 14px;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      border: none;
+      background: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all 0.1s;
+    }
+
+    .group-btn:hover, .chain-style-btn:hover { color: var(--text-secondary); }
+
+    .group-btn.active, .chain-style-btn.active {
+      background: var(--bg-raised);
+      color: var(--text-primary);
+    }
+
+    .toggle-separator {
+      width: 1px;
+      height: 24px;
+      background: var(--border-subtle);
+    }
+
+    /* =============================================
+       SHARED DOT / MANUAL STATUS TOKENS
+       ============================================= */
+    .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
+    .dot-pass { background: var(--semantic-success); box-shadow: 0 0 6px rgba(52,208,88,0.4); }
+    .dot-fail { background: var(--semantic-error); box-shadow: 0 0 6px rgba(244,67,54,0.4); }
+    .dot-untested { background: var(--text-muted); }
+    .dot-partial { background: var(--accent-secondary); }
+
+    .ms { font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 600; }
+    .ms-pass { color: var(--semantic-success); }
+    .ms-fail { color: var(--semantic-error); }
+    .ms-finding { color: var(--accent-secondary); }
+    .ms-untested { color: var(--text-muted); }
+
+    /* =============================================
+       COMPACT CHAIN PILLS (from V2)
+       ============================================= */
+    .chain-group {
+      margin-bottom: var(--space-5);
+    }
+
+    .chain-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .chain-pills {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      padding: 8px 0;
+    }
+
+    .chain-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .chain-pill:hover {
+      border-color: var(--accent-primary);
+      background: var(--bg-raised);
+    }
+
+    /* Stacked chips — vertical pills with downward arrows */
+    .chain-stacked {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      align-items: flex-start;
+      padding: 4px 0;
+    }
+
+    .chain-stacked-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      font-size: var(--text-base);
+      cursor: pointer;
+      transition: all 0.1s;
+      min-width: 220px;
+    }
+
+    .chain-stacked-chip:hover {
+      border-color: var(--accent-primary);
+      background: var(--bg-raised);
+    }
+
+    .chain-stacked-chip-name {
+      font-weight: 500;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .chain-stacked-chip-stats {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
+    }
+
+    .chain-stacked-arrow {
+      color: var(--text-muted);
+      font-size: 14px;
+      padding-left: 24px;
+      line-height: 1;
+    }
+
+    .chains-stacked-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .chain-pill-name {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .chain-pill-stat {
+      color: var(--text-tertiary);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .chain-arrow {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    /* =============================================
+       VERTICAL TIMELINE CHAINS (from V5)
+       ============================================= */
+    .chains-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .chains-grid .chain-group {
+      margin-bottom: 0;
+    }
+
+    .chains-grid .chain-label {
+      padding-bottom: var(--space-1);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--border-subtle);
+    }
+
+    .timeline-node {
+      position: relative;
+      padding: 8px 0;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .timeline-node:hover {
+      background: var(--bg-raised);
+      border-radius: var(--radius-md);
+      margin-left: -4px;
+      padding-left: 4px;
+    }
+
+    .timeline-node::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 14px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid var(--border-default);
+      background: var(--bg-surface);
+      z-index: 1;
+    }
+
+    .timeline-node.pass::before {
+      background: var(--semantic-success);
+      border-color: var(--semantic-success);
+      box-shadow: 0 0 6px rgba(52,208,88,0.3);
+    }
+
+    .timeline-node.fail::before {
+      background: var(--semantic-error);
+      border-color: var(--semantic-error);
+      box-shadow: 0 0 6px rgba(244,67,54,0.3);
+    }
+
+    .timeline-node.partial::before {
+      background: var(--accent-secondary);
+      border-color: var(--accent-secondary);
+      box-shadow: 0 0 6px rgba(255,183,77,0.3);
+    }
+
+    .timeline-node.untested::before {
+      background: var(--bg-surface);
+      border-color: var(--text-muted);
+    }
+
+    .timeline-node-content {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .timeline-node-name {
+      font-size: var(--text-base);
+      font-weight: 500;
+      color: var(--text-primary);
+      min-width: 80px;
+    }
+
+    .timeline-node-stat {
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timeline-node-manual {
+      font-size: var(--text-sm);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    /* =============================================
+       STANDALONE TABLE
+       ============================================= */
+    .table-zone {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      margin-bottom: var(--space-5);
+    }
+
+    .table-zone-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .table-zone-title {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-primary);
+    }
+
+    .table-zone-count {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-tertiary);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    td {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-base);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tr.clickable { cursor: pointer; transition: background 0.1s; }
+    tr.clickable:hover { background: var(--bg-raised); }
+
+    /* =============================================
+       OVERLAY — SPLIT-PANE (from V3, exact copy)
+       ============================================= */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg-base);
+      z-index: var(--z-overlay);
+      overflow: hidden;
+    }
+
+    .overlay.open { display: flex; flex-direction: column; }
+
+    .overlay-top {
+      flex-shrink: 0;
+      padding: var(--space-5) var(--space-6) 0;
+    }
+
+    .overlay-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 0;
+    }
+
+    .overlay-title {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .overlay-title .status-icon { margin-right: var(--space-2); }
+
+    .overlay-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .zoom-btn {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 2px 8px;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      transition: all 0.1s;
+    }
+
+    .zoom-btn:hover, .zoom-btn.active { color: var(--accent-primary); border-color: var(--accent-primary); }
+
+    .close-btn {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 6px 14px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      margin-left: var(--space-3);
+      transition: all 0.1s;
+    }
+
+    .close-btn:hover { background: var(--bg-elevated); color: var(--text-primary); }
+
+    /* Overlay tabs */
+    .overlay-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 0;
+      padding: 0 var(--space-6);
+    }
+
+    .overlay-tab {
+      padding: var(--space-3) var(--space-5);
+      font-size: var(--text-base);
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .overlay-tab:hover { color: var(--text-secondary); }
+    .overlay-tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+
+    /* Summary bar — full width above the split */
+    .overlay-summary {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-3) var(--space-6);
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .overlay-summary strong { color: var(--text-primary); }
+
+    .overlay-summary .edit-btn {
+      margin-left: auto;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 5px 16px;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .overlay-summary .edit-btn:hover {
+      background: var(--accent-primary);
+      color: var(--bg-base);
+      border-color: var(--accent-primary);
+    }
+
+    /* Split pane container */
+    .split-pane {
+      display: grid;
+      grid-template-columns: 35% 65%;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* LEFT: Scenario List */
+    .scenario-list {
+      border-right: 1px solid var(--border-subtle);
+      overflow-y: auto;
+      padding: var(--space-3) 0;
+    }
+
+    .list-group-header {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-primary);
+      margin-top: var(--space-2);
+    }
+
+    .list-group-header:first-child { margin-top: 0; }
+
+    .list-group-header.negative { color: var(--accent-secondary); }
+    .list-group-header.ui-checks { color: var(--text-tertiary); }
+
+    .scenario-list-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 7px var(--space-4);
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.1s;
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .scenario-list-item:hover {
+      background: var(--bg-raised);
+      color: var(--text-primary);
+    }
+
+    .scenario-list-item.selected {
+      background: var(--accent-primary-subtle);
+      border-left-color: var(--accent-primary);
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .scenario-list-item.na {
+      color: var(--text-muted);
+    }
+
+    .scenario-list-item.na:hover {
+      color: var(--text-tertiary);
+    }
+
+    .list-item-icons {
+      display: flex;
+      gap: 3px;
+      flex-shrink: 0;
+      min-width: 38px;
+    }
+
+    .list-item-id {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: var(--text-xs);
+      flex-shrink: 0;
+      min-width: 22px;
+    }
+
+    .list-item-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* RIGHT: Detail Panel */
+    .detail-area {
+      overflow-y: auto;
+      padding: var(--space-5) var(--space-6);
+    }
+
+    .detail-panel {
+      display: none;
+    }
+
+    .detail-panel.active {
+      display: block;
+    }
+
+    .detail-title {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-1);
+      line-height: 1.4;
+    }
+
+    .detail-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
+    }
+
+    .detail-meta .tag {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tag-pass { background: rgba(13,148,72,0.1); color: var(--semantic-success); }
+    .tag-fail { background: rgba(224,36,36,0.1); color: var(--semantic-error); }
+    .tag-untested { background: var(--bg-raised); color: var(--text-muted); }
+
+    .detail-section {
+      margin-bottom: var(--space-5);
+    }
+
+    .detail-section-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-2);
+    }
+
+    .detail-assertions {
+      background: var(--bg-raised);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      border-left: 3px solid var(--accent-primary);
+    }
+
+    .detail-assertion-row {
+      display: flex;
+      gap: var(--space-3);
+      padding: var(--space-1) 0;
+      font-size: var(--text-sm);
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .detail-assertion-row + .detail-assertion-row {
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .detail-assertion-row .viewer {
+      color: var(--accent-primary);
+      font-weight: 500;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      flex-shrink: 0;
+      min-width: 120px;
+      padding-top: 2px;
+    }
+
+    .detail-manual {
+      padding: var(--space-3) var(--space-4);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--accent-secondary);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    .detail-manual-status {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-2);
+      font-style: normal;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .detail-finding {
+      padding: var(--space-3) var(--space-4);
+      background: var(--accent-secondary-subtle);
+      border: 1px solid var(--accent-secondary);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      color: var(--accent-secondary);
+      font-weight: 500;
+    }
+
+    .detail-finding-severity {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      background: var(--accent-secondary);
+      color: var(--bg-base);
+      margin-right: var(--space-2);
+    }
+
+    .detail-notes {
+      padding: var(--space-3) var(--space-4);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
+
+    .detail-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-muted);
+      font-size: var(--text-base);
+    }
+
+    /* =============================================
+       MODE TOGGLE (fixed bottom-right, 3 buttons)
+       ============================================= */
+    .mode-toggle-group {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: var(--z-modal);
+      display: flex;
+      gap: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: 6px 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">Knowledge</div>
+
+    <div class="sidebar-section">Knowledge</div>
+    <div class="sidebar-item">Dashboard</div>
+    <div class="sidebar-item">Sessions <span class="sidebar-badge">42</span></div>
+    <div class="sidebar-item">Errors <span class="sidebar-badge">77</span></div>
+    <div class="sidebar-item">Decisions <span class="sidebar-badge">233</span></div>
+    <div class="sidebar-item">Learnings <span class="sidebar-badge">131</span></div>
+
+    <div class="sidebar-section">Content</div>
+    <div class="sidebar-item">Prompts <span class="sidebar-badge">664</span></div>
+    <div class="sidebar-item">Tags <span class="sidebar-badge">23</span></div>
+    <div class="sidebar-item">Docs <span class="sidebar-badge">84</span></div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-item active">QA <span class="sidebar-badge">27</span></div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- QA Header -->
+    <div class="qa-header">
+      <h1 class="qa-title">QA</h1>
+      <select class="qa-project-select">
+        <option>moom-order-forecasting</option>
+        <option>scholia</option>
+        <option>fin</option>
+      </select>
+    </div>
+
+    <!-- Sub-tabs -->
+    <div class="qa-subtabs">
+      <button class="qa-subtab active">Coverage</button>
+      <button class="qa-subtab">Gallery</button>
+      <button class="qa-subtab">Monitor</button>
+      <button class="qa-subtab">Findings</button>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Events</div>
+        <div class="stat-value">27</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Passed</div>
+        <div class="stat-value" style="color: var(--semantic-success)">19</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Failed</div>
+        <div class="stat-value" style="color: var(--semantic-error)">3</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Untested</div>
+        <div class="stat-value" style="color: var(--text-tertiary)">5</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Auto Coverage</div>
+        <div class="stat-value">81%</div>
+        <div class="manual-bar" style="border:none;padding:0;margin:6px 0 0 0;background:none">
+          <div class="progress" style="max-width:none;flex:1"><div class="progress-fill" style="width:81%;background:var(--accent-primary)"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual bar -->
+    <div class="manual-bar">
+      <span>Manual:</span>
+      <strong>14/27 reviewed (52%)</strong>
+      <div class="progress"><div class="progress-fill" style="width:52%"></div></div>
+    </div>
+
+    <!-- Meta bar -->
+    <div class="meta-bar">
+      Last run: 20-Mar-26 19:30 &nbsp;|&nbsp; Duration: 272s &nbsp;|&nbsp; Spec files: 7
+    </div>
+
+    <!-- Toggle row: Grouping + Chain Style -->
+    <div class="toggle-row">
+      <div class="group-toggle">
+        <button class="group-btn">By Category</button>
+        <button class="group-btn">By Domain</button>
+        <button class="group-btn active">By Chain</button>
+      </div>
+      <div class="toggle-separator"></div>
+      <div class="group-toggle">
+        <button class="chain-style-btn active" data-chain-style="compact" onclick="setChainStyle('compact')">Compact</button>
+        <button class="chain-style-btn" data-chain-style="stacked" onclick="setChainStyle('stacked')">Stacked</button>
+        <button class="chain-style-btn" data-chain-style="timeline" onclick="setChainStyle('timeline')">Timeline</button>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         COMPACT CHAINS (from V2) — default visible
+         ============================================================ -->
+    <div id="chains-compact">
+
+      <!-- Chain: Purchase Order -->
+      <div class="chain-group">
+        <div class="chain-label">Purchase Order</div>
+        <div class="chain-pills">
+          <div class="chain-pill" onclick="openOverlay()">
+            <span class="dot dot-pass"></span>
+            <span class="chain-pill-name">Create</span>
+            <span class="chain-pill-stat">6/14</span>
+            <span class="ms ms-pass" style="font-size:10px">&#10003;m</span>
+          </div>
+          <span class="chain-arrow">&rarr;</span>
+          <div class="chain-pill">
+            <span class="dot dot-pass"></span>
+            <span class="chain-pill-name">Send</span>
+            <span class="chain-pill-stat">3/3</span>
+            <span class="ms ms-pass" style="font-size:10px">&#10003;m</span>
+          </div>
+          <span class="chain-arrow">&rarr;</span>
+          <div class="chain-pill">
+            <span class="dot dot-pass"></span>
+            <span class="chain-pill-name">Confirm</span>
+            <span class="chain-pill-stat">5/5</span>
+            <span class="ms ms-untested" style="font-size:10px">&mdash;</span>
+          </div>
+          <span class="chain-arrow">&rarr;</span>
+          <div class="chain-pill" onclick="openOverlay()">
+            <span class="dot dot-pass"></span>
+            <span class="chain-pill-name">Delivery</span>
+            <span class="chain-pill-stat">4/4</span>
+            <span class="ms ms-finding" style="font-size:10px">!m</span>
+          </div>
+          <span class="chain-arrow">&rarr;</span>
+          <div class="chain-pill">
+            <span class="dot dot-partial"></span>
+            <span class="chain-pill-name">Paid</span>
+            <span class="chain-pill-stat">10/16</span>
+            <span class="ms ms-untested" style="font-size:10px">&mdash;</span>
+          </div>
+          <span class="chain-arrow">&rarr;</span>
+          <div class="chain-pill">
+            <span class="dot dot-pass"></span>
+            <span class="chain-pill-name">Delete</span>
+            <span class="chain-pill-stat">2/2</span>
+            <span class="ms ms-pass" style="font-size:10px">&#10003;m</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chain: Transfer -->
+      <div class="chain-group">
+        <div class="chain-label">Transfer</div>
+        <div class="chain-pills">
+          <div class="chain-pill">
+            <span class="dot dot-pass"></span>
+            <span class="chain-pill-name">Out</span>
+            <span class="chain-pill-stat">4/4</span>
+            <span class="ms ms-pass" style="font-size:10px">&#10003;m</span>
+          </div>
+          <span class="chain-arrow">&rarr;</span>
+          <div class="chain-pill">
+            <span class="dot dot-pass"></span>
+            <span class="chain-pill-name">Accept</span>
+            <span class="chain-pill-stat">9/9</span>
+            <span class="ms ms-pass" style="font-size:10px">&#10003;m</span>
+          </div>
+          <span class="chain-arrow">&rarr;</span>
+          <div class="chain-pill">
+            <span class="dot dot-untested"></span>
+            <span class="chain-pill-name">Void</span>
+            <span class="chain-pill-stat">&mdash;</span>
+            <span class="ms ms-untested" style="font-size:10px">&mdash;</span>
+          </div>
+          <span class="chain-arrow">&rarr;</span>
+          <div class="chain-pill">
+            <span class="dot dot-untested"></span>
+            <span class="chain-pill-name">Delete</span>
+            <span class="chain-pill-stat">&mdash;</span>
+            <span class="ms ms-untested" style="font-size:10px">&mdash;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chain: Sales -->
+      <div class="chain-group">
+        <div class="chain-label">Sales</div>
+        <div class="chain-pills">
+          <div class="chain-pill">
+            <span class="dot dot-pass"></span>
+            <span class="chain-pill-name">D2C Sale</span>
+            <span class="chain-pill-stat">5/5</span>
+            <span class="ms ms-pass" style="font-size:10px">&#10003;m</span>
+          </div>
+          <span class="chain-arrow">&rarr;</span>
+          <div class="chain-pill">
+            <span class="dot dot-pass"></span>
+            <span class="chain-pill-name">Channel Sale</span>
+            <span class="chain-pill-stat">3/3</span>
+            <span class="ms ms-untested" style="font-size:10px">&mdash;</span>
+          </div>
+          <span class="chain-arrow">&rarr;</span>
+          <div class="chain-pill">
+            <span class="dot dot-partial"></span>
+            <span class="chain-pill-name">Sale Return</span>
+            <span class="chain-pill-stat">2/4</span>
+            <span class="ms ms-finding" style="font-size:10px">!m</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /chains-compact -->
+
+    <!-- ============================================================
+         STACKED CHAINS — vertical chips with arrows, 2-column grid
+         ============================================================ -->
+    <div id="chains-stacked" style="display:none">
+      <div class="chains-stacked-grid">
+
+        <!-- Chain: Purchase Order -->
+        <div class="chain-group">
+          <div class="chain-label">Purchase Order</div>
+          <div class="chain-stacked">
+            <div class="chain-stacked-chip" onclick="openOverlay()">
+              <span class="dot dot-pass"></span>
+              <span class="chain-stacked-chip-name">Create</span>
+              <span class="chain-stacked-chip-stats"><span>6/14</span> <span class="ms ms-pass">&#10003;m</span> 4/14</span>
+            </div>
+            <div class="chain-stacked-arrow">&#8595;</div>
+            <div class="chain-stacked-chip">
+              <span class="dot dot-pass"></span>
+              <span class="chain-stacked-chip-name">Send</span>
+              <span class="chain-stacked-chip-stats"><span>3/3</span> <span class="ms ms-pass">&#10003;m</span> 3/3</span>
+            </div>
+            <div class="chain-stacked-arrow">&#8595;</div>
+            <div class="chain-stacked-chip">
+              <span class="dot dot-pass"></span>
+              <span class="chain-stacked-chip-name">Confirm</span>
+              <span class="chain-stacked-chip-stats"><span>5/5</span> <span class="ms ms-untested">&mdash;</span></span>
+            </div>
+            <div class="chain-stacked-arrow">&#8595;</div>
+            <div class="chain-stacked-chip">
+              <span class="dot dot-pass"></span>
+              <span class="chain-stacked-chip-name">Delivery</span>
+              <span class="chain-stacked-chip-stats"><span>4/4</span> <span class="ms ms-finding">!m</span> 3/4</span>
+            </div>
+            <div class="chain-stacked-arrow">&#8595;</div>
+            <div class="chain-stacked-chip">
+              <span class="dot dot-partial"></span>
+              <span class="chain-stacked-chip-name">Paid</span>
+              <span class="chain-stacked-chip-stats"><span>10/16</span> <span class="ms ms-untested">&mdash;</span></span>
+            </div>
+            <div class="chain-stacked-arrow">&#8595;</div>
+            <div class="chain-stacked-chip">
+              <span class="dot dot-pass"></span>
+              <span class="chain-stacked-chip-name">Delete</span>
+              <span class="chain-stacked-chip-stats"><span>2/2</span> <span class="ms ms-pass">&#10003;m</span> 2/2</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chain: Transfer -->
+        <div class="chain-group">
+          <div class="chain-label">Transfer</div>
+          <div class="chain-stacked">
+            <div class="chain-stacked-chip">
+              <span class="dot dot-pass"></span>
+              <span class="chain-stacked-chip-name">Out</span>
+              <span class="chain-stacked-chip-stats"><span>4/4</span> <span class="ms ms-pass">&#10003;m</span> 4/4</span>
+            </div>
+            <div class="chain-stacked-arrow">&#8595;</div>
+            <div class="chain-stacked-chip">
+              <span class="dot dot-pass"></span>
+              <span class="chain-stacked-chip-name">Accept</span>
+              <span class="chain-stacked-chip-stats"><span>9/9</span> <span class="ms ms-pass">&#10003;m</span> 5/9</span>
+            </div>
+            <div class="chain-stacked-arrow">&#8595;</div>
+            <div class="chain-stacked-chip">
+              <span class="dot dot-untested"></span>
+              <span class="chain-stacked-chip-name">Void</span>
+              <span class="chain-stacked-chip-stats"><span>&mdash;</span> <span class="ms ms-untested">&mdash;</span></span>
+            </div>
+            <div class="chain-stacked-arrow">&#8595;</div>
+            <div class="chain-stacked-chip">
+              <span class="dot dot-untested"></span>
+              <span class="chain-stacked-chip-name">Delete</span>
+              <span class="chain-stacked-chip-stats"><span>&mdash;</span> <span class="ms ms-untested">&mdash;</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chain: Sales -->
+        <div class="chain-group">
+          <div class="chain-label">Sales</div>
+          <div class="chain-stacked">
+            <div class="chain-stacked-chip">
+              <span class="dot dot-pass"></span>
+              <span class="chain-stacked-chip-name">D2C Sale</span>
+              <span class="chain-stacked-chip-stats"><span>8/8</span> <span class="ms ms-pass">&#10003;m</span> 8/8</span>
+            </div>
+            <div class="chain-stacked-arrow">&#8595;</div>
+            <div class="chain-stacked-chip">
+              <span class="dot dot-pass"></span>
+              <span class="chain-stacked-chip-name">Channel Sale</span>
+              <span class="chain-stacked-chip-stats"><span>5/5</span> <span class="ms ms-untested">&mdash;</span></span>
+            </div>
+            <div class="chain-stacked-arrow">&#8595;</div>
+            <div class="chain-stacked-chip">
+              <span class="dot dot-pass"></span>
+              <span class="chain-stacked-chip-name">Sale Return</span>
+              <span class="chain-stacked-chip-stats"><span>8/8</span> <span class="ms ms-finding">!m</span> 6/8</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chain: Catalyst -->
+        <div class="chain-group">
+          <div class="chain-label">Catalyst Forecast</div>
+          <div class="chain-stacked">
+            <div class="chain-stacked-chip">
+              <span class="dot dot-pass"></span>
+              <span class="chain-stacked-chip-name">Create</span>
+              <span class="chain-stacked-chip-stats"><span>3/3</span> <span class="ms ms-untested">&mdash;</span></span>
+            </div>
+            <div class="chain-stacked-arrow">&#8595;</div>
+            <div class="chain-stacked-chip">
+              <span class="dot dot-untested"></span>
+              <span class="chain-stacked-chip-name">Delete</span>
+              <span class="chain-stacked-chip-stats"><span>&mdash;</span> <span class="ms ms-untested">&mdash;</span></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /chains-stacked -->
+
+    <!-- ============================================================
+         TIMELINE CHAINS (from V5) — hidden by default
+         ============================================================ -->
+    <div id="chains-timeline" style="display:none">
+
+      <div class="chains-grid">
+
+        <!-- Chain: Purchase Order -->
+        <div class="chain-group">
+          <div class="chain-label">Purchase Order</div>
+          <div class="timeline">
+            <div class="timeline-node pass" onclick="openOverlay()">
+              <div class="timeline-node-content">
+                <span class="timeline-node-name">Create</span>
+                <span class="timeline-node-stat">6/14</span>
+                <span class="timeline-node-manual ms ms-pass">&#10003;m 4/14</span>
+              </div>
+            </div>
+            <div class="timeline-node pass">
+              <div class="timeline-node-content">
+                <span class="timeline-node-name">Send</span>
+                <span class="timeline-node-stat">3/3</span>
+                <span class="timeline-node-manual ms ms-pass">&#10003;m 3/3</span>
+              </div>
+            </div>
+            <div class="timeline-node pass">
+              <div class="timeline-node-content">
+                <span class="timeline-node-name">Confirm</span>
+                <span class="timeline-node-stat">5/5</span>
+                <span class="timeline-node-manual ms ms-untested">&mdash;</span>
+              </div>
+            </div>
+            <div class="timeline-node pass" onclick="openOverlay()">
+              <div class="timeline-node-content">
+                <span class="timeline-node-name">Delivery</span>
+                <span class="timeline-node-stat">4/4</span>
+                <span class="timeline-node-manual ms ms-finding">!m 3/4</span>
+              </div>
+            </div>
+            <div class="timeline-node partial">
+              <div class="timeline-node-content">
+                <span class="timeline-node-name">Paid</span>
+                <span class="timeline-node-stat">10/16</span>
+                <span class="timeline-node-manual ms ms-untested">&mdash;</span>
+              </div>
+            </div>
+            <div class="timeline-node pass">
+              <div class="timeline-node-content">
+                <span class="timeline-node-name">Delete</span>
+                <span class="timeline-node-stat">2/2</span>
+                <span class="timeline-node-manual ms ms-pass">&#10003;m 2/2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chain: Transfer -->
+        <div class="chain-group">
+          <div class="chain-label">Transfer</div>
+          <div class="timeline">
+            <div class="timeline-node pass">
+              <div class="timeline-node-content">
+                <span class="timeline-node-name">Out</span>
+                <span class="timeline-node-stat">4/4</span>
+                <span class="timeline-node-manual ms ms-pass">&#10003;m 4/4</span>
+              </div>
+            </div>
+            <div class="timeline-node pass">
+              <div class="timeline-node-content">
+                <span class="timeline-node-name">Accept</span>
+                <span class="timeline-node-stat">9/9</span>
+                <span class="timeline-node-manual ms ms-pass">&#10003;m 5/9</span>
+              </div>
+            </div>
+            <div class="timeline-node untested">
+              <div class="timeline-node-content">
+                <span class="timeline-node-name">Void</span>
+                <span class="timeline-node-stat">&mdash;</span>
+                <span class="timeline-node-manual ms ms-untested">&mdash;</span>
+              </div>
+            </div>
+            <div class="timeline-node untested">
+              <div class="timeline-node-content">
+                <span class="timeline-node-name">Delete</span>
+                <span class="timeline-node-stat">&mdash;</span>
+                <span class="timeline-node-manual ms ms-untested">&mdash;</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chain: Sales -->
+        <div class="chain-group">
+          <div class="chain-label">Sales</div>
+          <div class="timeline">
+            <div class="timeline-node pass">
+              <div class="timeline-node-content">
+                <span class="timeline-node-name">D2C Sale</span>
+                <span class="timeline-node-stat">5/5</span>
+                <span class="timeline-node-manual ms ms-pass">&#10003;m 5/5</span>
+              </div>
+            </div>
+            <div class="timeline-node pass">
+              <div class="timeline-node-content">
+                <span class="timeline-node-name">Channel Sale</span>
+                <span class="timeline-node-stat">3/3</span>
+                <span class="timeline-node-manual ms ms-untested">&mdash;</span>
+              </div>
+            </div>
+            <div class="timeline-node partial">
+              <div class="timeline-node-content">
+                <span class="timeline-node-name">Sale Return</span>
+                <span class="timeline-node-stat">2/4</span>
+                <span class="timeline-node-manual ms ms-finding">!m 1/4</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Placeholder for 2-column balance -->
+        <div></div>
+
+      </div><!-- /chains-grid -->
+
+    </div><!-- /chains-timeline -->
+
+    <!-- Standalone events — same chip style as chains, no arrows -->
+    <div class="chain-group">
+      <div class="chain-label" style="display:flex;justify-content:space-between;align-items:baseline">
+        <span>Standalone</span>
+        <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:var(--text-xs)">5 events &middot; 4/5 covered</span>
+      </div>
+
+      <!-- Compact standalone: horizontal pills, no arrows -->
+      <div class="standalone-compact">
+        <div class="chain-pills" style="gap:6px">
+          <div class="chain-pill">
+            <span class="dot dot-pass"></span>
+            <span class="chain-pill-name">Channel Save</span>
+            <span class="chain-pill-stat">3/3</span>
+            <span class="ms ms-pass" style="font-size:10px">&#10003;m</span>
+          </div>
+          <div class="chain-pill">
+            <span class="dot dot-pass"></span>
+            <span class="chain-pill-name">Warehouse Save</span>
+            <span class="chain-pill-stat">2/2</span>
+            <span class="ms ms-untested" style="font-size:10px">&mdash;</span>
+          </div>
+          <div class="chain-pill">
+            <span class="dot dot-pass"></span>
+            <span class="chain-pill-name">Pack SKU</span>
+            <span class="chain-pill-stat">4/4</span>
+            <span class="ms ms-pass" style="font-size:10px">&#10003;m</span>
+          </div>
+          <div class="chain-pill">
+            <span class="dot dot-pass"></span>
+            <span class="chain-pill-name">Batch Import</span>
+            <span class="chain-pill-stat">9/9</span>
+            <span class="ms ms-untested" style="font-size:10px">&mdash;</span>
+          </div>
+          <div class="chain-pill">
+            <span class="dot dot-untested"></span>
+            <span class="chain-pill-name">Anomaly Rerun</span>
+            <span class="chain-pill-stat">&mdash;</span>
+            <span class="ms ms-untested" style="font-size:10px">&mdash;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stacked standalone: vertical chips, no arrows, single column -->
+      <div class="standalone-stacked" style="display:none">
+        <div class="chain-stacked">
+          <div class="chain-stacked-chip">
+            <span class="dot dot-pass"></span>
+            <span class="chain-stacked-chip-name">Channel Save</span>
+            <span class="chain-stacked-chip-stats"><span>3/3</span> <span class="ms ms-pass">&#10003;m</span> 3/3</span>
+          </div>
+          <div class="chain-stacked-chip">
+            <span class="dot dot-pass"></span>
+            <span class="chain-stacked-chip-name">Warehouse Save</span>
+            <span class="chain-stacked-chip-stats"><span>2/2</span> <span class="ms ms-untested">&mdash;</span></span>
+          </div>
+          <div class="chain-stacked-chip">
+            <span class="dot dot-pass"></span>
+            <span class="chain-stacked-chip-name">Pack SKU</span>
+            <span class="chain-stacked-chip-stats"><span>4/4</span> <span class="ms ms-pass">&#10003;m</span> 4/4</span>
+          </div>
+          <div class="chain-stacked-chip">
+            <span class="dot dot-pass"></span>
+            <span class="chain-stacked-chip-name">Batch Import</span>
+            <span class="chain-stacked-chip-stats"><span>9/9</span> <span class="ms ms-untested">&mdash;</span></span>
+          </div>
+          <div class="chain-stacked-chip">
+            <span class="dot dot-untested"></span>
+            <span class="chain-stacked-chip-name">Anomaly Rerun</span>
+            <span class="chain-stacked-chip-stats"><span>&mdash;</span> <span class="ms ms-untested">&mdash;</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============================================================
+       OVERLAY — SPLIT-PANE (from V3, exact structure)
+       ============================================================ -->
+  <div class="overlay" id="overlay">
+
+    <!-- Top section: header -->
+    <div class="overlay-top">
+      <div class="overlay-header">
+        <div class="overlay-title">
+          <span class="status-icon" style="color:var(--semantic-success)">&#10003;</span>
+          PO Delivery <span style="color:var(--text-muted);font-weight:400;font-size:var(--text-base)">[lifecycle]</span>
+        </div>
+        <div class="overlay-controls">
+          <span style="font-size:var(--text-xs);color:var(--text-muted)">Zoom</span>
+          <button class="zoom-btn" style="font-size:12px">A</button>
+          <button class="zoom-btn active" style="font-size:14px">A</button>
+          <button class="zoom-btn" style="font-size:16px">A</button>
+          <button class="close-btn" onclick="closeOverlay()">&#10005; Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs above the split pane -->
+    <div class="overlay-tabs">
+      <button class="overlay-tab active">Scenarios</button>
+      <button class="overlay-tab">Scope</button>
+      <button class="overlay-tab">Results</button>
+    </div>
+
+    <!-- Summary bar — full width -->
+    <div class="overlay-summary">
+      <span>Auto: <strong>12/16 passed</strong></span>
+      <span>Manual: <strong>8/16 reviewed</strong></span>
+      <span style="color:var(--accent-secondary)">2 findings</span>
+      <button class="edit-btn">Edit</button>
+    </div>
+
+    <!-- Split pane: list | detail -->
+    <div class="split-pane">
+
+      <!-- LEFT: Scenario List -->
+      <div class="scenario-list">
+
+        <div class="list-group-header">Positive (6)</div>
+
+        <div class="scenario-list-item selected" data-scenario="L4" onclick="selectScenario('L4')">
+          <div class="list-item-icons">
+            <span class="ms ms-pass">&#10003;</span>
+            <span class="ms ms-pass">&#10003;m</span>
+          </div>
+          <span class="list-item-id">L4</span>
+          <span class="list-item-name">Deliver bulk line only</span>
+        </div>
+
+        <div class="scenario-list-item" data-scenario="L5" onclick="selectScenario('L5')">
+          <div class="list-item-icons">
+            <span class="ms ms-pass">&#10003;</span>
+            <span class="ms ms-finding">!m</span>
+          </div>
+          <span class="list-item-id">L5</span>
+          <span class="list-item-name">Deliver prepack line</span>
+        </div>
+
+        <div class="scenario-list-item" data-scenario="L6" onclick="selectScenario('L6')">
+          <div class="list-item-icons">
+            <span class="ms ms-pass">&#10003;</span>
+            <span class="ms ms-untested">&mdash;</span>
+          </div>
+          <span class="list-item-id">L6</span>
+          <span class="list-item-name">Deliver remaining</span>
+        </div>
+
+        <div class="scenario-list-item" data-scenario="P1" onclick="selectScenario('P1')">
+          <div class="list-item-icons">
+            <span class="ms ms-untested">&#9675;</span>
+            <span class="ms ms-pass">&#10003;m</span>
+          </div>
+          <span class="list-item-id">P1</span>
+          <span class="list-item-name">Single material, exact qty</span>
+        </div>
+
+        <div class="scenario-list-item" data-scenario="P2" onclick="selectScenario('P2')">
+          <div class="list-item-icons">
+            <span class="ms ms-untested">&#9675;</span>
+            <span class="ms ms-untested">&mdash;</span>
+          </div>
+          <span class="list-item-id">P2</span>
+          <span class="list-item-name">Multiple materials, mixed qtys</span>
+        </div>
+
+        <div class="scenario-list-item" data-scenario="P3" onclick="selectScenario('P3')">
+          <div class="list-item-icons">
+            <span class="ms ms-untested">&#9675;</span>
+            <span class="ms ms-fail">&#10007;m</span>
+          </div>
+          <span class="list-item-id">P3</span>
+          <span class="list-item-name">Zero-qty line (partial delivery)</span>
+        </div>
+
+        <div class="list-group-header negative">Negative (8)</div>
+
+        <div class="scenario-list-item na" data-scenario="N1" onclick="selectScenario('N1')">
+          <div class="list-item-icons">
+            <span class="ms ms-pass">&#10003;</span>
+            <span class="ms" style="color:var(--text-muted)">n/a</span>
+          </div>
+          <span class="list-item-id">N1</span>
+          <span class="list-item-name">Over-delivery</span>
+        </div>
+
+        <div class="scenario-list-item na" data-scenario="N2" onclick="selectScenario('N2')">
+          <div class="list-item-icons">
+            <span class="ms ms-pass">&#10003;</span>
+            <span class="ms" style="color:var(--text-muted)">n/a</span>
+          </div>
+          <span class="list-item-id">N2</span>
+          <span class="list-item-name">Deliver on draft PO</span>
+        </div>
+
+        <div class="scenario-list-item na" data-scenario="N3" onclick="selectScenario('N3')">
+          <div class="list-item-icons">
+            <span class="ms ms-pass">&#10003;</span>
+            <span class="ms" style="color:var(--text-muted)">n/a</span>
+          </div>
+          <span class="list-item-id">N3</span>
+          <span class="list-item-name">Deliver with missing vendor</span>
+        </div>
+
+        <div class="scenario-list-item na" data-scenario="N4" onclick="selectScenario('N4')">
+          <div class="list-item-icons">
+            <span class="ms ms-pass">&#10003;</span>
+            <span class="ms" style="color:var(--text-muted)">n/a</span>
+          </div>
+          <span class="list-item-id">N4</span>
+          <span class="list-item-name">Negative qty delivery</span>
+        </div>
+
+        <div class="scenario-list-item na" data-scenario="N5" onclick="selectScenario('N5')">
+          <div class="list-item-icons">
+            <span class="ms ms-fail">&#10007;</span>
+            <span class="ms" style="color:var(--text-muted)">n/a</span>
+          </div>
+          <span class="list-item-id">N5</span>
+          <span class="list-item-name">Deliver on cancelled PO</span>
+        </div>
+
+        <div class="scenario-list-item na" data-scenario="N6" onclick="selectScenario('N6')">
+          <div class="list-item-icons">
+            <span class="ms ms-pass">&#10003;</span>
+            <span class="ms" style="color:var(--text-muted)">n/a</span>
+          </div>
+          <span class="list-item-id">N6</span>
+          <span class="list-item-name">Duplicate delivery</span>
+        </div>
+
+        <div class="scenario-list-item na" data-scenario="N7" onclick="selectScenario('N7')">
+          <div class="list-item-icons">
+            <span class="ms ms-untested">&#9675;</span>
+            <span class="ms" style="color:var(--text-muted)">n/a</span>
+          </div>
+          <span class="list-item-id">N7</span>
+          <span class="list-item-name">Deliver wrong material</span>
+        </div>
+
+        <div class="scenario-list-item na" data-scenario="N8" onclick="selectScenario('N8')">
+          <div class="list-item-icons">
+            <span class="ms ms-untested">&#9675;</span>
+            <span class="ms" style="color:var(--text-muted)">n/a</span>
+          </div>
+          <span class="list-item-id">N8</span>
+          <span class="list-item-name">Zero qty delivery</span>
+        </div>
+
+        <div class="list-group-header ui-checks">UI Checks (2)</div>
+
+        <div class="scenario-list-item" data-scenario="U1" onclick="selectScenario('U1')">
+          <div class="list-item-icons">
+            <span class="ms ms-pass">&#10003;</span>
+            <span class="ms ms-pass">&#10003;m</span>
+          </div>
+          <span class="list-item-id">U1</span>
+          <span class="list-item-name">Accordion renders lot detail</span>
+        </div>
+
+        <div class="scenario-list-item" data-scenario="U2" onclick="selectScenario('U2')">
+          <div class="list-item-icons">
+            <span class="ms ms-pass">&#10003;</span>
+            <span class="ms ms-untested">&mdash;</span>
+          </div>
+          <span class="list-item-id">U2</span>
+          <span class="list-item-name">Status badge color transitions</span>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Detail Panel -->
+      <div class="detail-area">
+
+        <!-- L4 detail (default selected) -->
+        <div class="detail-panel active" id="detail-L4">
+          <div class="detail-title">
+            <span class="ms ms-pass" style="font-size:var(--text-lg)">&#10003;</span>
+            L4 &mdash; Deliver bulk line only &rarr; Partial status
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-pass">PASS</span>
+            <span>Auto: pass</span>
+            <span>&middot;</span>
+            <span>Manual: reviewed</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions (3)</div>
+            <div class="detail-assertions">
+              <div class="detail-assertion-row">
+                <span class="viewer">v_proc_orders</span>
+                <span>PO card refreshes, accordion shows delivery detail</span>
+              </div>
+              <div class="detail-assertion-row">
+                <span class="viewer">v_proc_materials</span>
+                <span>lot created (LOT-BULK-*), QoH increased</span>
+              </div>
+              <div class="detail-assertion-row">
+                <span class="viewer">v_ledger_feed</span>
+                <span>vendor_receipt movement visible</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-manual">
+              <div class="detail-manual-status">
+                <span class="ms ms-pass">&#10003;m</span> Reviewed &mdash; Pass
+              </div>
+              "Accordion shows correct lot detail"
+            </div>
+          </div>
+        </div>
+
+        <!-- L5 detail -->
+        <div class="detail-panel" id="detail-L5">
+          <div class="detail-title">
+            <span class="ms ms-pass" style="font-size:var(--text-lg)">&#10003;</span>
+            L5 &mdash; Deliver prepack line &rarr; Delivered + auto-pack
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-pass">PASS</span>
+            <span>Auto: pass</span>
+            <span>&middot;</span>
+            <span>Manual: finding</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions (2)</div>
+            <div class="detail-assertions">
+              <div class="detail-assertion-row">
+                <span class="viewer">v_proc_orders</span>
+                <span>status badge = Delivered</span>
+              </div>
+              <div class="detail-assertion-row">
+                <span class="viewer">v_inv_skus</span>
+                <span>SKU lot created, QoH increased</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-manual">
+              <div class="detail-manual-status">
+                <span class="ms ms-finding">!m</span> Reviewed &mdash; Finding
+              </div>
+              "Works but toast says 'Order updated'"
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Finding</div>
+            <div class="detail-finding">
+              <span class="detail-finding-severity">LOW</span>
+              MF001: Wrong toast on delivery confirmation
+            </div>
+          </div>
+        </div>
+
+        <!-- L6 detail -->
+        <div class="detail-panel" id="detail-L6">
+          <div class="detail-title">
+            <span class="ms ms-pass" style="font-size:var(--text-lg)">&#10003;</span>
+            L6 &mdash; Deliver remaining &rarr; Fully Delivered status
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-pass">PASS</span>
+            <span>Auto: pass</span>
+            <span>&middot;</span>
+            <span>Manual: not reviewed</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions (1)</div>
+            <div class="detail-assertions">
+              <div class="detail-assertion-row">
+                <span class="viewer">v_proc_orders</span>
+                <span>all lines green, status = Delivered</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-notes">Not yet reviewed</div>
+          </div>
+        </div>
+
+        <!-- P1 detail -->
+        <div class="detail-panel" id="detail-P1">
+          <div class="detail-title">
+            <span class="ms ms-untested" style="font-size:var(--text-lg)">&#9675;</span>
+            P1 &mdash; Single material, exact qty
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-untested">UNTESTED</span>
+            <span>Auto: &mdash;</span>
+            <span>&middot;</span>
+            <span>Manual: reviewed</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions</div>
+            <div class="detail-notes">No automated assertions defined</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-manual">
+              <div class="detail-manual-status">
+                <span class="ms ms-pass">&#10003;m</span> Reviewed &mdash; Pass
+              </div>
+              "Manually verified: single material delivery works correctly"
+            </div>
+          </div>
+        </div>
+
+        <!-- P2 detail -->
+        <div class="detail-panel" id="detail-P2">
+          <div class="detail-title">
+            <span class="ms ms-untested" style="font-size:var(--text-lg)">&#9675;</span>
+            P2 &mdash; Multiple materials, mixed qtys
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-untested">UNTESTED</span>
+            <span>Auto: &mdash;</span>
+            <span>&middot;</span>
+            <span>Manual: not reviewed</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions (1)</div>
+            <div class="detail-assertions">
+              <div class="detail-assertion-row">
+                <span class="viewer">v_proc_orders</span>
+                <span>accordion lists each line with qty</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-notes">Not yet reviewed</div>
+          </div>
+        </div>
+
+        <!-- P3 detail -->
+        <div class="detail-panel" id="detail-P3">
+          <div class="detail-title">
+            <span class="ms ms-untested" style="font-size:var(--text-lg)">&#9675;</span>
+            P3 &mdash; Zero-qty line (partial delivery)
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-untested">UNTESTED</span>
+            <span>Auto: &mdash;</span>
+            <span>&middot;</span>
+            <span>Manual: fail</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions (1)</div>
+            <div class="detail-assertions">
+              <div class="detail-assertion-row">
+                <span class="viewer">v_proc_orders</span>
+                <span>line shows qty=0 with partial badge</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-manual">
+              <div class="detail-manual-status">
+                <span class="ms ms-fail">&#10007;m</span> Reviewed &mdash; Fail
+              </div>
+              "Duplicate line display when qty=0"
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Finding</div>
+            <div class="detail-finding">
+              <span class="detail-finding-severity">MED</span>
+              MF002: Duplicate line in accordion
+            </div>
+          </div>
+        </div>
+
+        <!-- N1 detail -->
+        <div class="detail-panel" id="detail-N1">
+          <div class="detail-title">
+            <span class="ms ms-pass" style="font-size:var(--text-lg)">&#10003;</span>
+            N1 &mdash; Over-delivery &rarr; expected_fail
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-pass">PASS</span>
+            <span>Auto: pass (expected_fail)</span>
+            <span>&middot;</span>
+            <span>Manual: n/a</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions</div>
+            <div class="detail-notes">API returns 400/422 as expected. No UI assertions needed.</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-notes">N/A &mdash; api_only / expected_fail scenario</div>
+          </div>
+        </div>
+
+        <!-- N2 detail -->
+        <div class="detail-panel" id="detail-N2">
+          <div class="detail-title">
+            <span class="ms ms-pass" style="font-size:var(--text-lg)">&#10003;</span>
+            N2 &mdash; Deliver on draft PO &rarr; api_only
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-pass">PASS</span>
+            <span>Auto: pass (api_only)</span>
+            <span>&middot;</span>
+            <span>Manual: n/a</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions</div>
+            <div class="detail-notes">API rejects delivery on draft PO with 400. No UI assertions needed.</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-notes">N/A &mdash; api_only scenario</div>
+          </div>
+        </div>
+
+        <!-- N3 detail -->
+        <div class="detail-panel" id="detail-N3">
+          <div class="detail-title">
+            <span class="ms ms-pass" style="font-size:var(--text-lg)">&#10003;</span>
+            N3 &mdash; Deliver with missing vendor
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-pass">PASS</span>
+            <span>Auto: pass (expected_fail)</span>
+            <span>&middot;</span>
+            <span>Manual: n/a</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions</div>
+            <div class="detail-notes">API returns 404 for missing vendor. Expected behavior confirmed.</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-notes">N/A &mdash; expected_fail scenario</div>
+          </div>
+        </div>
+
+        <!-- N4 detail -->
+        <div class="detail-panel" id="detail-N4">
+          <div class="detail-title">
+            <span class="ms ms-pass" style="font-size:var(--text-lg)">&#10003;</span>
+            N4 &mdash; Negative qty delivery
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-pass">PASS</span>
+            <span>Auto: pass (expected_fail)</span>
+            <span>&middot;</span>
+            <span>Manual: n/a</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions</div>
+            <div class="detail-notes">API rejects negative quantities with 422 validation error.</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-notes">N/A &mdash; expected_fail scenario</div>
+          </div>
+        </div>
+
+        <!-- N5 detail -->
+        <div class="detail-panel" id="detail-N5">
+          <div class="detail-title">
+            <span class="ms ms-fail" style="font-size:var(--text-lg)">&#10007;</span>
+            N5 &mdash; Deliver on cancelled PO
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-fail">FAIL</span>
+            <span>Auto: fail (should reject but doesn't)</span>
+            <span>&middot;</span>
+            <span>Manual: n/a</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions</div>
+            <div class="detail-notes">Expected API to return 400 on cancelled PO, but got 200. Delivery was incorrectly accepted.</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-notes">N/A &mdash; api_only scenario. Bug logged.</div>
+          </div>
+        </div>
+
+        <!-- N6 detail -->
+        <div class="detail-panel" id="detail-N6">
+          <div class="detail-title">
+            <span class="ms ms-pass" style="font-size:var(--text-lg)">&#10003;</span>
+            N6 &mdash; Duplicate delivery
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-pass">PASS</span>
+            <span>Auto: pass (expected_fail)</span>
+            <span>&middot;</span>
+            <span>Manual: n/a</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions</div>
+            <div class="detail-notes">Duplicate delivery attempt correctly rejected with 409 conflict.</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-notes">N/A &mdash; expected_fail scenario</div>
+          </div>
+        </div>
+
+        <!-- N7 detail -->
+        <div class="detail-panel" id="detail-N7">
+          <div class="detail-title">
+            <span class="ms ms-untested" style="font-size:var(--text-lg)">&#9675;</span>
+            N7 &mdash; Deliver wrong material
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-untested">UNTESTED</span>
+            <span>Auto: &mdash;</span>
+            <span>&middot;</span>
+            <span>Manual: n/a</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions</div>
+            <div class="detail-notes">Not yet implemented. Should verify API rejects material mismatch.</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-notes">N/A &mdash; pending automation</div>
+          </div>
+        </div>
+
+        <!-- N8 detail -->
+        <div class="detail-panel" id="detail-N8">
+          <div class="detail-title">
+            <span class="ms ms-untested" style="font-size:var(--text-lg)">&#9675;</span>
+            N8 &mdash; Zero qty delivery
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-untested">UNTESTED</span>
+            <span>Auto: &mdash;</span>
+            <span>&middot;</span>
+            <span>Manual: n/a</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions</div>
+            <div class="detail-notes">Not yet implemented. Should verify API rejects zero-quantity delivery.</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-notes">N/A &mdash; pending automation</div>
+          </div>
+        </div>
+
+        <!-- U1 detail -->
+        <div class="detail-panel" id="detail-U1">
+          <div class="detail-title">
+            <span class="ms ms-pass" style="font-size:var(--text-lg)">&#10003;</span>
+            U1 &mdash; Accordion renders lot detail
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-pass">PASS</span>
+            <span>Auto: pass</span>
+            <span>&middot;</span>
+            <span>Manual: reviewed</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions (2)</div>
+            <div class="detail-assertions">
+              <div class="detail-assertion-row">
+                <span class="viewer">v_proc_orders</span>
+                <span>Accordion row expands on click, shows lot number and received qty</span>
+              </div>
+              <div class="detail-assertion-row">
+                <span class="viewer">v_proc_orders</span>
+                <span>Lot detail section shows vendor name and delivery date</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-manual">
+              <div class="detail-manual-status">
+                <span class="ms ms-pass">&#10003;m</span> Reviewed &mdash; Pass
+              </div>
+              "Accordion renders correctly, lot detail matches API response"
+            </div>
+          </div>
+        </div>
+
+        <!-- U2 detail -->
+        <div class="detail-panel" id="detail-U2">
+          <div class="detail-title">
+            <span class="ms ms-pass" style="font-size:var(--text-lg)">&#10003;</span>
+            U2 &mdash; Status badge color transitions
+          </div>
+          <div class="detail-meta">
+            <span class="tag tag-pass">PASS</span>
+            <span>Auto: pass</span>
+            <span>&middot;</span>
+            <span>Manual: not reviewed</span>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Assertions (1)</div>
+            <div class="detail-assertions">
+              <div class="detail-assertion-row">
+                <span class="viewer">v_proc_orders</span>
+                <span>Status badge transitions: Draft (gray) &rarr; Sent (blue) &rarr; Confirmed (green) &rarr; Delivered (green bold)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Manual Review</div>
+            <div class="detail-notes">Not yet reviewed</div>
+          </div>
+        </div>
+
+      </div><!-- /detail-area -->
+
+    </div><!-- /split-pane -->
+
+  </div><!-- /overlay -->
+
+  <!-- MODE TOGGLE (fixed bottom-right, 3 buttons) -->
+  <div class="mode-toggle-group">
+    <button onclick="document.documentElement.setAttribute('data-theme','dark-cool')" style="padding:6px 12px;border-radius:6px;border:1px solid #2e3444;cursor:pointer;font-size:12px;background:#0a0d14;color:#e8eaf0">Dark Cool</button>
+    <button onclick="document.documentElement.setAttribute('data-theme','neutral-vivid')" style="padding:6px 12px;border-radius:6px;border:1px solid #8a8680;cursor:pointer;font-size:12px;background:#524e4a;color:#ffffff">Neutral Vivid</button>
+  </div>
+
+  <script>
+    /* ── Chain style toggle ── */
+    function setChainStyle(style) {
+      document.getElementById('chains-compact').style.display = style === 'compact' ? 'block' : 'none';
+      document.getElementById('chains-stacked').style.display = style === 'stacked' ? 'block' : 'none';
+      document.getElementById('chains-timeline').style.display = style === 'timeline' ? 'block' : 'none';
+      document.querySelectorAll('.chain-style-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelector('[data-chain-style="' + style + '"]').classList.add('active');
+      // Sync standalone rendering to match chain style
+      var useStacked = (style === 'stacked' || style === 'timeline');
+      document.querySelectorAll('.standalone-compact').forEach(function(el) { el.style.display = useStacked ? 'none' : 'block'; });
+      document.querySelectorAll('.standalone-stacked').forEach(function(el) { el.style.display = useStacked ? 'block' : 'none'; });
+    }
+
+    /* ── Scenario selection (master-detail in split pane) ── */
+    function selectScenario(id) {
+      // Hide all detail panels, show the selected one
+      document.querySelectorAll('.detail-panel').forEach(function(p) {
+        p.classList.remove('active');
+      });
+      var target = document.getElementById('detail-' + id);
+      if (target) {
+        target.classList.add('active');
+      }
+
+      // Update selected state in list
+      document.querySelectorAll('.scenario-list-item').forEach(function(i) {
+        i.classList.remove('selected');
+      });
+      var listItem = document.querySelector('[data-scenario="' + id + '"]');
+      if (listItem) {
+        listItem.classList.add('selected');
+      }
+    }
+
+    /* ── Overlay open/close ── */
+    function openOverlay() {
+      document.getElementById('overlay').classList.add('open');
+      // Select first scenario by default
+      selectScenario('L4');
+    }
+
+    function closeOverlay() {
+      document.getElementById('overlay').classList.remove('open');
+    }
+
+    /* ── Close on Escape key ── */
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeOverlay();
+      }
+    });
+  </script>
+
+</body>
+</html>
