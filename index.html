@@ -390,6 +390,266 @@
       overflow: hidden;
     }
 
+    .qmd-section {
+      margin-bottom: 20px;
+    }
+
+    .qmd-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .qmd-section-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    .qmd-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .qmd-section-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .qmd-section-meta {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      white-space: nowrap;
+    }
+
+    .qmd-table-wrap {
+      overflow-x: auto;
+    }
+
+    .qmd-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .qmd-table thead tr {
+      background: var(--bg-elevated);
+      text-align: left;
+    }
+
+    .qmd-table th {
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    .qmd-table td {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border-subtle);
+      vertical-align: top;
+    }
+
+    .qmd-collection-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .qmd-collection-path {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .qmd-collection-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .qmd-collection-meta .mono {
+      color: var(--text-tertiary);
+    }
+
+    .qmd-numeric {
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+
+    .qmd-latest {
+      min-width: 150px;
+    }
+
+    .qmd-latest-primary {
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .qmd-latest-secondary {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .qmd-run-feed {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .qmd-run-card {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px 16px;
+      min-width: 0;
+    }
+
+    .qmd-run-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .qmd-run-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .qmd-run-command {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-transform: capitalize;
+    }
+
+    .qmd-run-mode {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .qmd-run-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .qmd-run-meta-label {
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+
+    .qmd-run-summary {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      word-break: break-word;
+    }
+
+    .qmd-run-empty {
+      padding: 18px;
+      color: var(--text-tertiary);
+      font-size: 13px;
+    }
+
+    .qmd-doc-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: color-mix(in srgb, var(--bg-surface) 82%, var(--bg-base));
+    }
+
+    .qmd-doc-search {
+      flex: 1 1 280px;
+      min-width: 220px;
+      padding: 10px 12px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: var(--font-base);
+    }
+
+    .qmd-doc-search:focus {
+      outline: none;
+      border-color: var(--accent-camel);
+      box-shadow: 0 0 0 3px var(--accent-camel-subtle);
+    }
+
+    .qmd-doc-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .qmd-doc-path {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      word-break: break-word;
+      margin-bottom: 6px;
+    }
+
+    .qmd-doc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .qmd-doc-hash {
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 1280px) {
+      .qmd-section-header {
+        padding: 14px 16px 12px;
+      }
+
+      .qmd-table th,
+      .qmd-table td {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .qmd-run-feed {
+        grid-template-columns: 1fr;
+      }
+
+      .qmd-doc-toolbar {
+        padding: 14px;
+      }
+
+      .qmd-doc-search {
+        flex-basis: 100%;
+      }
+    }
+
     /* Conversations view */
     .conversation-card {
       padding: 14px 16px;
@@ -3984,7 +4244,8 @@
       width: 100%; padding: 6px 10px; background: var(--bg-surface);
       border: 1px solid var(--border-default); border-radius: 4px;
       color: var(--text-primary); font-size: 13px; box-sizing: border-box; margin-top: 4px;
-      font-family: var(--font-base);
+      font-family: var(--font-base); resize: vertical; min-height: 34px; max-height: 200px;
+      line-height: 1.5;
     }
     .qa-edit-notes:focus { border-color: var(--accent-primary); outline: none; }
 
@@ -4234,6 +4495,15 @@
         Docs
         <span class="nav-badge" id="docs-count">0</span>
       </div>
+      <div class="nav-item" data-view="qmd">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <ellipse cx="12" cy="5" rx="8" ry="3"/>
+          <path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/>
+          <path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>
+        </svg>
+        QMD
+        <span class="nav-badge" id="qmd-count">0</span>
+      </div>
       <div style="border-top: 1px solid var(--border-subtle); margin: 8px 12px;"></div>
       <div class="nav-item" data-view="qa">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -4294,6 +4564,7 @@
       prompts: [],
       projects: [],
       projectsData: [],  // rich project objects from /api/projects
+      promptProjects: [],  // distinct project values from prompts.db
       conversations: [],
       selectedConversation: null,
       tags: [],  // tag vocabulary
@@ -4335,7 +4606,20 @@
       qaExpandedNode: null,
       qaMonitorInterval: null,
       qaCoverageGroupBy: 'chain',
-      qaChainStyle: 'stacked'
+      qaChainStyle: 'stacked',
+      qmdStatus: null,
+      qmdRuns: [],
+      qmdDocuments: [],
+      qmdDocumentTotal: 0,
+      qmdDocumentFilters: {
+        q: '',
+        collection: '',
+        embedded: 'all'
+      },
+      qmdDocumentLimit: 20,
+      qmdMonitorInterval: null,
+      qmdActionInFlight: null,
+      qmdDocumentSearchTimer: null
     };
 
     // ===========================================
@@ -4367,6 +4651,7 @@
       getStats: () => API.fetch('/stats'),
       getActivity: (limit = 10) => API.fetch(`/activity?limit=${limit}`),
       getProjects: () => API.fetch('/projects'),
+      getPromptProjects: () => API.fetch('/prompt-projects'),
 
       getSessions: (params = {}) => {
         const qs = new URLSearchParams(params).toString();
@@ -4428,6 +4713,29 @@
         const params = new URLSearchParams({ q, limit });
         if (collection) params.append('collection', collection);
         return API.fetch(`/search/qmd?${params.toString()}`);
+      },
+      getQmdStatus: () => API.fetch('/qmd/status'),
+      getQmdRuns: (limit = 20) => API.fetch(`/qmd/runs?limit=${limit}`),
+      getQmdDocuments: (params = {}) => {
+        const qs = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== null && value !== undefined && value !== '') {
+            qs.append(key, value);
+          }
+        });
+        return API.fetch(`/qmd/documents?${qs.toString()}`);
+      },
+      runQmdUpdate: async () => {
+        const res = await fetch('/api/qmd/update', { method: 'POST' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data?.detail?.error || data?.detail || `API error: ${res.status}`);
+        return data;
+      },
+      runQmdEmbed: async () => {
+        const res = await fetch('/api/qmd/embed', { method: 'POST' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data?.detail?.error || data?.detail || `API error: ${res.status}`);
+        return data;
       },
 
       // Tags
@@ -4531,6 +4839,415 @@
         return escapeHtml(actionsStr);
       } catch {
         return escapeHtml(actionsStr);
+      }
+    }
+
+    function formatBytes(bytes) {
+      const value = Number(bytes || 0);
+      if (!value) return '0 B';
+      const units = ['B', 'KB', 'MB', 'GB'];
+      let size = value;
+      let unitIndex = 0;
+      while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex += 1;
+      }
+      const decimals = unitIndex === 0 ? 0 : 1;
+      return `${size.toFixed(decimals)} ${units[unitIndex]}`;
+    }
+
+    function getQmdRunLabel(status) {
+      switch (status) {
+        case 'published':
+        case 'succeeded':
+          return 'resolved';
+        case 'failed':
+          return 'unresolved';
+        default:
+          return 'clean';
+      }
+    }
+
+    function summarizeQmdRun(run) {
+      if (!run) return '';
+      if (run.command === 'update') {
+        const collections = run.summary?.collections || [];
+        const totals = collections.reduce((acc, item) => {
+          acc.new += item.new || 0;
+          acc.updated += item.updated || 0;
+          acc.removed += item.removed || 0;
+          return acc;
+        }, { new: 0, updated: 0, removed: 0 });
+        return `${totals.new} new · ${totals.updated} updated · ${totals.removed} removed`;
+      }
+      return `${run.target_host || 'bhaclaw'} · ${run.status}`;
+    }
+
+    async function loadQmdStatus() {
+      try {
+        state.qmdStatus = await API.getQmdStatus();
+        const badge = document.getElementById('qmd-count');
+        if (badge) {
+          badge.textContent = state.qmdStatus?.metrics?.active_documents || 0;
+        }
+      } catch (err) {
+        console.error('Failed to load QMD status:', err);
+        state.qmdStatus = null;
+      }
+    }
+
+    async function loadQmdRuns() {
+      try {
+        const data = await API.getQmdRuns(20);
+        state.qmdRuns = data.runs || [];
+      } catch (err) {
+        console.error('Failed to load QMD runs:', err);
+        state.qmdRuns = [];
+      }
+    }
+
+    async function loadQmdDocuments() {
+      try {
+        const data = await API.getQmdDocuments({
+          q: state.qmdDocumentFilters.q,
+          collection: state.qmdDocumentFilters.collection,
+          embedded: state.qmdDocumentFilters.embedded,
+          limit: state.qmdDocumentLimit
+        });
+        state.qmdDocuments = data.documents || [];
+        state.qmdDocumentTotal = data.total || 0;
+      } catch (err) {
+        console.error('Failed to load QMD documents:', err);
+        state.qmdDocuments = [];
+        state.qmdDocumentTotal = 0;
+      }
+    }
+
+    async function loadQmdView() {
+      await Promise.all([loadQmdStatus(), loadQmdRuns(), loadQmdDocuments()]);
+    }
+
+    function stopQmdMonitor() {
+      if (state.qmdMonitorInterval) {
+        clearInterval(state.qmdMonitorInterval);
+        state.qmdMonitorInterval = null;
+      }
+    }
+
+    function startQmdMonitor() {
+      stopQmdMonitor();
+      state.qmdMonitorInterval = setInterval(async () => {
+        if (state.view !== 'qmd') return;
+        await loadQmdView();
+        renderQmd();
+      }, 5000);
+    }
+
+    function renderQmdJobBlock(title, job) {
+      if (!job) {
+        return `
+          <div class="stat-card">
+            <div class="stat-label">${title}</div>
+            <div class="stat-number" style="font-size: 18px;">None</div>
+            <div class="activity-meta">No job</div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="stat-card">
+          <div class="stat-label">${title}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin:8px 0 4px;">
+            <div class="stat-number" style="font-size: 18px; text-transform: capitalize;">${escapeHtml(job.command)}</div>
+            <span class="status-badge ${getQmdRunLabel(job.status)}">${escapeHtml(job.status)}</span>
+          </div>
+          <div class="activity-meta">${escapeHtml(summarizeQmdRun(job))}</div>
+          <div class="activity-meta">${formatDate(job.updated_at || job.created_at)}</div>
+        </div>
+      `;
+    }
+
+    function renderQmdCollectionsTable() {
+      const collections = state.qmdStatus?.collections || [];
+      if (collections.length === 0) {
+        return '<div class="qmd-run-empty">No collections discovered.</div>';
+      }
+
+      return `
+        <div class="qmd-table-wrap">
+          <table class="qmd-table">
+            <thead>
+              <tr>
+                <th>Collection</th>
+                <th>Docs</th>
+                <th>Latest</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${collections.map(c => `
+                <tr>
+                  <td>
+                    <div class="qmd-collection-name">${escapeHtml(c.name)}</div>
+                    <div class="qmd-collection-path mono">${escapeHtml(c.path || '')}</div>
+                    <div class="qmd-collection-meta">
+                      <span>Pattern <span class="mono">${escapeHtml(c.pattern || '')}</span></span>
+                    </div>
+                  </td>
+                  <td class="qmd-numeric">${c.documents || 0}</td>
+                  <td class="qmd-latest">
+                    <div class="qmd-latest-primary">${formatDate(c.latest_modified_at)}</div>
+                    <div class="qmd-latest-secondary">${formatRelativeDate(c.latest_modified_at)}</div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderQmdRunsTable() {
+      if (!state.qmdRuns || state.qmdRuns.length === 0) {
+        return '<div class="qmd-run-empty">No QMD runs recorded yet.</div>';
+      }
+
+      return `
+        <div class="qmd-run-feed">
+          ${state.qmdRuns.map(run => `
+            <article class="qmd-run-card">
+              <div class="qmd-run-card-header">
+                <div class="qmd-run-title">
+                  <div class="qmd-run-command">${escapeHtml(run.command)}</div>
+                  <div class="qmd-run-mode">${escapeHtml(run.mode || '')}</div>
+                </div>
+                <span class="status-badge ${getQmdRunLabel(run.status)}">${escapeHtml(run.status)}</span>
+              </div>
+              <div class="qmd-run-meta">
+                <span><span class="qmd-run-meta-label">Requested by</span>${escapeHtml(run.requested_by || '')}</span>
+                ${run.target_host ? `<span><span class="qmd-run-meta-label">Host</span>${escapeHtml(run.target_host)}</span>` : ''}
+                <span><span class="qmd-run-meta-label">Started</span>${formatRelativeDate(run.started_at || run.created_at)}</span>
+              </div>
+              <div class="qmd-run-summary">${escapeHtml(summarizeQmdRun(run))}</div>
+            </article>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderQmdDocumentsTable() {
+      if (!state.qmdDocuments || state.qmdDocuments.length === 0) {
+        return '<div class="qmd-run-empty">No matching documents found.</div>';
+      }
+
+      return `
+        <div class="qmd-table-wrap">
+          <table class="qmd-table">
+            <thead>
+              <tr>
+                <th>Document</th>
+                <th>Collection</th>
+                <th>Hash</th>
+                <th>Embedded</th>
+                <th>Modified</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${state.qmdDocuments.map(doc => `
+                <tr>
+                  <td>
+                    <div class="qmd-doc-title">${escapeHtml(doc.title || doc.path || 'Untitled')}</div>
+                    <div class="qmd-doc-path mono">${escapeHtml(doc.path || '')}</div>
+                    <div class="qmd-doc-meta">
+                      <span>${doc.vector_chunks || 0} chunks</span>
+                    </div>
+                  </td>
+                  <td>${escapeHtml(doc.collection || '')}</td>
+                  <td class="qmd-doc-hash" title="${escapeHtml(doc.hash || '')}">${escapeHtml((doc.hash || '').slice(0, 12) || '')}</td>
+                  <td>
+                    <span class="status-badge ${doc.embedded ? 'resolved' : 'unresolved'}">
+                      ${doc.embedded ? 'embedded' : 'pending'}
+                    </span>
+                  </td>
+                  <td class="qmd-latest">
+                    <div class="qmd-latest-primary">${formatDate(doc.modified_at)}</div>
+                    <div class="qmd-latest-secondary">${formatRelativeDate(doc.modified_at)}</div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function scheduleQmdDocumentSearch(value) {
+      state.qmdDocumentFilters.q = value;
+      if (state.qmdDocumentSearchTimer) {
+        clearTimeout(state.qmdDocumentSearchTimer);
+      }
+      state.qmdDocumentSearchTimer = setTimeout(async () => {
+        await loadQmdDocuments();
+        renderQmd();
+      }, 250);
+    }
+
+    async function setQmdDocumentCollection(value) {
+      state.qmdDocumentFilters.collection = value;
+      await loadQmdDocuments();
+      renderQmd();
+    }
+
+    async function setQmdDocumentEmbedded(value) {
+      state.qmdDocumentFilters.embedded = value;
+      await loadQmdDocuments();
+      renderQmd();
+    }
+
+    function renderQmd() {
+      const content = document.getElementById('content');
+      const status = state.qmdStatus;
+
+      if (!status) {
+        content.innerHTML = '<div style="padding:24px;color:var(--text-tertiary);">Loading QMD status…</div>';
+        return;
+      }
+
+      const metrics = status.metrics || {};
+      const index = status.index || {};
+      const jobs = status.jobs || {};
+      const activeJob = jobs.active;
+      const queuedJob = jobs.queued;
+      const busy = !!activeJob || !!state.qmdActionInFlight;
+
+      content.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:14px;color:var(--text-secondary);margin-bottom:6px;">Canonical index</div>
+            <div class="mono" style="font-size:13px;color:var(--text-primary);">${escapeHtml(index.path || '')}</div>
+            <div style="font-size:12px;color:var(--text-tertiary);margin-top:4px;">
+              ${index.exists ? `${formatBytes(index.size_bytes)} · updated ${formatDate(index.modified_at)}` : 'Index not found'}
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button onclick="triggerQmdUpdate()" ${busy ? 'disabled' : ''} style="padding:8px 14px;border-radius:8px;border:1px solid var(--border-subtle);background:var(--bg-elevated);color:var(--text-primary);cursor:pointer;">
+              ${state.qmdActionInFlight === 'update' ? 'Updating…' : 'Run update'}
+            </button>
+            <button onclick="triggerQmdEmbed()" ${(busy || queuedJob) ? 'disabled' : ''} style="padding:8px 14px;border-radius:8px;border:1px solid var(--accent-camel);background:transparent;color:var(--accent-camel);cursor:pointer;">
+              ${state.qmdActionInFlight === 'embed' ? 'Queueing…' : 'Run embed'}
+            </button>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="margin-bottom:20px;">
+          <div class="stat-card">
+            <div class="stat-label">Active Docs</div>
+            <div class="stat-number">${metrics.active_documents || 0}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Hashes</div>
+            <div class="stat-number">${metrics.active_hashes || 0}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pending Hashes</div>
+            <div class="stat-number">${metrics.pending_hashes || 0}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Vector Chunks</div>
+            <div class="stat-number">${metrics.vector_chunks || 0}</div>
+          </div>
+          ${renderQmdJobBlock('Active Job', activeJob)}
+          ${renderQmdJobBlock('Queued Job', queuedJob)}
+        </div>
+
+        <div class="qmd-section">
+          <div class="qmd-section-card">
+            <div class="qmd-section-header">
+              <h3 class="qmd-section-title">Collections</h3>
+              <div class="qmd-section-meta">${(status.collections || []).length} sources</div>
+            </div>
+            ${renderQmdCollectionsTable()}
+          </div>
+        </div>
+
+        <div class="qmd-section">
+          <div class="qmd-section-card">
+            <div class="qmd-section-header">
+              <h3 class="qmd-section-title">Documents</h3>
+              <div class="qmd-section-meta">${state.qmdDocuments.length} shown of ${state.qmdDocumentTotal}</div>
+            </div>
+            <div class="qmd-doc-toolbar">
+              <input
+                type="text"
+                class="qmd-doc-search"
+                placeholder="Find a file by title or path..."
+                value="${escapeHtml(state.qmdDocumentFilters.q)}"
+                oninput="scheduleQmdDocumentSearch(this.value)"
+              >
+              <select class="filter-select" onchange="setQmdDocumentCollection(this.value)">
+                <option value="">All collections</option>
+                ${(status.collections || []).map(c => `
+                  <option value="${escapeHtml(c.name)}" ${state.qmdDocumentFilters.collection === c.name ? 'selected' : ''}>
+                    ${escapeHtml(c.name)}
+                  </option>
+                `).join('')}
+              </select>
+              <select class="filter-select" onchange="setQmdDocumentEmbedded(this.value)">
+                <option value="all" ${state.qmdDocumentFilters.embedded === 'all' ? 'selected' : ''}>All states</option>
+                <option value="yes" ${state.qmdDocumentFilters.embedded === 'yes' ? 'selected' : ''}>Embedded</option>
+                <option value="no" ${state.qmdDocumentFilters.embedded === 'no' ? 'selected' : ''}>Pending</option>
+              </select>
+            </div>
+            ${renderQmdDocumentsTable()}
+          </div>
+        </div>
+
+        <div class="qmd-section">
+          <div class="qmd-section-card">
+            <div class="qmd-section-header">
+              <h3 class="qmd-section-title">Recent Runs</h3>
+              <div class="qmd-section-meta">${state.qmdRuns.length} shown</div>
+            </div>
+            ${renderQmdRunsTable()}
+          </div>
+        </div>
+      `;
+    }
+
+    async function triggerQmdUpdate() {
+      if (state.qmdActionInFlight) return;
+      state.qmdActionInFlight = 'update';
+      renderQmd();
+      try {
+        const data = await API.runQmdUpdate();
+        state.qmdStatus = data.status;
+        await loadQmdRuns();
+        showToast('QMD update complete', 'success');
+      } catch (err) {
+        console.error('QMD update failed:', err);
+        showToast(`QMD update failed: ${err.message || err}`, 'error');
+      } finally {
+        state.qmdActionInFlight = null;
+        await loadQmdView();
+        renderQmd();
+      }
+    }
+
+    async function triggerQmdEmbed() {
+      if (state.qmdActionInFlight) return;
+      state.qmdActionInFlight = 'embed';
+      renderQmd();
+      try {
+        const data = await API.runQmdEmbed();
+        state.qmdStatus = data.status;
+        await loadQmdRuns();
+        showToast('QMD embed queued', 'success');
+      } catch (err) {
+        console.error('QMD embed queue failed:', err);
+        showToast(`QMD embed failed: ${err.message || err}`, 'error');
+      } finally {
+        state.qmdActionInFlight = null;
+        await loadQmdView();
+        renderQmd();
       }
     }
 
@@ -5434,7 +6151,7 @@
               <span class="filter-group-label">Project</span>
               <select class="filter-select" id="project-filter">
                 <option value="">All projects</option>
-                ${state.projects.map(p => `<option value="${p}">${p}</option>`).join('')}
+                ${state.promptProjects.map(p => `<option value="${p}">${p}</option>`).join('')}
               </select>
             </div>
             <div class="filter-divider"></div>
@@ -5945,7 +6662,9 @@
           showToast('Codex sync failed. Check console.');
           return;
         }
+        await loadPromptProjects();
         await loadPrompts();
+        renderPrompts();
         showToast('Codex sync complete');
       } catch (err) {
         console.error('Failed to sync Codex prompts:', err);
@@ -5960,7 +6679,9 @@
           only_missing: true
         };
         const result = await API.post('/prompts/cleanup-codex-projects', payload);
+        await loadPromptProjects();
         await loadPrompts();
+        renderPrompts();
         showToast(`Cleaned Codex: ${result.updated} updated`);
       } catch (err) {
         console.error('Failed to clean Codex projects:', err);
@@ -7812,6 +8533,15 @@
       }
     }
 
+    async function loadPromptProjects() {
+      try {
+        state.promptProjects = await API.getPromptProjects();
+      } catch (err) {
+        console.error('Failed to load prompt projects:', err);
+        state.promptProjects = [];
+      }
+    }
+
     async function loadSessions() {
       try {
         const params = {};
@@ -8153,6 +8883,10 @@
         }
       }
 
+      if (state.view === 'qmd' && view !== 'qmd') {
+        stopQmdMonitor();
+      }
+
       // Hide docs explorer when leaving docs view
       if (state.view === 'docs' && view !== 'docs') {
         hideDocsExplorer();
@@ -8182,6 +8916,7 @@
         tags: 'Tags',
         conversations: 'Conversations',
         docs: 'Docs',
+        qmd: 'QMD',
         qa: 'QA'
       };
       document.title = `${titles[view] || view} — Knowledge Viewer`;
@@ -8217,6 +8952,7 @@
           break;
         case 'prompts':
           await loadTags();  // Load tag vocabulary for filters
+          await loadPromptProjects();
           await loadPrompts();
           renderPrompts();
           break;
@@ -8231,6 +8967,11 @@
         case 'docs':
           await loadDocs();
           renderDocs();
+          break;
+        case 'qmd':
+          await loadQmdView();
+          renderQmd();
+          startQmdMonitor();
           break;
         case 'qa':
           await loadQaProjects();
@@ -8983,7 +9724,7 @@
             <button class="${btnClass('finding')}" data-mqa-btn="${id}" data-status="finding" onclick="setManualStatus('${id}','finding')">! Finding</button>
             <button class="${btnClass('skip')}" data-mqa-btn="${id}" data-status="skip" onclick="setManualStatus('${id}','skip')">&#8709; Skip</button>
           </div>
-          <input type="text" class="qa-edit-notes" placeholder="Notes..." value="${esc(currentNotes)}" id="mqa-notes-${id}" oninput="window._mqaEdit['${id}'].notes=this.value" onclick="event.stopPropagation()">
+          <textarea class="qa-edit-notes" placeholder="Notes..." id="mqa-notes-${id}" oninput="window._mqaEdit['${id}'].notes=this.value" onclick="event.stopPropagation()" rows="2">${esc(currentNotes)}</textarea>
           ${findingsHtml}
         </div>`;
       } else {
@@ -9033,6 +9774,56 @@
         }).join('');
       }
 
+      // Screenshots: scenario-specific if available, else read chain fallback
+      let screenshotsHtml = '';
+      const scenarioScreenshots = s.manual_screenshots || [];
+      const readChain = window._overlayData?.plan?.scope?.read_chain;
+      const proj = encodeURIComponent(state.qaProject);
+      const _cb = Date.now();
+      const eventId = window._overlayEventId;
+
+      if (scenarioScreenshots.length) {
+        // Show scenario-specific screenshots
+        const thumbs = scenarioScreenshots.map(filename => {
+          const src = `/api/qa/scenario/screenshot/${proj}/${encodeURIComponent(eventId)}/${encodeURIComponent(filename)}?v=${_cb}`;
+          return `<div style="display:inline-block;text-align:center;position:relative">
+            <img src="${src}" style="height:72px;border-radius:4px;border:1px solid var(--accent-primary);object-fit:cover;object-position:top;display:block;cursor:pointer" onclick="expandScreengrab('${src}', '${filename}')" title="${filename}">
+            <button onclick="event.stopPropagation();deleteScenarioScreenshot('${id}','${filename.replace(/'/g, "\\'")}')" style="position:absolute;top:-4px;right:-4px;background:var(--semantic-error);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:10px;cursor:pointer;line-height:16px;padding:0" title="Remove">&#10005;</button>
+          </div>`;
+        }).join('');
+        screenshotsHtml = `<div class="qa-detail-section">
+          <div class="qa-detail-section-label">Scenario Screenshots (${scenarioScreenshots.length})</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">${thumbs}</div>
+        </div>`;
+      } else if (readChain?.length) {
+        // Fallback: show read chain viewer screenshots
+        const thumbs = readChain.map(r => {
+          const imgBase = `/api/qa/screenshots/${proj}/current/${r.viewer}.png?v=${_cb}`;
+          const imgExp = r.has_expand ? `/api/qa/screenshots/${proj}/current/${r.viewer}_expanded.png?v=${_cb}` : null;
+          return `<div style="display:inline-block;text-align:center;cursor:pointer" onclick="expandScreengrab('${imgBase}', '${r.viewer}')">
+            <img src="${imgBase}" style="height:72px;border-radius:4px;border:1px solid var(--border-subtle);object-fit:cover;object-position:top;display:block" onerror="this.style.display='none';this.nextElementSibling.style.display='none'" title="${r.viewer}: ${r.description || ''}">
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px;font-family:var(--font-mono)">${r.viewer}</div>
+            ${imgExp ? `<div style="font-size:9px;margin-top:1px"><a href="#" onclick="event.preventDefault();event.stopPropagation();expandScreengrab('${imgExp}', '${r.viewer} expanded')" style="color:var(--text-muted);text-decoration:none">+ expanded</a></div>` : ''}
+          </div>`;
+        }).join('');
+        screenshotsHtml = `<div class="qa-detail-section">
+          <div class="qa-detail-section-label" style="color:var(--text-muted)">Relevant Screenshots (${readChain.length}) <span style="font-size:10px;font-weight:400">— from read chain</span></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">${thumbs}</div>
+        </div>`;
+      }
+
+      // Capture buttons — always shown so user can add scenario-specific screenshots
+      const captureHtml = `<div class="qa-detail-section">
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:11px;color:var(--text-muted)">Capture:</span>
+          <label class="qa-snip-btn" title="Browse files" style="cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><input type="file" accept="image/*" style="display:none" onchange="uploadScenarioScreenshot('${id}',this.files[0])"></label>
+          <button class="qa-snip-btn" title="Snip screen" onclick="scenarioSnipAndPaste('${id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></button>
+          <button class="qa-snip-btn" title="Paste from clipboard" onclick="scenarioPasteFromClipboard('${id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></button>
+          <button class="qa-snip-btn" title="Recent screenshots" onclick="scenarioLoadRecent('${id}')" style="border-color:var(--text-muted);color:var(--text-muted)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></button>
+        </div>
+        <div id="recent-strip-scenario-${id}" class="qa-screenshot-strip" style="display:none"></div>
+      </div>`;
+
       detailArea.innerHTML = `
         <div class="qa-detail-title">${autoIcon} ${s.id} — ${s.name}</div>
         <div class="qa-detail-meta">
@@ -9042,6 +9833,8 @@
           <span>Manual: ${manualStatusText}</span>
         </div>
         ${assertionsHtml}
+        ${screenshotsHtml}
+        ${captureHtml}
         ${manualHtml}
         ${findingsViewHtml}
       `;
@@ -9100,8 +9893,9 @@
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:8px">`;
         for (const r of s.read_chain) {
           const proj = encodeURIComponent(state.qaProject);
-          const imgBase = `/api/qa/screenshots/${proj}/current/${r.viewer}.png`;
-          const imgExpanded = r.has_expand ? `/api/qa/screenshots/${proj}/current/${r.viewer}_expanded.png` : null;
+          const _cb = Date.now();
+          const imgBase = `/api/qa/screenshots/${proj}/current/${r.viewer}.png?v=${_cb}`;
+          const imgExpanded = r.has_expand ? `/api/qa/screenshots/${proj}/current/${r.viewer}_expanded.png?v=${_cb}` : null;
           html += `<div style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden;transition:all 0.15s">
             <div style="position:relative;background:var(--bg-raised);cursor:pointer" onclick="expandScreengrab('${imgBase}', '${r.viewer}')">
               <img src="${imgBase}" style="width:100%;height:100px;object-fit:cover;object-position:top;display:block" onerror="this.parentElement.innerHTML='<div style=\\'height:100px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:12px\\'>No screenshot</div>'">
@@ -9123,15 +9917,20 @@
             <summary>Contract Gaps (${s.api_contract.gaps.length}) <span style="color:var(--accent-secondary)">&#9888;</span></summary>
             <div style="padding:8px 0">
               ${s.api_contract.gaps.map(g => {
-                // Parse "field_name: description" or "field_name — description"
-                const match = g.match(/^([a-z_]+(?:\.[a-z_]+)*)[\s]*[:—\-–]\s*(.+)$/i);
-                if (match) {
+                // Prefer typed {field, issue} objects from /verify
+                const field = typeof g === 'object' ? g.field : null;
+                const issue = typeof g === 'object' ? g.issue : null;
+                // Fallback: parse "field_name: description" or "field_name — description"
+                const match = !field && typeof g === 'string' ? g.match(/^([a-z_]+(?:\.[a-z_]+)*)[\s]*[:—\-–]\s*(.+)$/i) : null;
+                const displayField = field || (match && match[1]);
+                const displayIssue = issue || (match && match[2]);
+                if (displayField && displayIssue) {
                   return `<div style="display:flex;gap:12px;padding:4px 0;border-bottom:1px solid var(--border-subtle);font-size:13px;line-height:1.5">
-                    <span style="color:var(--accent-secondary);font-family:var(--font-mono);font-weight:600;font-size:12px;min-width:120px;flex-shrink:0">${match[1]}</span>
-                    <span style="color:var(--text-secondary)">${match[2]}</span>
+                    <span style="color:var(--accent-secondary);font-family:var(--font-mono);font-weight:600;font-size:12px;min-width:120px;flex-shrink:0">${displayField}</span>
+                    <span style="color:var(--text-secondary)">${displayIssue}</span>
                   </div>`;
                 }
-                return `<div style="color:var(--text-secondary);font-size:13px;padding:4px 0;border-bottom:1px solid var(--border-subtle);line-height:1.5">&#8226; ${g}</div>`;
+                return `<div style="color:var(--text-secondary);font-size:13px;padding:4px 0;border-bottom:1px solid var(--border-subtle);line-height:1.5">&#8226; ${typeof g === 'string' ? g : JSON.stringify(g)}</div>`;
               }).join('')}
             </div>
           </details>
@@ -9380,26 +10179,8 @@
       try {
         await fetch('/api/qa/snip', { method: 'POST' });
         // Store context for auto-paste
-        window._snipTarget = { scenarioId, findingIndex };
-        // Listen for paste event (Ctrl+V) — auto-paste after snip
-        if (!window._snipPasteHandler) {
-          window._snipPasteHandler = async (e) => {
-            const target = window._snipTarget;
-            if (!target) return;
-            const items = e.clipboardData?.items;
-            if (!items) return;
-            for (const item of items) {
-              if (item.type.startsWith('image/')) {
-                e.preventDefault();
-                const blob = item.getAsFile();
-                await _uploadClipboardImage(target.scenarioId, target.findingIndex, blob);
-                window._snipTarget = null;
-                return;
-              }
-            }
-          };
-          document.addEventListener('paste', window._snipPasteHandler);
-        }
+        window._snipTarget = { scenarioId, findingIndex, type: 'finding' };
+        _ensureUnifiedPasteHandler();
         _showToast('Snip started — press Ctrl+V to attach when done', 'info');
       } catch (e) {
         console.error('Failed to launch snipping tool:', e);
@@ -9498,6 +10279,150 @@
       }
     }
 
+    // --- Unified paste handler for snip → Ctrl+V (findings + scenarios) ---
+
+    function _ensureUnifiedPasteHandler() {
+      if (window._unifiedPasteHandler) return;
+      window._unifiedPasteHandler = async (e) => {
+        const target = window._snipTarget;
+        if (!target) return;
+        const items = e.clipboardData?.items;
+        if (!items) return;
+        for (const item of items) {
+          if (item.type.startsWith('image/')) {
+            e.preventDefault();
+            const blob = item.getAsFile();
+            if (target.type === 'scenario') {
+              await _uploadScenarioClipboard(target.scenarioId, blob);
+            } else {
+              await _uploadClipboardImage(target.scenarioId, target.findingIndex, blob);
+            }
+            window._snipTarget = null;
+            return;
+          }
+        }
+      };
+      document.addEventListener('paste', window._unifiedPasteHandler);
+    }
+
+    // --- Scenario-level screenshot capture (context, not findings) ---
+
+    async function uploadScenarioScreenshot(scenarioId, file) {
+      if (!file) return;
+      const eventId = window._overlayEventId;
+      if (!eventId) return;
+      const formData = new FormData();
+      formData.append('file', file);
+      const resp = await fetch(`/api/qa/scenario/screenshot?project=${encodeURIComponent(state.qaProject)}&event_id=${encodeURIComponent(eventId)}&scenario_id=${encodeURIComponent(scenarioId)}`, { method: 'POST', body: formData });
+      if (resp.ok) {
+        const result = await resp.json();
+        // Update local overlay data so re-render picks it up
+        const s = window._overlayScenarios?.[scenarioId];
+        if (s) {
+          if (!s.manual_screenshots) s.manual_screenshots = [];
+          s.manual_screenshots.push(result.filename);
+        }
+        selectOverlayScenario(scenarioId);
+        _showToast('Screenshot attached to scenario', 'success');
+      }
+    }
+
+    async function scenarioSnipAndPaste(scenarioId) {
+      try {
+        await fetch('/api/qa/snip', { method: 'POST' });
+        window._snipTarget = { scenarioId, type: 'scenario' };
+        _ensureUnifiedPasteHandler();
+        _showToast('Snip started — press Ctrl+V to attach when done', 'info');
+      } catch (e) {
+        console.error('Failed to launch snipping tool:', e);
+      }
+    }
+
+    async function scenarioPasteFromClipboard(scenarioId) {
+      try {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+          const imageType = item.types.find(t => t.startsWith('image/'));
+          if (imageType) {
+            const blob = await item.getType(imageType);
+            await _uploadScenarioClipboard(scenarioId, blob);
+            return;
+          }
+        }
+        _showToast('No image on clipboard', 'error');
+      } catch (e) {
+        // Clipboard API denied — fall back to Ctrl+V
+        window._snipTarget = { scenarioId, type: 'scenario' };
+        _ensureUnifiedPasteHandler();
+        _showToast('Clipboard blocked — press Ctrl+V instead', 'info');
+      }
+    }
+
+    async function _uploadScenarioClipboard(scenarioId, blob) {
+      const eventId = window._overlayEventId;
+      if (!eventId) return;
+      const formData = new FormData();
+      formData.append('file', blob, `snip_${Date.now()}.png`);
+      const resp = await fetch(`/api/qa/scenario/screenshot?project=${encodeURIComponent(state.qaProject)}&event_id=${encodeURIComponent(eventId)}&scenario_id=${encodeURIComponent(scenarioId)}`, { method: 'POST', body: formData });
+      if (resp.ok) {
+        const result = await resp.json();
+        const s = window._overlayScenarios?.[scenarioId];
+        if (s) {
+          if (!s.manual_screenshots) s.manual_screenshots = [];
+          s.manual_screenshots.push(result.filename);
+        }
+        selectOverlayScenario(scenarioId);
+        _showToast('Screenshot attached to scenario', 'success');
+      }
+    }
+
+    async function scenarioLoadRecent(scenarioId) {
+      const strip = document.getElementById(`recent-strip-scenario-${scenarioId}`);
+      if (!strip) return;
+      if (strip.style.display !== 'none' && strip.innerHTML) {
+        strip.style.display = 'none';
+        return;
+      }
+      strip.innerHTML = '<span style="color:var(--text-muted);font-size:11px">Loading...</span>';
+      strip.style.display = 'flex';
+      try {
+        const resp = await fetch('/api/qa/recent-screenshots?limit=8');
+        const data = await resp.json();
+        if (!data.files?.length) {
+          strip.innerHTML = '<span style="color:var(--text-muted);font-size:11px">No screenshots found</span>';
+          return;
+        }
+        strip.innerHTML = data.files.map(f =>
+          `<img src="/api/qa/recent-screenshots/${encodeURIComponent(f.name)}"
+                title="${f.name}"
+                onclick="scenarioAttachRecent('${scenarioId}','${f.name.replace(/'/g, "\\'")}')">`
+        ).join('');
+      } catch (e) {
+        strip.innerHTML = '<span style="color:var(--semantic-error);font-size:11px">Failed to load</span>';
+      }
+    }
+
+    async function scenarioAttachRecent(scenarioId, filename) {
+      const resp = await fetch(`/api/qa/recent-screenshots/${encodeURIComponent(filename)}`);
+      if (!resp.ok) return;
+      const blob = await resp.blob();
+      await uploadScenarioScreenshot(scenarioId, blob);
+    }
+
+    async function deleteScenarioScreenshot(scenarioId, filename) {
+      const eventId = window._overlayEventId;
+      if (!eventId) return;
+      const resp = await fetch(`/api/qa/scenario/screenshot?project=${encodeURIComponent(state.qaProject)}&event_id=${encodeURIComponent(eventId)}&scenario_id=${encodeURIComponent(scenarioId)}&filename=${encodeURIComponent(filename)}`, { method: 'DELETE' });
+      if (resp.ok) {
+        const s = window._overlayScenarios?.[scenarioId];
+        if (s?.manual_screenshots) {
+          s.manual_screenshots = s.manual_screenshots.filter(f => f !== filename);
+        }
+        selectOverlayScenario(scenarioId);
+        _showToast('Screenshot removed', 'success');
+      }
+    }
+
     async function saveManualQa() {
       _syncNotesFromDom();
       const eventId = window._mqaEventId;
@@ -9513,10 +10438,11 @@
         window._overlayEditMode = false;
         window._mqaEdit = null;
         // Remove snip paste listener
-        if (window._snipPasteHandler) {
-          document.removeEventListener('paste', window._snipPasteHandler);
-          window._snipPasteHandler = null;
+        if (window._unifiedPasteHandler) {
+          document.removeEventListener('paste', window._unifiedPasteHandler);
+          window._unifiedPasteHandler = null;
         }
+        window._snipTarget = null;
         _showToast('Manual QA saved', 'success');
         await loadQaCoverage();
         renderQa();

@@ -48,6 +48,22 @@ except ImportError:
 KNOWLEDGE_DB = Path(os.getenv("KV_KNOWLEDGE_DB", DEV_ROOT / "knowledge" / "knowledge.db"))
 PROMPTS_DB = Path(os.getenv("KV_PROMPTS_DB", DEV_ROOT / "knowledge" / "prompts.db"))
 CODEX_PROMPT_WATCHER = DEV_ROOT / "claude-workflow-system" / "codex" / "prompt_watcher.py"
+QMD_INSTALL_DIR = Path(os.getenv("APPDATA", "")) / "fnm" / "node-versions" / "v22.15.1" / "installation"
+QMD_NODE = QMD_INSTALL_DIR / "node.exe"
+QMD_JS = QMD_INSTALL_DIR / "node_modules" / "@tobilu" / "qmd" / "dist" / "qmd.js"
+QMD_HOME = Path.home()
+QMD_CACHE_HOME = QMD_HOME / ".cache"
+QMD_INDEX_PATH = QMD_CACHE_HOME / "qmd" / "index.sqlite"
+QMD_CONFIG_PATH = QMD_HOME / ".config" / "qmd" / "index.yml"
+CLAUDE_WORKFLOW_SCRIPTS = DEV_ROOT / "claude-workflow-system" / "scripts"
+
+if CLAUDE_WORKFLOW_SCRIPTS.exists():
+    sys.path.insert(0, str(CLAUDE_WORKFLOW_SCRIPTS))
+
+try:
+    import qmd_queue
+except ImportError:
+    qmd_queue = None
 
 _debug = os.getenv("DEBUG", "").lower() in ("1", "true", "yes")
 app = FastAPI(
@@ -56,6 +72,534 @@ app = FastAPI(
     redoc_url="/redoc" if _debug else None,
     openapi_url="/openapi.json" if _debug else None,
 )
+
+
+def get_qmd_env(extra: Optional[dict] = None) -> dict:
+    env = dict(os.environ)
+    env["HOME"] = str(QMD_HOME)
+    env["XDG_CACHE_HOME"] = str(QMD_CACHE_HOME)
+    if extra:
+        env.update(extra)
+    return env
+
+
+def get_qmd_command(*args: str) -> list[str]:
+    if QMD_NODE.exists() and QMD_JS.exists():
+        return [str(QMD_NODE), str(QMD_JS), *args]
+
+    qmd_bin = shutil.which("qmd")
+    if qmd_bin:
+        return [qmd_bin, *args]
+
+    raise FileNotFoundError("QMD not installed")
+
+
+def ensure_qmd_runs_schema():
+    """Ensure the shared QMD run ledger exists in knowledge.db."""
+    if not KNOWLEDGE_DB.exists():
+        return
+    conn = sqlite3.connect(KNOWLEDGE_DB)
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS qmd_runs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            command TEXT NOT NULL,
+            mode TEXT NOT NULL,
+            status TEXT NOT NULL,
+            target_host TEXT,
+            requested_by TEXT,
+            created_at TEXT NOT NULL,
+            started_at TEXT,
+            updated_at TEXT NOT NULL,
+            finished_at TEXT,
+            exit_code INTEGER,
+            summary_json TEXT,
+            stdout_excerpt TEXT,
+            stderr_excerpt TEXT
+        )
+        """
+    )
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_qmd_runs_command_status "
+        "ON qmd_runs(command, status, id)"
+    )
+    conn.commit()
+    conn.close()
+
+
+def parse_qmd_run(row: Optional[sqlite3.Row | dict]) -> Optional[dict]:
+    if row is None:
+        return None
+    data = dict(row)
+    summary_json = data.get("summary_json")
+    if summary_json:
+        try:
+            data["summary"] = json.loads(summary_json)
+        except json.JSONDecodeError:
+            data["summary"] = None
+    else:
+        data["summary"] = None
+    return data
+
+
+def load_qmd_runs(limit: int = 20) -> list[dict]:
+    ensure_qmd_runs_schema()
+    conn = get_knowledge_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT *
+        FROM qmd_runs
+        ORDER BY created_at DESC, id DESC
+        LIMIT ?
+        """,
+        (limit,),
+    )
+    rows = [parse_qmd_run(row) for row in cursor.fetchall()]
+    conn.close()
+    return [row for row in rows if row is not None]
+
+
+def get_qmd_job_snapshot() -> dict:
+    ensure_qmd_runs_schema()
+    conn = get_knowledge_db()
+    cursor = conn.cursor()
+
+    active = cursor.execute(
+        """
+        SELECT *
+        FROM qmd_runs
+        WHERE status IN ('running', 'snapshotting', 'uploaded', 'remote_running', 'downloading', 'publishing')
+        ORDER BY id DESC
+        LIMIT 1
+        """
+    ).fetchone()
+    queued = cursor.execute(
+        """
+        SELECT *
+        FROM qmd_runs
+        WHERE status = 'queued'
+        ORDER BY id DESC
+        LIMIT 1
+        """
+    ).fetchone()
+    latest_update = cursor.execute(
+        """
+        SELECT *
+        FROM qmd_runs
+        WHERE command = 'update' AND status = 'succeeded'
+        ORDER BY id DESC
+        LIMIT 1
+        """
+    ).fetchone()
+    latest_embed = cursor.execute(
+        """
+        SELECT *
+        FROM qmd_runs
+        WHERE command = 'embed' AND status = 'published'
+        ORDER BY id DESC
+        LIMIT 1
+        """
+    ).fetchone()
+    conn.close()
+
+    return {
+        "active": parse_qmd_run(active),
+        "queued": parse_qmd_run(queued),
+        "latest_update": parse_qmd_run(latest_update),
+        "latest_embed": parse_qmd_run(latest_embed),
+    }
+
+
+def create_qmd_run(
+    *,
+    command: str,
+    mode: str,
+    status: str,
+    requested_by: str,
+    target_host: Optional[str] = None,
+    summary: Optional[dict] = None,
+) -> dict:
+    ensure_qmd_runs_schema()
+    now = datetime.now().isoformat()
+    conn = get_knowledge_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        INSERT INTO qmd_runs (
+            command, mode, status, target_host, requested_by,
+            created_at, started_at, updated_at, summary_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            command,
+            mode,
+            status,
+            target_host,
+            requested_by,
+            now,
+            now if status in ("running",) else None,
+            now,
+            json.dumps(summary) if summary is not None else None,
+        ),
+    )
+    row_id = cursor.lastrowid
+    conn.commit()
+    row = cursor.execute("SELECT * FROM qmd_runs WHERE id = ?", (row_id,)).fetchone()
+    conn.close()
+    return parse_qmd_run(row) or {}
+
+
+def update_qmd_run(
+    run_id: int,
+    *,
+    status: str,
+    exit_code: Optional[int] = None,
+    summary: Optional[dict] = None,
+    stdout_excerpt: Optional[str] = None,
+    stderr_excerpt: Optional[str] = None,
+) -> dict:
+    ensure_qmd_runs_schema()
+    now = datetime.now().isoformat()
+    conn = get_knowledge_db()
+    cursor = conn.cursor()
+    current = cursor.execute("SELECT * FROM qmd_runs WHERE id = ?", (run_id,)).fetchone()
+    if current is None:
+        conn.close()
+        raise HTTPException(status_code=404, detail=f"QMD run not found: {run_id}")
+
+    finished_at = now if status in ("succeeded", "published", "failed", "superseded") else current["finished_at"]
+    cursor.execute(
+        """
+        UPDATE qmd_runs
+        SET status = ?,
+            updated_at = ?,
+            finished_at = ?,
+            exit_code = COALESCE(?, exit_code),
+            summary_json = COALESCE(?, summary_json),
+            stdout_excerpt = COALESCE(?, stdout_excerpt),
+            stderr_excerpt = COALESCE(?, stderr_excerpt)
+        WHERE id = ?
+        """,
+        (
+            status,
+            now,
+            finished_at,
+            exit_code,
+            json.dumps(summary) if summary is not None else None,
+            stdout_excerpt,
+            stderr_excerpt,
+            run_id,
+        ),
+    )
+    conn.commit()
+    row = cursor.execute("SELECT * FROM qmd_runs WHERE id = ?", (run_id,)).fetchone()
+    conn.close()
+    return parse_qmd_run(row) or {}
+
+
+def has_active_qmd_mutation() -> bool:
+    snapshot = get_qmd_job_snapshot()
+    return snapshot["active"] is not None
+
+
+def parse_qmd_update_output(stdout: str) -> dict:
+    collections = []
+    current = None
+    cleaned_hashes = 0
+
+    for raw_line in stdout.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+
+        header_match = re.match(r"^\[\d+/\d+\]\s+(.+?)\s+\((.+)\)$", line)
+        if header_match:
+            current = {
+                "name": header_match.group(1),
+                "pattern": header_match.group(2),
+            }
+            collections.append(current)
+            continue
+
+        collection_match = re.match(r"^Collection:\s+(.+?)\s+\((.+)\)$", line)
+        if collection_match and current is not None:
+            current["path"] = collection_match.group(1)
+            continue
+
+        indexed_match = re.match(
+            r"^Indexed:\s+(\d+)\s+new,\s+(\d+)\s+updated,\s+(\d+)\s+unchanged,\s+(\d+)\s+removed$",
+            line,
+        )
+        if indexed_match and current is not None:
+            current["new"] = int(indexed_match.group(1))
+            current["updated"] = int(indexed_match.group(2))
+            current["unchanged"] = int(indexed_match.group(3))
+            current["removed"] = int(indexed_match.group(4))
+            continue
+
+        cleanup_match = re.match(r"^Cleaned up\s+(\d+)\s+orphaned content hash", line)
+        if cleanup_match:
+            cleaned_hashes += int(cleanup_match.group(1))
+
+    return {
+        "collections": collections,
+        "cleaned_orphaned_hashes": cleaned_hashes,
+    }
+
+
+def load_qmd_collections_from_config() -> list[dict]:
+    if not QMD_CONFIG_PATH.exists():
+        return []
+
+    collections = []
+    current = None
+
+    for raw_line in QMD_CONFIG_PATH.read_text(encoding="utf-8").splitlines():
+        if not raw_line.strip() or raw_line.lstrip().startswith("#"):
+            continue
+
+        stripped = raw_line.strip()
+        if raw_line.startswith("  ") and not raw_line.startswith("    ") and stripped.endswith(":"):
+            name = stripped[:-1]
+            current = {"name": name}
+            collections.append(current)
+            continue
+
+        if current is None:
+            continue
+
+        if raw_line.startswith("    path:"):
+            current["path"] = stripped.split(":", 1)[1].strip()
+        elif raw_line.startswith("    pattern:"):
+            value = stripped.split(":", 1)[1].strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+                value = value[1:-1]
+            current["pattern"] = value
+        elif raw_line.startswith('      "":'):
+            value = stripped.split(":", 1)[1].strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+                value = value[1:-1]
+            current["context"] = value
+
+    return collections
+
+
+def get_qmd_status_payload() -> dict:
+    metrics = {
+        "active_documents": 0,
+        "active_hashes": 0,
+        "embedded_hashes": 0,
+        "pending_hashes": 0,
+        "vector_chunks": 0,
+    }
+    collections = []
+
+    config_collections = load_qmd_collections_from_config()
+    config_map = {item["name"]: item for item in config_collections}
+
+    index_info = {
+        "path": str(QMD_INDEX_PATH),
+        "exists": QMD_INDEX_PATH.exists(),
+        "size_bytes": QMD_INDEX_PATH.stat().st_size if QMD_INDEX_PATH.exists() else 0,
+        "modified_at": datetime.fromtimestamp(QMD_INDEX_PATH.stat().st_mtime).isoformat() if QMD_INDEX_PATH.exists() else None,
+        "config_path": str(QMD_CONFIG_PATH),
+        "config_exists": QMD_CONFIG_PATH.exists(),
+    }
+
+    if QMD_INDEX_PATH.exists():
+        conn = sqlite3.connect(QMD_INDEX_PATH)
+        cursor = conn.cursor()
+
+        metrics["active_documents"] = cursor.execute(
+            "SELECT COUNT(*) FROM documents WHERE active = 1"
+        ).fetchone()[0]
+        metrics["active_hashes"] = cursor.execute(
+            "SELECT COUNT(DISTINCT hash) FROM documents WHERE active = 1"
+        ).fetchone()[0]
+        metrics["embedded_hashes"] = cursor.execute(
+            """
+            SELECT COUNT(DISTINCT d.hash)
+            FROM documents d
+            WHERE d.active = 1
+              AND EXISTS (
+                SELECT 1
+                FROM content_vectors v
+                WHERE v.hash = d.hash
+              )
+            """
+        ).fetchone()[0]
+        metrics["pending_hashes"] = cursor.execute(
+            """
+            SELECT COUNT(*)
+            FROM (
+                SELECT DISTINCT hash
+                FROM documents
+                WHERE active = 1
+            ) active_hashes
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM content_vectors v
+                WHERE v.hash = active_hashes.hash
+            )
+            """
+        ).fetchone()[0]
+        metrics["vector_chunks"] = cursor.execute(
+            """
+            SELECT COUNT(*)
+            FROM content_vectors v
+            WHERE EXISTS (
+                SELECT 1
+                FROM documents d
+                WHERE d.active = 1
+                  AND d.hash = v.hash
+            )
+            """
+        ).fetchone()[0]
+
+        collection_rows = cursor.execute(
+            """
+            SELECT collection, COUNT(*) AS documents, MAX(modified_at) AS latest_modified_at
+            FROM documents
+            WHERE active = 1
+            GROUP BY collection
+            """
+        ).fetchall()
+        conn.close()
+
+        collection_counts = {
+            row[0]: {
+                "documents": row[1],
+                "latest_modified_at": row[2],
+            }
+            for row in collection_rows
+        }
+    else:
+        collection_counts = {}
+
+    for name, config in config_map.items():
+        row = collection_counts.get(name, {})
+        collections.append(
+            {
+                "name": name,
+                "path": config.get("path"),
+                "pattern": config.get("pattern"),
+                "context": config.get("context"),
+                "documents": row.get("documents", 0),
+                "latest_modified_at": row.get("latest_modified_at"),
+            }
+        )
+
+    for name, row in collection_counts.items():
+        if name not in config_map:
+            collections.append(
+                {
+                    "name": name,
+                    "path": None,
+                    "pattern": None,
+                    "context": None,
+                    "documents": row.get("documents", 0),
+                    "latest_modified_at": row.get("latest_modified_at"),
+                }
+            )
+
+    collections.sort(key=lambda item: item["name"])
+
+    return {
+        "index": index_info,
+        "metrics": metrics,
+        "collections": collections,
+        "jobs": get_qmd_job_snapshot(),
+    }
+
+
+def get_qmd_documents_payload(
+    *,
+    q: Optional[str] = None,
+    collection: Optional[str] = None,
+    embedded: str = "all",
+    limit: int = 50,
+    offset: int = 0,
+) -> dict:
+    if embedded not in {"all", "yes", "no"}:
+        raise HTTPException(status_code=400, detail="embedded must be one of: all, yes, no")
+
+    if not QMD_INDEX_PATH.exists():
+        return {"documents": [], "total": 0, "limit": limit, "offset": offset}
+
+    conditions = ["d.active = 1"]
+    params: list = []
+
+    if collection:
+        conditions.append("d.collection = ?")
+        params.append(collection)
+
+    if q:
+        like = f"%{q.lower()}%"
+        conditions.append("(LOWER(d.path) LIKE ? OR LOWER(d.title) LIKE ?)")
+        params.extend([like, like])
+
+    embedded_exists_sql = (
+        "EXISTS (SELECT 1 FROM content_vectors v WHERE v.hash = d.hash)"
+    )
+    if embedded == "yes":
+        conditions.append(embedded_exists_sql)
+    elif embedded == "no":
+        conditions.append(f"NOT {embedded_exists_sql}")
+
+    where_sql = " AND ".join(conditions)
+
+    conn = sqlite3.connect(QMD_INDEX_PATH)
+    conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.cursor()
+        total = cursor.execute(
+            f"""
+            SELECT COUNT(*)
+            FROM documents d
+            WHERE {where_sql}
+            """,
+            params,
+        ).fetchone()[0]
+
+        rows = cursor.execute(
+            f"""
+            SELECT
+                d.collection,
+                d.path,
+                d.title,
+                d.hash,
+                d.modified_at,
+                CASE WHEN {embedded_exists_sql} THEN 1 ELSE 0 END AS embedded,
+                (
+                    SELECT COUNT(*)
+                    FROM content_vectors v
+                    WHERE v.hash = d.hash
+                ) AS vector_chunks
+            FROM documents d
+            WHERE {where_sql}
+            ORDER BY datetime(d.modified_at) DESC, d.path ASC
+            LIMIT ? OFFSET ?
+            """,
+            [*params, limit, offset],
+        ).fetchall()
+    finally:
+        conn.close()
+
+    documents = []
+    for row in rows:
+        item = dict(row)
+        item["embedded"] = bool(item["embedded"])
+        documents.append(item)
+
+    return {
+        "documents": documents,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+    }
 
 
 def ensure_prompts_schema():
@@ -1236,19 +1780,11 @@ async def qmd_search_proxy(
 
     Shells out to `qmd search --json` and returns parsed JSON results.
     """
-    # Find qmd binary — check PATH first, then known fnm location
-    import shutil
-    qmd_bin = shutil.which("qmd")
-    if not qmd_bin:
-        # Windows fnm installs global packages here
-        candidate = Path(os.getenv("APPDATA", "")) / "fnm" / "node-versions" / "v22.15.1" / "installation" / "qmd.cmd"
-        if candidate.exists():
-            qmd_bin = str(candidate)
-
-    if not qmd_bin:
+    try:
+        cmd = get_qmd_command("search", q, "-n", str(limit), "--json")
+    except FileNotFoundError:
         raise HTTPException(status_code=503, detail="QMD not installed")
 
-    cmd = [qmd_bin, "search", q, "-n", str(limit), "--json"]
     if collection:
         cmd.extend(["--collection", collection])
 
@@ -1258,6 +1794,7 @@ async def qmd_search_proxy(
             capture_output=True,
             text=True,
             timeout=30,
+            env=get_qmd_env(),
         )
     except FileNotFoundError:
         raise HTTPException(status_code=503, detail="QMD not installed")
@@ -1273,6 +1810,110 @@ async def qmd_search_proxy(
         results = []
 
     return {"results": results, "query": q, "collection": collection}
+
+
+@app.get("/api/qmd/status")
+async def get_qmd_status():
+    """Return live QMD index health and shared job state."""
+    return get_qmd_status_payload()
+
+
+@app.get("/api/qmd/documents")
+async def get_qmd_documents(
+    q: Optional[str] = None,
+    collection: Optional[str] = None,
+    embedded: str = Query(default="all"),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+):
+    """Return per-document QMD embed status from the live canonical index."""
+    return get_qmd_documents_payload(
+        q=q,
+        collection=collection,
+        embedded=embedded,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@app.get("/api/qmd/runs")
+async def get_qmd_runs(limit: int = Query(default=20, ge=1, le=100)):
+    """Return recent QMD runs from the shared ledger."""
+    return {"runs": load_qmd_runs(limit=limit)}
+
+
+@app.post("/api/qmd/update")
+async def run_qmd_update():
+    """Run a serialized local QMD update and record it in the shared ledger."""
+    if has_active_qmd_mutation():
+        raise HTTPException(status_code=409, detail="Another QMD mutation is already active")
+
+    try:
+        cmd = get_qmd_command("update")
+    except FileNotFoundError:
+        raise HTTPException(status_code=503, detail="QMD not installed")
+
+    run = create_qmd_run(
+        command="update",
+        mode="local",
+        status="running",
+        requested_by="viewer",
+    )
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=600,
+            env=get_qmd_env(),
+        )
+    except subprocess.TimeoutExpired:
+        failed = update_qmd_run(
+            run["id"],
+            status="failed",
+            stdout_excerpt=None,
+            stderr_excerpt="QMD update timed out",
+        )
+        raise HTTPException(status_code=504, detail={"run": failed, "error": "QMD update timed out"})
+
+    summary = parse_qmd_update_output(result.stdout or "")
+    summary["command"] = cmd
+    summary["returncode"] = result.returncode
+
+    if result.returncode != 0:
+        failed = update_qmd_run(
+            run["id"],
+            status="failed",
+            exit_code=result.returncode,
+            summary=summary,
+            stdout_excerpt=(result.stdout or "")[-5000:],
+            stderr_excerpt=(result.stderr or "")[-2000:],
+        )
+        raise HTTPException(status_code=500, detail={"run": failed, "error": (result.stderr or "").strip() or "QMD update failed"})
+
+    succeeded = update_qmd_run(
+        run["id"],
+        status="succeeded",
+        exit_code=0,
+        summary=summary,
+        stdout_excerpt=(result.stdout or "")[-5000:],
+        stderr_excerpt=(result.stderr or "")[-2000:],
+    )
+    return {"run": succeeded, "status": get_qmd_status_payload()}
+
+
+@app.post("/api/qmd/embed")
+async def queue_qmd_embed():
+    """Queue one remote QMD embed job against the shared bhaclaw handoff."""
+    active = get_qmd_job_snapshot()["active"]
+    if active and active.get("command") == "update":
+        raise HTTPException(status_code=409, detail="Cannot queue embed while a local QMD update is active")
+    if qmd_queue is None:
+        raise HTTPException(status_code=503, detail="Shared QMD queue not available")
+
+    run = qmd_queue.enqueue_embed_job(db_path=KNOWLEDGE_DB, requested_by="viewer")
+    return {"run": parse_qmd_run(run), "status": get_qmd_status_payload()}
 
 
 # =============================================================================
@@ -1954,6 +2595,23 @@ async def list_deleted_prompts(
     prompts = rows_to_list(cursor.fetchall())
     conn.close()
     return prompts
+
+
+@app.get("/api/prompt-projects")
+async def list_prompt_projects():
+    """List distinct project values present in prompts.db."""
+    conn = get_prompts_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT DISTINCT project
+        FROM prompts
+        WHERE project IS NOT NULL
+          AND TRIM(project) != ''
+        ORDER BY LOWER(project), project
+    """)
+    projects = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    return projects
 
 
 @app.get("/api/prompts/prune-candidates")
@@ -2901,6 +3559,7 @@ def _resolve_project(project: str):
         "progress_file": project_dir / "tests" / "e2e" / "verify-progress.json",
         "manual_qa_file": project_dir / "tests" / "e2e" / "manual-qa.json",
         "findings_images_dir": project_dir / "demos" / "images" / "findings",
+        "scenario_images_dir": project_dir / "demos" / "images" / "scenarios",
         "demos_dir": project_dir / "demos" / "images",
         "prev_dir": project_dir / "demos" / "images" / "_previous",
     }
@@ -3153,6 +3812,7 @@ async def qa_coverage_detail(event_id: str, project: str = Query(...)):
             scenario["manual_status"] = ms.get("manual_status", "untested")
             scenario["manual_notes"] = ms.get("notes")
             scenario["manual_findings"] = ms.get("findings", [])
+            scenario["manual_screenshots"] = ms.get("screenshots", [])
             scenario["manual_tested_at"] = ms.get("tested_at")
 
     # Manual summary for this event
@@ -3190,6 +3850,16 @@ async def qa_coverage_detail(event_id: str, project: str = Query(...)):
         "plan": plan,
         "manual_summary": manual_summary,
     }
+
+
+def _screenshot_url(project: str, version: str, filename: str, base_dir: Path) -> str:
+    """Build screenshot URL with mtime cache-buster."""
+    url = f"/api/qa/screenshots/{project}/{version}/{filename}"
+    file_path = base_dir / filename
+    if file_path.exists():
+        mtime = int(file_path.stat().st_mtime)
+        url += f"?v={mtime}"
+    return url
 
 
 @app.get("/api/qa/gallery")
@@ -3240,8 +3910,8 @@ async def qa_gallery(
             "source_file": n.get("source_file", ""),
             "has_screenshot": has_current,
             "has_previous": has_previous,
-            "screenshot_url": f"/api/qa/screenshots/{project}/current/{screenshot_name}" if has_current else None,
-            "previous_url": f"/api/qa/screenshots/{project}/previous/{screenshot_name}" if has_previous else None,
+            "screenshot_url": _screenshot_url(project, "current", screenshot_name, demos_dir) if has_current else None,
+            "previous_url": _screenshot_url(project, "previous", screenshot_name, prev_dir) if has_previous else None,
         }
 
         # Detect variants (files matching {id}_{suffix}.png but NOT other node IDs)
@@ -3262,8 +3932,8 @@ async def qa_gallery(
                     prev_exists = (prev_dir / img_file.name).exists() if prev_dir and prev_dir.exists() else False
                     variants.append({
                         "suffix": suffix,
-                        "screenshot_url": f"/api/qa/screenshots/{project}/current/{img_file.name}",
-                        "previous_url": f"/api/qa/screenshots/{project}/previous/{img_file.name}" if prev_exists else None,
+                        "screenshot_url": _screenshot_url(project, "current", img_file.name, demos_dir),
+                        "previous_url": _screenshot_url(project, "previous", img_file.name, prev_dir) if prev_exists else None,
                     })
         entry["variants"] = variants
 
@@ -3292,9 +3962,11 @@ async def qa_gallery(
                                     p_prev_exists = (prev_dir / img_file.name).exists() if prev_dir and prev_dir.exists() else False
                                     p_variants.append({
                                         "suffix": p_suffix,
-                                        "screenshot_url": f"/api/qa/screenshots/{project}/current/{img_file.name}",
-                                        "previous_url": f"/api/qa/screenshots/{project}/previous/{img_file.name}" if p_prev_exists else None,
+                                        "screenshot_url": _screenshot_url(project, "current", img_file.name, demos_dir),
+                                        "previous_url": _screenshot_url(project, "previous", img_file.name, prev_dir) if p_prev_exists else None,
                                     })
+                        p_has_current = (demos_dir / p_name).exists() if demos_dir.exists() else False
+                        p_has_previous = (prev_dir / p_name).exists() if prev_dir and prev_dir.exists() else False
                         viewers[parent] = {
                             "id": parent,
                             "name": parent_node["name"],
@@ -3303,10 +3975,10 @@ async def qa_gallery(
                             "group": parent_node.get("group", ""),
                             "description": parent_node.get("description", ""),
                             "source_file": parent_node.get("source_file", ""),
-                            "has_screenshot": (demos_dir / p_name).exists() if demos_dir.exists() else False,
-                            "has_previous": (prev_dir / p_name).exists() if prev_dir and prev_dir.exists() else False,
-                            "screenshot_url": f"/api/qa/screenshots/{project}/current/{p_name}" if (demos_dir / p_name).exists() else None,
-                            "previous_url": f"/api/qa/screenshots/{project}/previous/{p_name}" if prev_dir and (prev_dir / p_name).exists() else None,
+                            "has_screenshot": p_has_current,
+                            "has_previous": p_has_previous,
+                            "screenshot_url": _screenshot_url(project, "current", p_name, demos_dir) if p_has_current else None,
+                            "previous_url": _screenshot_url(project, "previous", p_name, prev_dir) if p_has_previous else None,
                             "variants": p_variants,
                         }
 
@@ -3396,7 +4068,11 @@ async def qa_serve_screenshot(project: str, version: str, filename: str):
     except ValueError:
         raise HTTPException(status_code=403, detail="Access denied")
 
-    return FileResponse(file_path, media_type="image/png")
+    return FileResponse(
+        file_path,
+        media_type="image/png",
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @app.get("/api/qa/monitor")
@@ -3694,6 +4370,14 @@ async def qa_save_manual(project: str = Query(...), body: dict = Body(...)):
             if sid not in scenarios:
                 scenarios[sid] = {"manual_status": "n/a"}
 
+    # Preserve scenario-level screenshots (managed by upload/delete endpoints)
+    existing_event = data.get("events", {}).get(event_id, {})
+    existing_scenarios = existing_event.get("scenarios", {})
+    for sid, sc_data in scenarios.items():
+        existing_sc = existing_scenarios.get(sid, {})
+        if "screenshots" in existing_sc and "screenshots" not in sc_data:
+            sc_data["screenshots"] = existing_sc["screenshots"]
+
     # Merge this event into the file
     now = datetime.now().isoformat()
     data["events"][event_id] = {
@@ -3906,6 +4590,120 @@ async def qa_paste_screenshot(
         f.write(content)
 
     return {"filename": filename, "path": str(dest)}
+
+
+# --- Scenario-level screenshots (context captures, not finding evidence) ---
+
+@app.post("/api/qa/scenario/screenshot")
+async def qa_upload_scenario_screenshot(
+    project: str = Query(...),
+    event_id: str = Query(...),
+    scenario_id: str = Query(...),
+    file: UploadFile = File(...),
+):
+    """Upload a context screenshot for a specific scenario."""
+    paths = _resolve_project(project)
+    scenario_dir = paths["scenario_images_dir"] / event_id
+    scenario_dir.mkdir(parents=True, exist_ok=True)
+
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail=f"File type must be one of: {ALLOWED_IMAGE_TYPES}")
+
+    contents = await file.read()
+    if len(contents) > MAX_SCREENSHOT_SIZE:
+        raise HTTPException(status_code=413, detail=f"File too large. Max {MAX_SCREENSHOT_SIZE // (1024*1024)}MB")
+
+    ext_map = {"image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp"}
+    ext = ext_map.get(file.content_type, ".png")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{scenario_id}_{timestamp}{ext}"
+    file_path = scenario_dir / filename
+
+    # Security: ensure path is within project
+    try:
+        file_path.resolve().relative_to(paths["dir"].resolve())
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Path traversal detected")
+
+    with open(file_path, "wb") as f:
+        f.write(contents)
+
+    # Auto-register in manual-qa.json
+    manual_file = paths["manual_qa_file"]
+    data = _load_json(manual_file) or {"project": project, "events": {}}
+    if event_id not in data["events"]:
+        data["events"][event_id] = {"tested_at": datetime.now().isoformat(), "scenarios": {}}
+    event_data = data["events"][event_id]
+    if scenario_id not in event_data["scenarios"]:
+        event_data["scenarios"][scenario_id] = {"manual_status": "untested"}
+    sc = event_data["scenarios"][scenario_id]
+    if "screenshots" not in sc:
+        sc["screenshots"] = []
+    sc["screenshots"].append(filename)
+    data["updated_at"] = datetime.now().isoformat()
+    with open(manual_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    serve_url = f"/api/qa/scenario/screenshot/{project}/{event_id}/{filename}"
+    return {"filename": filename, "url": serve_url, "event_id": event_id, "scenario_id": scenario_id}
+
+
+@app.get("/api/qa/scenario/screenshot/{project}/{event_id}/{filename}")
+async def qa_serve_scenario_screenshot(project: str, event_id: str, filename: str):
+    """Serve a scenario context screenshot."""
+    paths = _resolve_project(project)
+    file_path = paths["scenario_images_dir"] / event_id / filename
+
+    try:
+        file_path.resolve().relative_to(paths["dir"].resolve())
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Path traversal detected")
+
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail=f"Screenshot not found: {filename}")
+
+    media_type = "image/png"
+    if filename.endswith(".jpg") or filename.endswith(".jpeg"):
+        media_type = "image/jpeg"
+    elif filename.endswith(".webp"):
+        media_type = "image/webp"
+
+    return FileResponse(str(file_path), media_type=media_type, headers={"Cache-Control": "no-store"})
+
+
+@app.delete("/api/qa/scenario/screenshot")
+async def qa_delete_scenario_screenshot(
+    project: str = Query(...),
+    event_id: str = Query(...),
+    scenario_id: str = Query(...),
+    filename: str = Query(...),
+):
+    """Delete a scenario context screenshot."""
+    paths = _resolve_project(project)
+    file_path = paths["scenario_images_dir"] / event_id / filename
+
+    try:
+        file_path.resolve().relative_to(paths["dir"].resolve())
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Path traversal detected")
+
+    if file_path.exists():
+        file_path.unlink()
+
+    # Remove from manual-qa.json
+    manual_file = paths["manual_qa_file"]
+    data = _load_json(manual_file)
+    if data:
+        sc = data.get("events", {}).get(event_id, {}).get("scenarios", {}).get(scenario_id, {})
+        if "screenshots" in sc and filename in sc["screenshots"]:
+            sc["screenshots"].remove(filename)
+            if not sc["screenshots"]:
+                del sc["screenshots"]
+            data["updated_at"] = datetime.now().isoformat()
+            with open(manual_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+
+    return {"deleted": True, "filename": filename}
 
 
 @app.on_event("startup")
