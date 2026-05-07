@@ -4737,6 +4737,12 @@
         if (!res.ok) throw new Error(data?.detail?.error || data?.detail || `API error: ${res.status}`);
         return data;
       },
+      runQmdUnstick: async () => {
+        const res = await fetch('/api/qmd/unstick', { method: 'POST' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data?.detail?.error || data?.detail || `API error: ${res.status}`);
+        return data;
+      },
 
       // Tags
       getTags: () => API.fetch('/tags'),
@@ -4880,7 +4886,59 @@
         }, { new: 0, updated: 0, removed: 0 });
         return `${totals.new} new · ${totals.updated} updated · ${totals.removed} removed`;
       }
+      if (run.status === 'failed' && run.summary?.error) {
+        return run.summary.error;
+      }
       return `${run.target_host || 'bhaclaw'} · ${run.status}`;
+    }
+
+    function getLatestQmdRun(command) {
+      return (state.qmdRuns || []).find(run => run.command === command) || null;
+    }
+
+    function minutesSince(dateStr) {
+      if (!dateStr) return null;
+      const d = new Date(dateStr);
+      if (Number.isNaN(d.getTime())) return null;
+      return Math.floor((Date.now() - d.getTime()) / 60000);
+    }
+
+    function getQmdUnstickState(status) {
+      const jobs = status?.jobs || {};
+      const activeJob = jobs.active;
+      const queuedJob = jobs.queued;
+
+      if (activeJob) {
+        const ageMins = minutesSince(activeJob.updated_at || activeJob.started_at || activeJob.created_at);
+        if (ageMins !== null && ageMins >= 15) {
+          return {
+            kind: 'stale-active',
+            message: `Active ${activeJob.command} job has been ${activeJob.status} for ${formatRelativeDate(activeJob.updated_at || activeJob.started_at || activeJob.created_at)} without a new transition. Use Unstick QMD to fail the stale job and let the queue move again.`
+          };
+        }
+      }
+
+      if (!activeJob && queuedJob) {
+        const ageMins = minutesSince(queuedJob.created_at || queuedJob.updated_at);
+        if (ageMins !== null && ageMins >= 2) {
+          return {
+            kind: 'queued-waiting',
+            message: `A queued embed has been waiting ${formatRelativeDate(queuedJob.created_at || queuedJob.updated_at)} without starting. Use Unstick QMD to nudge the queue manager.`
+          };
+        }
+      }
+
+      return null;
+    }
+
+    function summarizeQmdUnstickActions(actions = []) {
+      if (!actions.length) return 'No queue changes were needed.';
+      return actions.map(step => {
+        const action = step.action || 'unknown';
+        const job = step.job;
+        if (!job) return action;
+        return `${action}: job ${job.id} ${job.status}`;
+      }).join(' · ');
     }
 
     async function loadQmdStatus() {
@@ -5118,6 +5176,16 @@
       const activeJob = jobs.active;
       const queuedJob = jobs.queued;
       const busy = !!activeJob || !!state.qmdActionInFlight;
+      const latestEmbedRun = getLatestQmdRun('embed');
+      const unstickState = getQmdUnstickState(status);
+      const embedButtonLabel = latestEmbedRun?.status === 'failed' && !activeJob && !queuedJob
+        ? 'Retry embed'
+        : 'Run embed';
+      const embedHelp = latestEmbedRun?.status === 'failed'
+        ? `Latest embed failed ${formatRelativeDate(latestEmbedRun.updated_at || latestEmbedRun.created_at)}: ${summarizeQmdRun(latestEmbedRun)}`
+        : (metrics.pending_hashes > 0 && !activeJob && !queuedJob)
+          ? 'Embeddings are pending, but nothing is stuck. Use Run embed.'
+          : 'Remote embed state refreshes every 5s while the QMD view is open.';
 
       content.innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
@@ -5133,10 +5201,25 @@
               ${state.qmdActionInFlight === 'update' ? 'Updating…' : 'Run update'}
             </button>
             <button onclick="triggerQmdEmbed()" ${(busy || queuedJob) ? 'disabled' : ''} style="padding:8px 14px;border-radius:8px;border:1px solid var(--accent-camel);background:transparent;color:var(--accent-camel);cursor:pointer;">
-              ${state.qmdActionInFlight === 'embed' ? 'Queueing…' : 'Run embed'}
+              ${state.qmdActionInFlight === 'embed' ? 'Queueing…' : embedButtonLabel}
             </button>
+            ${unstickState ? `
+              <button onclick="triggerQmdUnstick()" ${state.qmdActionInFlight ? 'disabled' : ''} style="padding:8px 14px;border-radius:8px;border:1px solid var(--status-warning,#c97a2b);background:rgba(201,122,43,0.1);color:var(--status-warning,#c97a2b);cursor:pointer;">
+                ${state.qmdActionInFlight === 'unstick' ? 'Unsticking…' : 'Unstick QMD'}
+              </button>
+            ` : ''}
           </div>
         </div>
+        <div style="font-size:12px;color:var(--text-tertiary);margin:-8px 0 20px;max-width:780px;line-height:1.55;">
+          <span class="mono">Run update</span> reindexes the local QMD index on this machine.
+          <span class="mono">Run embed</span> sends that index to <span class="mono">bhaclaw</span> for remote embedding.
+          ${latestEmbedRun ? `<br>${escapeHtml(embedHelp)}` : ''}
+        </div>
+        ${unstickState ? `
+          <div style="margin:-4px 0 20px;padding:12px 14px;border-radius:10px;border:1px solid rgba(201,122,43,0.35);background:rgba(201,122,43,0.08);color:var(--text-secondary);font-size:13px;line-height:1.5;">
+            ${escapeHtml(unstickState.message)}
+          </div>
+        ` : ''}
 
         <div class="stats-grid" style="margin-bottom:20px;">
           <div class="stat-card">
@@ -5244,6 +5327,25 @@
       } catch (err) {
         console.error('QMD embed queue failed:', err);
         showToast(`QMD embed failed: ${err.message || err}`, 'error');
+      } finally {
+        state.qmdActionInFlight = null;
+        await loadQmdView();
+        renderQmd();
+      }
+    }
+
+    async function triggerQmdUnstick() {
+      if (state.qmdActionInFlight) return;
+      state.qmdActionInFlight = 'unstick';
+      renderQmd();
+      try {
+        const data = await API.runQmdUnstick();
+        state.qmdStatus = data.status;
+        state.qmdRuns = data.runs || state.qmdRuns;
+        showToast(`QMD queue checked: ${summarizeQmdUnstickActions(data.actions)}`, 'success');
+      } catch (err) {
+        console.error('QMD unstick failed:', err);
+        showToast(`QMD unstick failed: ${err.message || err}`, 'error');
       } finally {
         state.qmdActionInFlight = null;
         await loadQmdView();

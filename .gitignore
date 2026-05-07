@@ -52,6 +52,9 @@ specs/
 *.log
 logs/
 
+# Local demos and screenshots
+demos/
+
 # Canonical specs live in the private dev-specs repo
 specs/
 *-home.md

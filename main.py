@@ -56,6 +56,7 @@ QMD_CACHE_HOME = QMD_HOME / ".cache"
 QMD_INDEX_PATH = QMD_CACHE_HOME / "qmd" / "index.sqlite"
 QMD_CONFIG_PATH = QMD_HOME / ".config" / "qmd" / "index.yml"
 CLAUDE_WORKFLOW_SCRIPTS = DEV_ROOT / "claude-workflow-system" / "scripts"
+QMD_EMBED_MANAGER = CLAUDE_WORKFLOW_SCRIPTS / "qmd-embed-manager.py"
 
 if CLAUDE_WORKFLOW_SCRIPTS.exists():
     sys.path.insert(0, str(CLAUDE_WORKFLOW_SCRIPTS))
@@ -303,6 +304,31 @@ def update_qmd_run(
 def has_active_qmd_mutation() -> bool:
     snapshot = get_qmd_job_snapshot()
     return snapshot["active"] is not None
+
+
+def run_qmd_embed_manager_tick() -> dict:
+    if not QMD_EMBED_MANAGER.exists():
+        raise FileNotFoundError(f"QMD embed manager not found: {QMD_EMBED_MANAGER}")
+
+    result = subprocess.run(
+        [sys.executable, str(QMD_EMBED_MANAGER), "tick"],
+        capture_output=True,
+        text=True,
+        timeout=90,
+    )
+    if result.returncode != 0:
+        message = (result.stderr or result.stdout or "").strip() or "QMD embed manager tick failed"
+        raise RuntimeError(message)
+
+    try:
+        payload = json.loads((result.stdout or "").strip() or "{}")
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"QMD embed manager returned invalid JSON: {exc}") from exc
+
+    job = payload.get("job")
+    if isinstance(job, dict):
+        payload["job"] = parse_qmd_run(job) or job
+    return payload
 
 
 def parse_qmd_update_output(stdout: str) -> dict:
@@ -1914,6 +1940,31 @@ async def queue_qmd_embed():
 
     run = qmd_queue.enqueue_embed_job(db_path=KNOWLEDGE_DB, requested_by="viewer")
     return {"run": parse_qmd_run(run), "status": get_qmd_status_payload()}
+
+
+@app.post("/api/qmd/unstick")
+async def unstick_qmd_embed_queue():
+    """Advance or recover the shared QMD embed queue until it reaches a stable state."""
+    actions = []
+    try:
+        for _ in range(3):
+            step = run_qmd_embed_manager_tick()
+            actions.append(step)
+            action = step.get("action")
+            if action in {"idle", "waiting", "launched"}:
+                break
+    except FileNotFoundError:
+        raise HTTPException(status_code=503, detail="QMD embed manager not available")
+    except subprocess.TimeoutExpired:
+        raise HTTPException(status_code=504, detail="QMD unstick timed out")
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    return {
+        "actions": actions,
+        "status": get_qmd_status_payload(),
+        "runs": load_qmd_runs(limit=20),
+    }
 
 
 # =============================================================================
